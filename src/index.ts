@@ -71,3 +71,6 @@ export { buildNDCToZConst } from "./utils/matrices";
 
 // Mesh
 export { createQuad } from "./mesh/quad";
+
+// Shaders
+export { shaders } from "./shaders/index";
