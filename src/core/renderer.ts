@@ -18,9 +18,14 @@ const defaultOptions: Required<RendererOptions> = {
 export function createRenderer(options: RendererOptions = {}): RendererInfo {
   const opts = { ...defaultOptions, ...options };
 
-  const canvas = document.createElement("canvas");
+  // Use provided canvas or create a new one
+  const canvas = opts.canvas || document.createElement("canvas");
   canvas.style.imageRendering = opts.imageRendering;
-  document.body.appendChild(canvas);
+  
+  // Only append to document.body if it's a newly created canvas
+  if (!opts.canvas) {
+    document.body.appendChild(canvas);
+  }
 
   const renderer = new THREE.WebGLRenderer({
     canvas,

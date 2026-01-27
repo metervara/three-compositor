@@ -72,6 +72,7 @@ export interface RendererInfo {
 }
 
 export interface RendererOptions {
+  canvas?: HTMLCanvasElement;
   dpi?: number;
   scale?: number;
   antialias?: boolean;

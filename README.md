@@ -64,6 +64,30 @@ export const update = (time: number) => {
 
 `runExperiment` calls `createRenderer`, `setupInputs`, `setupResize`, then your `init`, and starts the loop calling your `update` every frame.
 
+### Using a pre-existing canvas
+
+If you have a canvas element already in your HTML, you can pass it to the config:
+
+```html
+<!-- index.html -->
+<canvas id="my-canvas"></canvas>
+<script type="module">
+  import { runExperiment } from "@metervara/three-compositor";
+  import * as EXP from "./index.ts";
+  
+  const canvas = document.getElementById('my-canvas');
+  runExperiment({
+    ...EXP,
+    config: {
+      ...EXP.config,
+      canvas: canvas
+    }
+  });
+</script>
+```
+
+When a canvas is provided, the library will use it instead of creating a new one. The canvas must already be in the DOM.
+
 ## Global uniforms
 
 `globalUniforms` is a shared uniform object updated automatically by `setupInputs` and `setupResize`. Spread it into any material's uniforms to get these values in your shaders:
@@ -182,6 +206,7 @@ Order-independent transparency for particle rendering.
 
 ```typescript
 export const config: RendererOptions = {
+  canvas: undefined,       // optional: use existing HTMLCanvasElement
   dpi: 1,                  // pixel ratio (default: 1)
   scale: 1,                // resolution scale (default: 1)
   antialias: true,         // WebGL antialias (default: true)
