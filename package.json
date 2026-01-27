@@ -13,7 +13,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src/shaders"
   ],
   "scripts": {
     "build": "vite build",
