@@ -707,8 +707,8 @@ const de = {
   useOrbit: !1
 };
 function me(o = {}) {
-  const e = { ...de, ...o }, n = document.createElement("canvas");
-  n.style.imageRendering = e.imageRendering, document.body.appendChild(n);
+  const e = { ...de, ...o }, n = e.canvas || document.createElement("canvas");
+  n.style.imageRendering = e.imageRendering, e.canvas || document.body.appendChild(n);
   const t = new s.WebGLRenderer({
     canvas: n,
     antialias: e.antialias

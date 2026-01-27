@@ -352,6 +352,7 @@ export declare interface RendererInfo {
 }
 
 export declare interface RendererOptions {
+    canvas?: HTMLCanvasElement;
     dpi?: number;
     scale?: number;
     antialias?: boolean;
