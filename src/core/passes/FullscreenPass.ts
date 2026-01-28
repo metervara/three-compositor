@@ -1,15 +1,28 @@
-import * as THREE from "three";
+import {
+  Scene,
+  OrthographicCamera,
+  WebGLRenderTarget,
+  ShaderMaterial,
+  Vector4,
+  Color,
+  LinearFilter,
+  ClampToEdgeWrapping,
+  RGBAFormat,
+  FloatType,
+  NoBlending,
+} from "three";
+import type { WebGLRenderer, Texture } from "three";
 import { createQuad } from "../../mesh/quad";
 import { blit } from "../../utils/blit";
 import type { Pass, PassOptions, RendererInfo } from "../../types";
 
 export class FullscreenPass implements Pass {
-  private scene!: THREE.Scene;
-  private camera!: THREE.OrthographicCamera;
+  private scene!: Scene;
+  private camera!: OrthographicCamera;
 
-  public outputTarget: THREE.WebGLRenderTarget | null = null;
+  public outputTarget: WebGLRenderTarget | null = null;
 
-  private material!: THREE.ShaderMaterial;
+  private material!: ShaderMaterial;
 
   public opts: PassOptions;
 
@@ -37,13 +50,13 @@ export class FullscreenPass implements Pass {
       this.outputTarget = outputTarget;
     } else if (rtSize) {
       const { width, height } = rtSize;
-      this.outputTarget = new THREE.WebGLRenderTarget(width, height, {
-        minFilter: THREE.LinearFilter,
-        magFilter: THREE.LinearFilter,
-        wrapS: THREE.ClampToEdgeWrapping,
-        wrapT: THREE.ClampToEdgeWrapping,
-        format: THREE.RGBAFormat,
-        type: THREE.FloatType,
+      this.outputTarget = new WebGLRenderTarget(width, height, {
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        wrapS: ClampToEdgeWrapping,
+        wrapT: ClampToEdgeWrapping,
+        format: RGBAFormat,
+        type: FloatType,
         depthBuffer: false,
         stencilBuffer: false,
       });
@@ -51,13 +64,13 @@ export class FullscreenPass implements Pass {
       this.outputTarget = null;
     }
 
-    this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    this.camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-    this.scene = new THREE.Scene();
+    this.scene = new Scene();
     const mesh = createQuad(materialOptions);
-    this.material = mesh.material as THREE.ShaderMaterial;
-    if (this.material && this.material.blending !== THREE.NoBlending) {
-      this.material.blending = THREE.NoBlending;
+    this.material = mesh.material as ShaderMaterial;
+    if (this.material && this.material.blending !== NoBlending) {
+      this.material.blending = NoBlending;
       this.material.transparent = false;
       this.material.depthWrite = false;
       this.material.depthTest = false;
@@ -80,7 +93,7 @@ export class FullscreenPass implements Pass {
 
   update(time: number) {}
 
-  render(renderer: THREE.WebGLRenderer) {
+  render(renderer: WebGLRenderer) {
     const {
       clearColor = true,
       clearDepth = false,
@@ -92,21 +105,21 @@ export class FullscreenPass implements Pass {
 
     renderer.setRenderTarget(this.outputTarget);
 
-    let originalViewport: THREE.Vector4 | null = null;
+    let originalViewport: Vector4 | null = null;
     if (viewport && !this.outputTarget) {
-      originalViewport = new THREE.Vector4();
+      originalViewport = new Vector4();
       renderer.getViewport(originalViewport);
       renderer.setViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
 
-    let prevColor: THREE.Color | null = null;
+    let prevColor: Color | null = null;
     let prevAlpha: number | null = null;
     if (clearColor && (clearColorValue !== undefined || clearAlpha !== undefined)) {
-      prevColor = new THREE.Color();
+      prevColor = new Color();
       renderer.getClearColor(prevColor);
       prevAlpha = (renderer as any).getClearAlpha ? (renderer as any).getClearAlpha() : 1.0;
       if (clearColorValue !== undefined) {
-        const color = clearColorValue instanceof THREE.Color ? clearColorValue : new THREE.Color(clearColorValue as any);
+        const color = clearColorValue instanceof Color ? clearColorValue : new Color(clearColorValue as any);
         renderer.setClearColor(color, clearAlpha !== undefined ? clearAlpha : (prevAlpha ?? 1.0));
       } else if (clearAlpha !== undefined && prevColor) {
         renderer.setClearColor(prevColor, clearAlpha);
@@ -126,7 +139,7 @@ export class FullscreenPass implements Pass {
     }
   }
 
-  get texture(): THREE.Texture | null {
+  get texture(): Texture | null {
     return this.outputTarget ? this.outputTarget.texture : null;
   }
 
@@ -145,13 +158,13 @@ export class FullscreenPass implements Pass {
     if (this.outputTarget && this.opts.rtSize) {
       this.outputTarget.dispose();
 
-      this.outputTarget = new THREE.WebGLRenderTarget(width, height, {
-        minFilter: THREE.LinearFilter,
-        magFilter: THREE.LinearFilter,
-        wrapS: THREE.ClampToEdgeWrapping,
-        wrapT: THREE.ClampToEdgeWrapping,
-        format: THREE.RGBAFormat,
-        type: THREE.FloatType,
+      this.outputTarget = new WebGLRenderTarget(width, height, {
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        wrapS: ClampToEdgeWrapping,
+        wrapT: ClampToEdgeWrapping,
+        format: RGBAFormat,
+        type: FloatType,
         depthBuffer: false,
         stencilBuffer: false,
       });

@@ -1,4 +1,5 @@
-import * as THREE from "three";
+import type { WebGLRenderer, Texture, WebGLRenderTarget, RenderTargetOptions } from "three";
+import { Vector2 } from "three";
 import { PingPongBuffer } from "../utils/PingPongBuffer";
 import { blit } from "../utils/blit";
 import type { Pass } from "../types";
@@ -6,12 +7,12 @@ import type { Pass } from "../types";
 export class Compositor {
   private passes: Pass[] = [];
   private pingPongBuffers = new Map<string, PingPongBuffer>();
-  private renderer: THREE.WebGLRenderer;
-  private textureRegistry = new Map<string, THREE.Texture>();
+  private renderer: WebGLRenderer;
+  private textureRegistry = new Map<string, Texture>();
   private passRegistry = new Map<string, Pass>();
   private pingPongPassMapping = new Map<string, string>();
 
-  constructor(renderer: THREE.WebGLRenderer) {
+  constructor(renderer: WebGLRenderer) {
     this.renderer = renderer;
 
     (window as any).__compositor = this;
@@ -34,16 +35,16 @@ export class Compositor {
     return this.passRegistry.get(name);
   }
 
-  getTexture(name: string): THREE.Texture | undefined {
+  getTexture(name: string): Texture | undefined {
     return this.textureRegistry.get(name);
   }
 
-  registerTexture(name: string, texture: THREE.Texture): Compositor {
+  registerTexture(name: string, texture: Texture): Compositor {
     this.textureRegistry.set(name, texture);
     return this;
   }
 
-  createPingPong(name: string, width: number, height: number, options?: Partial<THREE.RenderTargetOptions>): PingPongBuffer {
+  createPingPong(name: string, width: number, height: number, options?: Partial<RenderTargetOptions>): PingPongBuffer {
     const pingPong = new PingPongBuffer(width, height, options);
     this.pingPongBuffers.set(name, pingPong);
 
@@ -112,7 +113,7 @@ export class Compositor {
   }
 
   renderToScreen(viewport?: { x: number; y: number; width: number; height: number }): Compositor {
-    const size = new THREE.Vector2();
+    const size = new Vector2();
     this.renderer.getSize(size);
 
     if (viewport) {
@@ -129,12 +130,12 @@ export class Compositor {
     return this;
   }
 
-  blit(source: THREE.Texture, target: THREE.WebGLRenderTarget): Compositor {
+  blit(source: Texture, target: WebGLRenderTarget): Compositor {
     blit(this.renderer, source, target);
     return this;
   }
 
-  execute(operation: (renderer: THREE.WebGLRenderer) => void): Compositor {
+  execute(operation: (renderer: WebGLRenderer) => void): Compositor {
     operation(this.renderer);
     return this;
   }
@@ -251,7 +252,7 @@ export class Compositor {
     } else if (pass.opts.outputTarget) {
       details.push('custom render-target');
     } else {
-      const size = new THREE.Vector2();
+      const size = new Vector2();
       this.renderer.getSize(size);
       details.push(`screen (${size.x}x${size.y})`);
     }
@@ -276,7 +277,7 @@ export class Compositor {
     return details.join(', ');
   }
 
-  updatePingPongPass(passName: string, pingPongName: string, inputUniform: string, outputTarget?: THREE.WebGLRenderTarget): Compositor {
+  updatePingPongPass(passName: string, pingPongName: string, inputUniform: string, outputTarget?: WebGLRenderTarget): Compositor {
     const pass = this.getPass(passName);
     const pingPong = this.getPingPong(pingPongName);
 
@@ -321,7 +322,7 @@ export class Compositor {
           width = pass.opts.viewport.width;
           height = pass.opts.viewport.height;
         } else {
-          const size = new THREE.Vector2();
+          const size = new Vector2();
           this.renderer.getSize(size);
           width = size.x;
           height = size.y;
@@ -334,7 +335,7 @@ export class Compositor {
           width = pass.opts.viewport.width;
           height = pass.opts.viewport.height;
         } else {
-          const size = new THREE.Vector2();
+          const size = new Vector2();
           this.renderer.getSize(size);
           width = size.x;
           height = size.y;

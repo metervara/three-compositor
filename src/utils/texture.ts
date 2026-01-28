@@ -1,4 +1,11 @@
-import * as THREE from "three";
+import {
+  DataTexture,
+  RGBAFormat,
+  FloatType,
+  NearestFilter,
+  RepeatWrapping,
+} from "three";
+import type { TextureFilter, MagnificationTextureFilter, Wrapping } from "three";
 import type { PixelGenerator } from "../types";
 
 export function createDataTexture(
@@ -6,12 +13,12 @@ export function createDataTexture(
   height: number,
   generator: PixelGenerator,
   params?: {
-    minFilter?: THREE.TextureFilter;
-    magFilter?: THREE.MagnificationTextureFilter;
-    wrapS?: THREE.Wrapping;
-    wrapT?: THREE.Wrapping;
+    minFilter?: TextureFilter;
+    magFilter?: MagnificationTextureFilter;
+    wrapS?: Wrapping;
+    wrapT?: Wrapping;
   }
-): THREE.DataTexture {
+): DataTexture {
   const size = width * height * 4;
   const data = new Float32Array(size);
 
@@ -26,18 +33,18 @@ export function createDataTexture(
     }
   }
 
-  const tex = new THREE.DataTexture(
+  const tex = new DataTexture(
     data,
     width,
     height,
-    THREE.RGBAFormat,
-    THREE.FloatType
+    RGBAFormat,
+    FloatType
   );
 
-  tex.minFilter = params?.minFilter ?? THREE.NearestFilter;
-  tex.magFilter = params?.magFilter ?? THREE.NearestFilter;
-  tex.wrapS = params?.wrapS ?? THREE.RepeatWrapping;
-  tex.wrapT = params?.wrapT ?? THREE.RepeatWrapping;
+  tex.minFilter = params?.minFilter ?? NearestFilter;
+  tex.magFilter = params?.magFilter ?? NearestFilter;
+  tex.wrapS = params?.wrapS ?? RepeatWrapping;
+  tex.wrapT = params?.wrapT ?? RepeatWrapping;
 
   tex.needsUpdate = true;
   return tex;

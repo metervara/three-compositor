@@ -1,26 +1,38 @@
-import * as THREE from "three";
+import type {
+  Texture,
+  WebGLRenderer,
+  WebGLRenderTarget,
+  Color,
+  IUniform,
+  Blending,
+  Side,
+  BufferGeometry,
+  Scene,
+  Camera,
+  Vector3,
+} from "three";
 import type { ParticleSystem } from "./core/ParticleSystem";
 
 export interface Pass {
   opts: PassOptions;
-  texture: THREE.Texture | null;
+  texture: Texture | null;
   init(info: RendererInfo): void;
   update(time: number): void;
-  render(renderer: THREE.WebGLRenderer): void;
+  render(renderer: WebGLRenderer): void;
   resize?(width: number, height: number): void;
   setUniform?(name: string, value: any): void;
 }
 
 export interface PassOptions {
-  seedTexture?: THREE.Texture;
-  outputTarget?: THREE.WebGLRenderTarget;
+  seedTexture?: Texture;
+  outputTarget?: WebGLRenderTarget;
   rtSize?: { width: number; height: number };
   depthBuffer?: boolean;
 
   clearColor?: boolean;
   clearDepth?: boolean;
   clearStencil?: boolean;
-  clearColorValue?: THREE.Color | string | number;
+  clearColorValue?: Color | string | number;
   clearAlpha?: number;
 
   particleOptions?: ParticleOptions;
@@ -45,27 +57,27 @@ export interface PassOptions {
 export interface MaterialOptions {
   vertexShader: string;
   fragmentShader: string;
-  uniforms?: { [key: string]: THREE.IUniform };
+  uniforms?: { [key: string]: IUniform };
   defines?: Record<string, boolean | number>;
   depthTest?: boolean;
   depthWrite?: boolean;
   alphaTest?: number;
-  blending?: THREE.Blending;
+  blending?: Blending;
   transparent?: boolean;
-  side?: THREE.Side;
+  side?: Side;
 }
 
 export interface ParticleOptions {
   count: number;
   width: number;
   height: number;
-  geometry?: THREE.BufferGeometry;
+  geometry?: BufferGeometry;
 }
 
 export interface RendererInfo {
-  renderer: THREE.WebGLRenderer;
-  scene: THREE.Scene;
-  camera: THREE.Camera;
+  renderer: WebGLRenderer;
+  scene: Scene;
+  camera: Camera;
   canvas: HTMLCanvasElement;
   dpi: number;
   scale: number;
@@ -81,7 +93,7 @@ export interface RendererOptions {
   fov?: number;
   near?: number;
   far?: number;
-  cameraPosition?: THREE.Vector3;
+  cameraPosition?: Vector3;
   useOrbit?: boolean;
 }
 

@@ -1,4 +1,11 @@
-import * as THREE from "three";
+import {
+  Vector3,
+  WebGLRenderer,
+  PerspectiveCamera,
+  OrthographicCamera,
+  Scene,
+} from "three";
+import type { Camera } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import type { RendererInfo, RendererOptions } from "../types";
 
@@ -11,7 +18,7 @@ const defaultOptions: Required<Omit<RendererOptions, "canvas">> = {
   fov: 50,
   near: 0.1,
   far: 100,
-  cameraPosition: new THREE.Vector3(0, 0, 5),
+  cameraPosition: new Vector3(0, 0, 5),
   useOrbit: false,
 };
 
@@ -27,18 +34,18 @@ export function createRenderer(options: RendererOptions = {}): RendererInfo {
     document.body.appendChild(canvas);
   }
 
-  const renderer = new THREE.WebGLRenderer({
+  const renderer = new WebGLRenderer({
     canvas,
     antialias: opts.antialias,
   });
   renderer.setPixelRatio(opts.dpi);
   renderer.autoClear = false;
 
-  let camera: THREE.Camera;
+  let camera: Camera;
   const aspect = window.innerWidth / window.innerHeight;
 
   if (opts.cameraType === "perspective") {
-    const cam = new THREE.PerspectiveCamera(opts.fov, aspect, opts.near, opts.far);
+    const cam = new PerspectiveCamera(opts.fov, aspect, opts.near, opts.far);
     cam.position.set(opts.cameraPosition.x, opts.cameraPosition.y, opts.cameraPosition.z);
     cam.lookAt(0, 0, 0);
     camera = cam;
@@ -47,7 +54,7 @@ export function createRenderer(options: RendererOptions = {}): RendererInfo {
     const right = aspect;
     const top = 1;
     const bottom = -1;
-    camera = new THREE.OrthographicCamera(left, right, top, bottom, opts.near, opts.far);
+    camera = new OrthographicCamera(left, right, top, bottom, opts.near, opts.far);
   }
 
   if(opts.useOrbit) {
@@ -55,7 +62,7 @@ export function createRenderer(options: RendererOptions = {}): RendererInfo {
     controls.update();
   }
 
-  const scene = new THREE.Scene();
+  const scene = new Scene();
 
   return { renderer, scene, camera, canvas, dpi: opts.dpi, scale: opts.scale };
 }

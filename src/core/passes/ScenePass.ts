@@ -1,10 +1,19 @@
-import * as THREE from "three";
+import {
+  Scene,
+  WebGLRenderTarget,
+  Vector4,
+  LinearFilter,
+  ClampToEdgeWrapping,
+  RGBAFormat,
+  UnsignedByteType,
+} from "three";
+import type { Camera, Texture, WebGLRenderer } from "three";
 import type { Pass, PassOptions, RendererInfo } from "../../types";
 
 export class ScenePass implements Pass {
-  private scene!: THREE.Scene;
-  private camera!: THREE.Camera;
-  private _outputTarget: THREE.WebGLRenderTarget | null = null;
+  private scene!: Scene;
+  private camera!: Camera;
+  private _outputTarget: WebGLRenderTarget | null = null;
 
   public opts: PassOptions;
 
@@ -28,13 +37,13 @@ export class ScenePass implements Pass {
       this._outputTarget = outputTarget;
     } else if (rtSize) {
       const { width, height } = rtSize;
-      this._outputTarget = new THREE.WebGLRenderTarget(width, height, {
-        minFilter: THREE.LinearFilter,
-        magFilter: THREE.LinearFilter,
-        wrapS: THREE.ClampToEdgeWrapping,
-        wrapT: THREE.ClampToEdgeWrapping,
-        format: THREE.RGBAFormat,
-        type: THREE.UnsignedByteType,
+      this._outputTarget = new WebGLRenderTarget(width, height, {
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        wrapS: ClampToEdgeWrapping,
+        wrapT: ClampToEdgeWrapping,
+        format: RGBAFormat,
+        type: UnsignedByteType,
         depthBuffer: this.opts.depthBuffer !== undefined ? this.opts.depthBuffer : true,
         stencilBuffer: false,
       });
@@ -49,14 +58,14 @@ export class ScenePass implements Pass {
 
   update(_time: number) {}
 
-  render(renderer: THREE.WebGLRenderer) {
+  render(renderer: WebGLRenderer) {
     const { clearColor = true, clearDepth = true, clearStencil = false, viewport } = this.opts;
 
     renderer.setRenderTarget(this._outputTarget);
 
-    let originalViewport: THREE.Vector4 | null = null;
+    let originalViewport: Vector4 | null = null;
     if (viewport && !this._outputTarget) {
-      originalViewport = new THREE.Vector4();
+      originalViewport = new Vector4();
       renderer.getViewport(originalViewport);
       renderer.setViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
@@ -73,20 +82,20 @@ export class ScenePass implements Pass {
     }
   }
 
-  get texture(): THREE.Texture | null {
+  get texture(): Texture | null {
     return this._outputTarget ? this._outputTarget.texture : null;
   }
 
   resize(width: number, height: number) {
     if (this._outputTarget && this.opts.rtSize) {
       this._outputTarget.dispose();
-      this._outputTarget = new THREE.WebGLRenderTarget(width, height, {
-        minFilter: THREE.LinearFilter,
-        magFilter: THREE.LinearFilter,
-        wrapS: THREE.ClampToEdgeWrapping,
-        wrapT: THREE.ClampToEdgeWrapping,
-        format: THREE.RGBAFormat,
-        type: THREE.UnsignedByteType,
+      this._outputTarget = new WebGLRenderTarget(width, height, {
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        wrapS: ClampToEdgeWrapping,
+        wrapT: ClampToEdgeWrapping,
+        format: RGBAFormat,
+        type: UnsignedByteType,
         depthBuffer: this.opts.depthBuffer !== undefined ? this.opts.depthBuffer : true,
         stencilBuffer: false,
       });

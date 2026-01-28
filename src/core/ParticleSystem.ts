@@ -1,4 +1,11 @@
-import * as THREE from "three";
+import {
+  Mesh,
+  ShaderMaterial,
+  InstancedBufferGeometry,
+  PlaneGeometry,
+  InstancedBufferAttribute,
+} from "three";
+import type { BufferGeometry } from "three";
 import { createInstancedUvBuffer } from "../utils/particle";
 import type { MaterialOptions } from "../types";
 
@@ -6,14 +13,14 @@ export interface ParticleSystemOptions {
   count: number;
   width: number;
   height: number;
-  geometry?: THREE.BufferGeometry;
+  geometry?: BufferGeometry;
   materialOptions: MaterialOptions;
 }
 
 export class ParticleSystem {
-  public readonly mesh: THREE.Mesh;
-  public readonly material: THREE.ShaderMaterial;
-  public readonly geometry: THREE.InstancedBufferGeometry;
+  public readonly mesh: Mesh;
+  public readonly material: ShaderMaterial;
+  public readonly geometry: InstancedBufferGeometry;
 
   constructor(options: ParticleSystemOptions) {
     const { count, width, height, geometry, materialOptions } = options;
@@ -22,15 +29,15 @@ export class ParticleSystem {
       throw new Error("ParticleSystem: missing materialOptions");
     }
 
-    const baseGeometry = geometry || new THREE.PlaneGeometry(1, 1);
-    this.geometry = new THREE.InstancedBufferGeometry();
+    const baseGeometry = geometry || new PlaneGeometry(1, 1);
+    this.geometry = new InstancedBufferGeometry();
     this.geometry.index = baseGeometry.index!;
     this.geometry.attributes = baseGeometry.attributes;
 
     const uvArray = createInstancedUvBuffer(count, width, height);
     this.geometry.setAttribute(
       "instUv",
-      new THREE.InstancedBufferAttribute(uvArray, 2)
+      new InstancedBufferAttribute(uvArray, 2)
     );
 
     const autoDefines: Record<string, any> = { ...(materialOptions.defines || {}) };
@@ -41,12 +48,12 @@ export class ParticleSystem {
       autoDefines["ENABLE_ALPHA_TEST"] = 1;
     }
 
-    this.material = new THREE.ShaderMaterial({
+    this.material = new ShaderMaterial({
       ...materialOptions,
       defines: autoDefines,
     });
 
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.mesh = new Mesh(this.geometry, this.material);
     this.mesh.frustumCulled = false;
   }
 

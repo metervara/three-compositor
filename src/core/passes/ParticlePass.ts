@@ -1,11 +1,20 @@
-import * as THREE from "three";
+import {
+  Scene,
+  WebGLRenderTarget,
+  Color,
+  LinearFilter,
+  ClampToEdgeWrapping,
+  RGBAFormat,
+  UnsignedByteType,
+} from "three";
+import type { Camera, Texture, WebGLRenderer } from "three";
 import { ParticleSystem } from "../ParticleSystem";
 import type { Pass, PassOptions, RendererInfo } from "../../types";
 
 export class ParticlePass implements Pass {
-  private scene!: THREE.Scene;
-  private camera!: THREE.Camera;
-  private outRT!: THREE.WebGLRenderTarget | null;
+  private scene!: Scene;
+  private camera!: Camera;
+  private outRT!: WebGLRenderTarget | null;
   private particleSystem!: ParticleSystem;
 
   public opts: PassOptions;
@@ -26,7 +35,7 @@ export class ParticlePass implements Pass {
       particleSystem,
     } = this.opts;
 
-    this.scene = new THREE.Scene();
+    this.scene = new Scene();
     this.camera = info.camera;
 
     if (particleSystem) {
@@ -54,13 +63,13 @@ export class ParticlePass implements Pass {
       this.outRT = outputTarget;
     } else if (rtSize) {
       const { width, height } = rtSize;
-      this.outRT = new THREE.WebGLRenderTarget(width, height, {
-        minFilter: THREE.LinearFilter,
-        magFilter: THREE.LinearFilter,
-        wrapS: THREE.ClampToEdgeWrapping,
-        wrapT: THREE.ClampToEdgeWrapping,
-        format: THREE.RGBAFormat,
-        type: THREE.UnsignedByteType,
+      this.outRT = new WebGLRenderTarget(width, height, {
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        wrapS: ClampToEdgeWrapping,
+        wrapT: ClampToEdgeWrapping,
+        format: RGBAFormat,
+        type: UnsignedByteType,
         depthBuffer: this.opts.depthBuffer !== undefined ? this.opts.depthBuffer : false,
         stencilBuffer: false,
       });
@@ -75,7 +84,7 @@ export class ParticlePass implements Pass {
 
   update(time: number) {}
 
-  render(renderer: THREE.WebGLRenderer) {
+  render(renderer: WebGLRenderer) {
     const {
       clearColor = true,
       clearDepth = false,
@@ -85,14 +94,14 @@ export class ParticlePass implements Pass {
     } = this.opts;
 
     renderer.setRenderTarget(this.outRT);
-    let prevColor: THREE.Color | null = null;
+    let prevColor: Color | null = null;
     let prevAlpha: number | null = null;
     if (clearColor && (clearColorValue !== undefined || clearAlpha !== undefined)) {
-      prevColor = new THREE.Color();
+      prevColor = new Color();
       renderer.getClearColor(prevColor);
       prevAlpha = (renderer as any).getClearAlpha ? (renderer as any).getClearAlpha() : 1.0;
       if (clearColorValue !== undefined) {
-        const color = clearColorValue instanceof THREE.Color ? clearColorValue : new THREE.Color(clearColorValue as any);
+        const color = clearColorValue instanceof Color ? clearColorValue : new Color(clearColorValue as any);
         renderer.setClearColor(color, clearAlpha !== undefined ? clearAlpha : (prevAlpha ?? 1.0));
       } else if (clearAlpha !== undefined && prevColor) {
         renderer.setClearColor(prevColor, clearAlpha);
@@ -108,15 +117,15 @@ export class ParticlePass implements Pass {
     renderer.setRenderTarget(null);
   }
 
-  get texture(): THREE.Texture | null {
+  get texture(): Texture | null {
     return this.outRT ? this.outRT.texture : null;
   }
 
-  get outputTarget(): THREE.WebGLRenderTarget | null {
+  get outputTarget(): WebGLRenderTarget | null {
     return this.outRT;
   }
 
-  set outputTarget(target: THREE.WebGLRenderTarget | null) {
+  set outputTarget(target: WebGLRenderTarget | null) {
     this.outRT = target;
   }
 
@@ -128,13 +137,13 @@ export class ParticlePass implements Pass {
     if (this.outRT && this.opts.rtSize) {
       this.outRT.dispose();
 
-      this.outRT = new THREE.WebGLRenderTarget(width, height, {
-        minFilter: THREE.LinearFilter,
-        magFilter: THREE.LinearFilter,
-        wrapS: THREE.ClampToEdgeWrapping,
-        wrapT: THREE.ClampToEdgeWrapping,
-        format: THREE.RGBAFormat,
-        type: THREE.UnsignedByteType,
+      this.outRT = new WebGLRenderTarget(width, height, {
+        minFilter: LinearFilter,
+        magFilter: LinearFilter,
+        wrapS: ClampToEdgeWrapping,
+        wrapT: ClampToEdgeWrapping,
+        format: RGBAFormat,
+        type: UnsignedByteType,
         depthBuffer: this.opts.depthBuffer !== undefined ? this.opts.depthBuffer : false,
         stencilBuffer: false,
       });

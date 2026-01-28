@@ -1,4 +1,13 @@
-import * as THREE from "three";
+import {
+  DataTexture,
+  PerspectiveCamera,
+  OrthographicCamera,
+  RGBAFormat,
+  FloatType,
+  NearestFilter,
+  ClampToEdgeWrapping,
+} from "three";
+import type { Camera } from "three";
 import { createDataTexture } from "./texture";
 import { perlin2D, fbm2D, domainWarp2D, seededRandom } from "./noise";
 import { computeTextureSize } from "./particle";
@@ -16,7 +25,7 @@ export function createNoisePositionTexture(
   width: number,
   height: number,
   options: PositionTextureOptions = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     bounds = 2.0,
     is2D = false,
@@ -53,7 +62,7 @@ export function createSpiralPositionTexture(
   width: number,
   height: number,
   options: PositionTextureOptions = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     bounds = 2.0,
     is2D = false,
@@ -94,7 +103,7 @@ export function createClusterPositionTexture(
     numClusters?: number;
     clusterSize?: number;
   } = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     bounds = 2.0,
     is2D = false,
@@ -154,7 +163,7 @@ export function createWavePositionTexture(
     numWaves?: number;
     waveAmplitude?: number;
   } = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     bounds = 2.0,
     is2D = false,
@@ -201,11 +210,11 @@ export function createWavePositionTexture(
 export function createScreenSpacePositionTexture(
   width: number,
   height: number,
-  camera: THREE.Camera,
+  camera: Camera,
   options: PositionTextureOptions & {
     distance?: number;
   } = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     bounds = 2.0,
     is2D = false,
@@ -226,7 +235,7 @@ export function createScreenSpacePositionTexture(
 
     let worldX: number, worldY: number, worldZ: number;
 
-    if (camera instanceof THREE.PerspectiveCamera) {
+    if (camera instanceof PerspectiveCamera) {
       const aspect = camera.aspect;
       const fovRad = (camera.fov * Math.PI) / 180;
       const heightAtDistance = 2 * distance * Math.tan(fovRad / 2);
@@ -235,7 +244,7 @@ export function createScreenSpacePositionTexture(
       worldX = ndcX * widthAtDistance / 2;
       worldY = ndcY * heightAtDistance / 2;
       worldZ = distance;
-    } else if (camera instanceof THREE.OrthographicCamera) {
+    } else if (camera instanceof OrthographicCamera) {
       const left = camera.left;
       const right = camera.right;
       const top = camera.top;
@@ -270,7 +279,7 @@ export function createPositionTextureFromArray(
   positions: Float32Array,
   count: number,
   aliveState?: Uint8Array
-): { texture: THREE.DataTexture; width: number; height: number } {
+): { texture: DataTexture; width: number; height: number } {
   const { width, height } = computeTextureSize(count);
   const totalTexels = width * height;
 
@@ -294,18 +303,18 @@ export function createPositionTextureFromArray(
     data[dstIdx + 3] = 0;
   }
 
-  const texture = new THREE.DataTexture(
+  const texture = new DataTexture(
     data,
     width,
     height,
-    THREE.RGBAFormat,
-    THREE.FloatType
+    RGBAFormat,
+    FloatType
   );
 
-  texture.minFilter = THREE.NearestFilter;
-  texture.magFilter = THREE.NearestFilter;
-  texture.wrapS = THREE.ClampToEdgeWrapping;
-  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.minFilter = NearestFilter;
+  texture.magFilter = NearestFilter;
+  texture.wrapS = ClampToEdgeWrapping;
+  texture.wrapT = ClampToEdgeWrapping;
   texture.needsUpdate = true;
 
   return { texture, width, height };
@@ -314,7 +323,7 @@ export function createPositionTextureFromArray(
 export function createNormalTextureFromArray(
   normals: Float32Array,
   count: number
-): { texture: THREE.DataTexture; width: number; height: number } {
+): { texture: DataTexture; width: number; height: number } {
   const { width, height } = computeTextureSize(count);
   const totalTexels = width * height;
 
@@ -338,18 +347,18 @@ export function createNormalTextureFromArray(
     data[dstIdx + 3] = 1;
   }
 
-  const texture = new THREE.DataTexture(
+  const texture = new DataTexture(
     data,
     width,
     height,
-    THREE.RGBAFormat,
-    THREE.FloatType
+    RGBAFormat,
+    FloatType
   );
 
-  texture.minFilter = THREE.NearestFilter;
-  texture.magFilter = THREE.NearestFilter;
-  texture.wrapS = THREE.ClampToEdgeWrapping;
-  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.minFilter = NearestFilter;
+  texture.magFilter = NearestFilter;
+  texture.wrapS = ClampToEdgeWrapping;
+  texture.wrapT = ClampToEdgeWrapping;
   texture.needsUpdate = true;
 
   return { texture, width, height };

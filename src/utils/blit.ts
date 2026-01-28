@@ -1,32 +1,39 @@
-import * as THREE from "three";
+import {
+  OrthographicCamera,
+  ShaderMaterial,
+  Scene,
+  PlaneGeometry,
+  Mesh,
+} from "three";
+import type { Texture, WebGLRenderer, WebGLRenderTarget } from "three";
 import passThroughVert from "../shaders/core/pass-through.vert";
 import textureFrag from "../shaders/core/texture.frag";
 
-const _blitCamera: THREE.OrthographicCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+const _blitCamera: OrthographicCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-const _defaultCopyMaterial: THREE.ShaderMaterial = new THREE.ShaderMaterial({
+const _defaultCopyMaterial: ShaderMaterial = new ShaderMaterial({
   uniforms: {
-    srcTexture: { value: null as THREE.Texture | null },
+    srcTexture: { value: null as Texture | null },
   },
   vertexShader: passThroughVert,
   fragmentShader: textureFrag,
 });
 
-const _blitScene: THREE.Scene = new THREE.Scene();
-const _quadGeom: THREE.PlaneGeometry = new THREE.PlaneGeometry(2, 2);
-const _quadMesh: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial> = new THREE.Mesh(
+const _blitScene: Scene = new Scene();
+const _quadGeom: PlaneGeometry = new PlaneGeometry(2, 2);
+const _quadMesh: Mesh<PlaneGeometry, ShaderMaterial> = new Mesh(
   _quadGeom,
   _defaultCopyMaterial
 );
 _blitScene.add(_quadMesh);
 
 export function blit(
-  renderer: THREE.WebGLRenderer,
-  srcTexture: THREE.Texture,
-  dstRenderTarget: THREE.WebGLRenderTarget | null,
-  material?: THREE.ShaderMaterial
+  renderer: WebGLRenderer,
+  srcTexture: Texture,
+  dstRenderTarget: WebGLRenderTarget | null,
+  material?: ShaderMaterial
 ): void {
-  const mat: THREE.ShaderMaterial = material ?? _defaultCopyMaterial;
+  const mat: ShaderMaterial = material ?? _defaultCopyMaterial;
 
   if (material && !( 'srcTexture' in material.uniforms )) {
     console.warn(

@@ -1,9 +1,9 @@
-import * as THREE from "three";
+import { BufferGeometry, Float32BufferAttribute } from "three";
 
 export function createArrowGeometry(
   raisedCenter: number = 0.2
-): THREE.BufferGeometry {
-  const geometry = new THREE.BufferGeometry();
+): BufferGeometry {
+  const geometry = new BufferGeometry();
 
   const vertices: number[] = [];
   const uvs: number[] = [];
@@ -28,8 +28,8 @@ export function createArrowGeometry(
     0, 2, 3
   );
 
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+  geometry.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
 
   geometry.computeVertexNormals();
@@ -37,6 +37,6 @@ export function createArrowGeometry(
   return geometry;
 }
 
-export function createParticleArrowGeometry(): THREE.BufferGeometry {
+export function createParticleArrowGeometry(): BufferGeometry {
   return createArrowGeometry(0.2);
 }

@@ -1,20 +1,41 @@
-import * as THREE from "three";
+import {
+  Scene,
+  WebGLRenderTarget,
+  Mesh,
+  ShaderMaterial,
+  OrthographicCamera,
+  PlaneGeometry,
+  InstancedBufferGeometry,
+  InstancedBufferAttribute,
+  Color,
+  Vector2,
+  LinearFilter,
+  ClampToEdgeWrapping,
+  RGBAFormat,
+  HalfFloatType,
+  CustomBlending,
+  AddEquation,
+  OneFactor,
+  ZeroFactor,
+  OneMinusSrcAlphaFactor,
+} from "three";
+import type { Camera, Texture, WebGLRenderer, RenderTargetOptions } from "three";
 import { createInstancedUvBuffer } from "../../utils/particle";
 import compositeFrag from "../../shaders/oit/composite.frag";
 import passThroughVert from "../../shaders/core/pass-through.vert";
 import type { Pass, PassOptions, RendererInfo } from "../../types";
 
 export class WeightedOITParticlesPass implements Pass {
-  private particleScene!: THREE.Scene;
-  private camera!: THREE.Camera;
-  private accumRT!: THREE.WebGLRenderTarget;
-  private revealRT!: THREE.WebGLRenderTarget;
-  private particleMesh!: THREE.Mesh;
-  private accumMaterial!: THREE.ShaderMaterial;
-  private revealMaterial!: THREE.ShaderMaterial;
-  private compositeScene!: THREE.Scene;
-  private compositeCamera!: THREE.OrthographicCamera;
-  private compositeMesh!: THREE.Mesh;
+  private particleScene!: Scene;
+  private camera!: Camera;
+  private accumRT!: WebGLRenderTarget;
+  private revealRT!: WebGLRenderTarget;
+  private particleMesh!: Mesh;
+  private accumMaterial!: ShaderMaterial;
+  private revealMaterial!: ShaderMaterial;
+  private compositeScene!: Scene;
+  private compositeCamera!: OrthographicCamera;
+  private compositeMesh!: Mesh;
 
   public opts: PassOptions;
 
@@ -33,69 +54,69 @@ export class WeightedOITParticlesPass implements Pass {
     if (!particleOptions) throw new Error("WeightedOITParticlesPass: missing particleOptions");
 
     this.camera = info.camera;
-    this.particleScene = new THREE.Scene();
+    this.particleScene = new Scene();
 
-    const baseGeo = particleOptions.geometry || new THREE.PlaneGeometry(1, 1);
-    const instGeo = new THREE.InstancedBufferGeometry();
+    const baseGeo = particleOptions.geometry || new PlaneGeometry(1, 1);
+    const instGeo = new InstancedBufferGeometry();
     instGeo.index = baseGeo.index!;
     instGeo.attributes = baseGeo.attributes;
     const uvArray = createInstancedUvBuffer(particleOptions.count, particleOptions.width, particleOptions.height!);
-    instGeo.setAttribute("instUv", new THREE.InstancedBufferAttribute(uvArray, 2));
+    instGeo.setAttribute("instUv", new InstancedBufferAttribute(uvArray, 2));
 
-    this.accumMaterial = new THREE.ShaderMaterial({
+    this.accumMaterial = new ShaderMaterial({
       ...materialOptions,
       transparent: true,
       depthWrite: false,
-      blending: THREE.CustomBlending,
-      blendEquation: THREE.AddEquation,
-      blendSrc: THREE.OneFactor,
-      blendDst: THREE.OneFactor,
-      blendEquationAlpha: THREE.AddEquation,
-      blendSrcAlpha: THREE.OneFactor,
-      blendDstAlpha: THREE.OneFactor,
+      blending: CustomBlending,
+      blendEquation: AddEquation,
+      blendSrc: OneFactor,
+      blendDst: OneFactor,
+      blendEquationAlpha: AddEquation,
+      blendSrcAlpha: OneFactor,
+      blendDstAlpha: OneFactor,
     });
 
-    this.revealMaterial = new THREE.ShaderMaterial({
+    this.revealMaterial = new ShaderMaterial({
       ...materialOptions,
       defines: { ...(materialOptions.defines || {}), REVEAL_PASS: 1 },
       transparent: true,
       depthWrite: false,
-      blending: THREE.CustomBlending,
-      blendEquation: THREE.AddEquation,
-      blendSrc: THREE.ZeroFactor,
-      blendDst: THREE.OneMinusSrcAlphaFactor,
-      blendEquationAlpha: THREE.AddEquation,
-      blendSrcAlpha: THREE.ZeroFactor,
-      blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+      blending: CustomBlending,
+      blendEquation: AddEquation,
+      blendSrc: ZeroFactor,
+      blendDst: OneMinusSrcAlphaFactor,
+      blendEquationAlpha: AddEquation,
+      blendSrcAlpha: ZeroFactor,
+      blendDstAlpha: OneMinusSrcAlphaFactor,
     });
 
-    this.particleMesh = new THREE.Mesh(instGeo, this.accumMaterial);
+    this.particleMesh = new Mesh(instGeo, this.accumMaterial);
     this.particleMesh.frustumCulled = false;
     this.particleScene.add(this.particleMesh);
 
     const size = rtSize || ((): { width: number; height: number } => {
-      const v = new THREE.Vector2();
+      const v = new Vector2();
       info.renderer.getSize(v);
       return { width: v.x, height: v.y };
     })();
 
-    const rtParams: THREE.RenderTargetOptions = {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      wrapS: THREE.ClampToEdgeWrapping,
-      wrapT: THREE.ClampToEdgeWrapping,
-      format: THREE.RGBAFormat,
-      type: THREE.HalfFloatType,
+    const rtParams: RenderTargetOptions = {
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
+      wrapS: ClampToEdgeWrapping,
+      wrapT: ClampToEdgeWrapping,
+      format: RGBAFormat,
+      type: HalfFloatType,
       depthBuffer: false,
       stencilBuffer: false,
     };
-    this.accumRT = new THREE.WebGLRenderTarget(size.width, size.height, rtParams);
-    this.revealRT = new THREE.WebGLRenderTarget(size.width, size.height, rtParams);
+    this.accumRT = new WebGLRenderTarget(size.width, size.height, rtParams);
+    this.revealRT = new WebGLRenderTarget(size.width, size.height, rtParams);
 
-    this.compositeCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    this.compositeScene = new THREE.Scene();
-    const quadGeo = new THREE.PlaneGeometry(2, 2);
-    const compositeMat = new THREE.ShaderMaterial({
+    this.compositeCamera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    this.compositeScene = new Scene();
+    const quadGeo = new PlaneGeometry(2, 2);
+    const compositeMat = new ShaderMaterial({
       vertexShader: passThroughVert,
       fragmentShader: compositeFrag,
       uniforms: {
@@ -106,7 +127,7 @@ export class WeightedOITParticlesPass implements Pass {
       depthWrite: false,
       transparent: true,
     });
-    this.compositeMesh = new THREE.Mesh(quadGeo, compositeMat);
+    this.compositeMesh = new Mesh(quadGeo, compositeMat);
     this.compositeMesh.frustumCulled = false;
     this.compositeScene.add(this.compositeMesh);
   }
@@ -120,12 +141,12 @@ export class WeightedOITParticlesPass implements Pass {
     else this.revealMaterial.uniforms[name] = { value };
   }
 
-  render(renderer: THREE.WebGLRenderer) {
-    const prevClear = renderer.getClearColor(new THREE.Color()).clone();
+  render(renderer: WebGLRenderer) {
+    const prevClear = renderer.getClearColor(new Color()).clone();
     const prevAlpha = renderer.getClearAlpha();
 
     renderer.setRenderTarget(null);
-    renderer.render((this.particleScene.parent as THREE.Scene) || this.particleScene, this.camera);
+    renderer.render((this.particleScene.parent as Scene) || this.particleScene, this.camera);
 
     renderer.setRenderTarget(this.accumRT);
     renderer.setClearColor(0x000000, 0.0);
@@ -145,7 +166,7 @@ export class WeightedOITParticlesPass implements Pass {
     renderer.render(this.compositeScene, this.compositeCamera);
   }
 
-  get texture(): THREE.Texture | null {
+  get texture(): Texture | null {
     return null;
   }
 }

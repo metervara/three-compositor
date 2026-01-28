@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import type { DataTexture } from "three";
 import { createDataTexture } from "./texture";
 import { perlin2D, fbm2D, seededRandom } from "./noise";
 
@@ -14,7 +14,7 @@ export function createFlowVelocityTexture(
   width: number,
   height: number,
   options: VelocityTextureOptions = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     maxSpeed = 0.5,
     is2D = false,
@@ -46,7 +46,7 @@ export function createGradientFlowVelocityTexture(
   width: number,
   height: number,
   options: VelocityTextureOptions = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     maxSpeed = 0.5,
     is2D = false,
@@ -87,7 +87,7 @@ export function createRotationalVelocityTexture(
     numCenters?: number;
     rotationStrength?: number;
   } = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     maxSpeed = 0.5,
     is2D = false,
@@ -148,7 +148,7 @@ export function createRadialVelocityTexture(
     numCenters?: number;
     radialStrength?: number;
   } = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     maxSpeed = 0.5,
     is2D = false,
@@ -209,7 +209,7 @@ export function createTurbulentVelocityTexture(
     turbulenceIntensity?: number;
     turbulenceOctaves?: number;
   } = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     maxSpeed = 0.5,
     is2D = false,
@@ -246,7 +246,7 @@ export function createWaveVelocityTexture(
     numWaves?: number;
     waveFrequency?: number;
   } = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     maxSpeed = 0.5,
     is2D = false,
@@ -297,7 +297,7 @@ export function createConvergentVelocityTexture(
     numPoints?: number;
     convergenceStrength?: number;
   } = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     maxSpeed = 0.5,
     is2D = false,
@@ -361,7 +361,7 @@ export function createMixedVelocityTexture(
       params?: any;
     }>;
   } = {}
-): THREE.DataTexture {
+): DataTexture {
   const {
     maxSpeed = 0.5,
     is2D = false,
