@@ -6,13 +6,10 @@ export function setupResize(info: RendererInfo, onResizeCallback?: (info: Render
   const { renderer, camera, dpi, scale } = info;
 
   function onResize() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const w = info.canvas.clientWidth;
+    const h = info.canvas.clientHeight;
 
     renderer.setSize(w * scale, h * scale, false);
-
-    info.canvas.style.width = `${w}px`;
-    info.canvas.style.height = `${h}px`;
 
     if (camera instanceof PerspectiveCamera) {
       camera.aspect = w / h;
