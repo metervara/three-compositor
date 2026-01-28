@@ -23,16 +23,21 @@ export function setupInputs(info: RendererInfo): void {
       return;
     }
 
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const rect = info.canvas.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+
+    // mouse position relative to the canvas
+    const localX = xCss - rect.left;
+    const localY = yCss - rect.top;
 
     // 1) drawing-buffer pixel coords (flipped Y for gl_FragCoord)
-    const xBuf = xCss * ratio;
-    const yBuf = h * ratio - yCss * ratio;
+    const xBuf = localX * ratio;
+    const yBuf = h * ratio - localY * ratio;
 
     // 2) normalized UV [0 -> 1]
-    const uX = xCss / w;
-    const uY = yCss / h;
+    const uX = localX / w;
+    const uY = localY / h;
 
     // 3) NDC [-1 -> +1]
     const nX = uX * 2 - 1;
@@ -63,9 +68,11 @@ export function setupInputs(info: RendererInfo): void {
     yCss = e.clientY;
 
     if(prevX === undefined || prevY === undefined) {
-      const h = window.innerHeight;
-      prevX = e.clientX * ratio;
-      prevY = h * ratio - e.clientY * ratio;
+      const rect = info.canvas.getBoundingClientRect();
+      const localX = e.clientX - rect.left;
+      const localY = e.clientY - rect.top;
+      prevX = localX * ratio;
+      prevY = rect.height * ratio - localY * ratio;
 
       requestAnimationFrame(updateInputs);
     }

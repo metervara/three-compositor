@@ -151,8 +151,8 @@ class ln {
     const e = [];
     let n = 0;
     if (e.push(`Compositor with ${this.passes.length} pass${this.passes.length !== 1 ? "es" : ""}:`), this.passes.forEach((i, l) => {
-      const u = this.getPassNameByIndex(l), p = this.getPassType(i), h = this.getPassDetails(i), x = this.estimateQuadFragments(i);
-      x > 0 && (n += x), e.push(`  ${l + 1}. ${u} (${p})${h ? ` - ${h}` : ""}`);
+      const u = this.getPassNameByIndex(l), p = this.getPassType(i), h = this.getPassDetails(i), g = this.estimateQuadFragments(i);
+      g > 0 && (n += g), e.push(`  ${l + 1}. ${u} (${p})${h ? ` - ${h}` : ""}`);
     }), n > 0) {
       e.push("");
       const i = Math.max(1, Math.round(Math.sqrt(n)));
@@ -299,8 +299,8 @@ class fe {
       "instUv",
       new s.InstancedBufferAttribute(l, 2)
     );
-    const u = { ...c.defines || {} }, p = !!c.transparent, h = c.depthWrite === void 0 ? !1 : c.depthWrite, x = c.depthTest === void 0 ? !0 : c.depthTest;
-    !p && h && x && (u.ENABLE_ALPHA_TEST = 1), this.material = new s.ShaderMaterial({
+    const u = { ...c.defines || {} }, p = !!c.transparent, h = c.depthWrite === void 0 ? !1 : c.depthWrite, g = c.depthTest === void 0 ? !0 : c.depthTest;
+    !p && h && g && (u.ENABLE_ALPHA_TEST = 1), this.material = new s.ShaderMaterial({
       ...c,
       defines: u
     }), this.mesh = new s.Mesh(this.geometry, this.material), this.mesh.frustumCulled = !1;
@@ -364,8 +364,8 @@ class un {
     if (t)
       this.outputTarget = t;
     else if (r) {
-      const { width: h, height: x } = r;
-      this.outputTarget = new s.WebGLRenderTarget(h, x, {
+      const { width: h, height: g } = r;
+      this.outputTarget = new s.WebGLRenderTarget(h, g, {
         minFilter: s.LinearFilter,
         magFilter: s.LinearFilter,
         wrapS: s.ClampToEdgeWrapping,
@@ -655,8 +655,8 @@ class vn {
       blendDstAlpha: s.OneMinusSrcAlphaFactor
     }), this.particleMesh = new s.Mesh(c, this.accumMaterial), this.particleMesh.frustumCulled = !1, this.particleScene.add(this.particleMesh);
     const l = r || (() => {
-      const x = new s.Vector2();
-      return e.renderer.getSize(x), { width: x.x, height: x.y };
+      const g = new s.Vector2();
+      return e.renderer.getSize(g), { width: g.x, height: g.y };
     })(), u = {
       minFilter: s.LinearFilter,
       magFilter: s.LinearFilter,
@@ -736,13 +736,13 @@ function he(o) {
       requestAnimationFrame(l);
       return;
     }
-    const u = window.innerWidth, p = window.innerHeight, h = c * t, x = p * t - i * t, S = c / u, d = i / p, m = S * 2 - 1, y = -(d * 2 - 1), w = h - r, f = x - a;
-    r = h, a = x, B.uMousePrev.value.set(r, a), B.uMouseUVPrev.value.set(B.uMouseUV.value.x, B.uMouseUV.value.y), B.uMouseNDCPrev.value.set(B.uMouseNDC.value.x, B.uMouseNDC.value.y), B.uMouseDeltaPrev.value.set(B.uMouseDelta.value.x, B.uMouseDelta.value.y), B.uMouse.value.set(h, x), B.uMouseUV.value.set(S, d), B.uMouseNDC.value.set(m, y), B.uMouseDelta.value.set(w, f), requestAnimationFrame(l);
+    const u = o.canvas.getBoundingClientRect(), p = u.width, h = u.height, g = c - u.left, S = i - u.top, d = g * t, m = h * t - S * t, y = g / p, w = S / h, f = y * 2 - 1, v = -(w * 2 - 1), x = d - r, P = m - a;
+    r = d, a = m, B.uMousePrev.value.set(r, a), B.uMouseUVPrev.value.set(B.uMouseUV.value.x, B.uMouseUV.value.y), B.uMouseNDCPrev.value.set(B.uMouseNDC.value.x, B.uMouseNDC.value.y), B.uMouseDeltaPrev.value.set(B.uMouseDelta.value.x, B.uMouseDelta.value.y), B.uMouse.value.set(d, m), B.uMouseUV.value.set(y, w), B.uMouseNDC.value.set(f, v), B.uMouseDelta.value.set(x, P), requestAnimationFrame(l);
   };
   window.addEventListener("mousemove", (u) => {
     if (c = u.clientX, i = u.clientY, r === void 0 || a === void 0) {
-      const p = window.innerHeight;
-      r = u.clientX * t, a = p * t - u.clientY * t, requestAnimationFrame(l);
+      const p = o.canvas.getBoundingClientRect(), h = u.clientX - p.left, g = u.clientY - p.top;
+      r = h * t, a = p.height * t - g * t, requestAnimationFrame(l);
     }
   }), window.addEventListener("scroll", () => {
     B.uScroll.value = window.scrollY;
@@ -824,8 +824,8 @@ function V(o, e, n, t) {
   let c = 0;
   for (let l = 0; l < e; l++)
     for (let u = 0; u < o; u++) {
-      const [p, h, x, S] = n(u, l, o, e);
-      a[c++] = p, a[c++] = h, a[c++] = x, a[c++] = S;
+      const [p, h, g, S] = n(u, l, o, e);
+      a[c++] = p, a[c++] = h, a[c++] = g, a[c++] = S;
     }
   const i = new s.DataTexture(
     a,
@@ -858,7 +858,7 @@ function q(o, e) {
 function Ce(o, e, n) {
   const t = Math.floor(o), r = Math.floor(e), a = Math.floor(n);
   o = o - t, e = e - r, n = n - a;
-  const c = W(o), i = W(e), l = W(n), u = E(t) + r, p = E(u) + a, h = E(u + 1) + a, x = E(t + 1) + r, S = E(x) + a, d = E(x + 1) + a, m = L(E(p), o, e, n), y = L(E(h), o, e, n - 1), w = L(E(p + 1), o, e - 1, n), f = L(E(h + 1), o, e - 1, n - 1), v = L(E(S), o - 1, e, n), g = L(E(d), o - 1, e, n - 1), P = L(E(S + 1), o - 1, e - 1, n), D = L(E(d + 1), o - 1, e - 1, n - 1), F = m + c * (v - m), b = y + c * (g - y), _ = w + c * (P - w), T = f + c * (D - f), C = F + i * (_ - F), A = b + i * (T - b);
+  const c = W(o), i = W(e), l = W(n), u = E(t) + r, p = E(u) + a, h = E(u + 1) + a, g = E(t + 1) + r, S = E(g) + a, d = E(g + 1) + a, m = L(E(p), o, e, n), y = L(E(h), o, e, n - 1), w = L(E(p + 1), o, e - 1, n), f = L(E(h + 1), o, e - 1, n - 1), v = L(E(S), o - 1, e, n), x = L(E(d), o - 1, e, n - 1), P = L(E(S + 1), o - 1, e - 1, n), D = L(E(d + 1), o - 1, e - 1, n - 1), F = m + c * (v - m), b = y + c * (x - y), _ = w + c * (P - w), T = f + c * (D - f), C = F + i * (_ - F), A = b + i * (T - b);
   return 2.3 * (C + l * (A - C));
 }
 function O(o, e, n = 6, t = 2, r = 0.5) {
@@ -900,13 +900,13 @@ function xn(o, e, n = {}) {
     seed: c = Math.random() * 1e3,
     noiseOffset: i = { x: 0, y: 0, z: 0 }
   } = n, l = N(c);
-  return V(o, e, (u, p, h, x) => {
-    const S = u / h, d = p / x, m = l() * 0.1, y = (S + m) * a + i.x, w = (d + m) * a + i.y, v = O(y, w, 4, 2, 0.5) * t, g = O(y + 100, w + 100, 4, 2, 0.5) * t;
+  return V(o, e, (u, p, h, g) => {
+    const S = u / h, d = p / g, m = l() * 0.1, y = (S + m) * a + i.x, w = (d + m) * a + i.y, v = O(y, w, 4, 2, 0.5) * t, x = O(y + 100, w + 100, 4, 2, 0.5) * t;
     if (r)
-      return [v, g, 0, 1];
+      return [v, x, 0, 1];
     {
       const P = O(y + 200, w + 200, 4, 2, 0.5) * t;
-      return [v, g, P, 1];
+      return [v, x, P, 1];
     }
   });
 }
@@ -918,13 +918,13 @@ function gn(o, e, n = {}) {
     seed: c = Math.random() * 1e3,
     noiseOffset: i = { x: 0, y: 0, z: 0 }
   } = n, l = N(c);
-  return V(o, e, (u, p, h, x) => {
-    const S = u / h, d = p / x, m = S * Math.PI * 4, y = d * t, w = (S + l() * 0.1) * a + i.x, f = (d + l() * 0.1) * a + i.y, v = q(w, f) * 0.3, g = (y + v) * Math.cos(m), P = (y + v) * Math.sin(m);
+  return V(o, e, (u, p, h, g) => {
+    const S = u / h, d = p / g, m = S * Math.PI * 4, y = d * t, w = (S + l() * 0.1) * a + i.x, f = (d + l() * 0.1) * a + i.y, v = q(w, f) * 0.3, x = (y + v) * Math.cos(m), P = (y + v) * Math.sin(m);
     if (r)
-      return [g, P, 0, 1];
+      return [x, P, 0, 1];
     {
       const D = O(w + 200, f + 200, 3, 2, 0.5) * t * 0.5;
-      return [g, P, D, 1];
+      return [x, P, D, 1];
     }
   });
 }
@@ -938,18 +938,18 @@ function yn(o, e, n = {}) {
     numClusters: l = 5,
     clusterSize: u = 0.8
   } = n;
-  return V(o, e, (p, h, x, S) => {
-    const d = p / x, m = h / S;
+  return V(o, e, (p, h, g, S) => {
+    const d = p / g, m = h / S;
     let y = 1 / 0, w = { x: 0, y: 0 };
     for (let b = 0; b < l; b++) {
       const _ = c + b * 1e3, T = N(_), C = T() * t * 2 - t, A = T() * t * 2 - t, U = Math.sqrt((d - (C + t) / (t * 2)) ** 2 + (m - (A + t) / (t * 2)) ** 2);
       U < y && (y = U, w = { x: C, y: A });
     }
-    const f = d * a + i.x, v = m * a + i.y, g = qe(f, v, 0.2), P = q(g.x, g.y) * u, D = w.x + P, F = w.y + q(g.x + 100, g.y + 100) * u;
+    const f = d * a + i.x, v = m * a + i.y, x = qe(f, v, 0.2), P = q(x.x, x.y) * u, D = w.x + P, F = w.y + q(x.x + 100, x.y + 100) * u;
     if (r)
       return [D, F, 0, 1];
     {
-      const b = O(g.x + 200, g.y + 200, 3, 2, 0.5) * t * 0.5;
+      const b = O(x.x + 200, x.y + 200, 3, 2, 0.5) * t * 0.5;
       return [D, F, b, 1];
     }
   });
@@ -964,18 +964,18 @@ function wn(o, e, n = {}) {
     numWaves: l = 3,
     waveAmplitude: u = 0.5
   } = n, p = N(c);
-  return V(o, e, (h, x, S, d) => {
-    const m = h / S, y = x / d;
+  return V(o, e, (h, g, S, d) => {
+    const m = h / S, y = g / d;
     let w = 0, f = 0;
     for (let b = 0; b < l; b++) {
       const _ = (b + 1) * 2, T = p() * Math.PI * 2;
       w += Math.sin(y * _ + T) * u, f += Math.cos(m * _ + T) * u;
     }
-    const v = m * a + i.x, g = y * a + i.y, P = q(v, g) * 0.3, D = m * t * 2 - t + w + P, F = y * t * 2 - t + f + q(v + 100, g + 100) * 0.3;
+    const v = m * a + i.x, x = y * a + i.y, P = q(v, x) * 0.3, D = m * t * 2 - t + w + P, F = y * t * 2 - t + f + q(v + 100, x + 100) * 0.3;
     if (r)
       return [D, F, 0, 1];
     {
-      const b = O(v + 200, g + 200, 3, 2, 0.5) * t * 0.5;
+      const b = O(v + 200, x + 200, 3, 2, 0.5) * t * 0.5;
       return [D, F, b, 1];
     }
   });
@@ -989,19 +989,19 @@ function bn(o, e, n, t = {}) {
     noiseOffset: l = { x: 0, y: 0, z: 0 },
     distance: u = 5
   } = t;
-  return V(o, e, (p, h, x, S) => {
-    const d = p / x, m = h / S, y = d * 2 - 1, w = m * 2 - 1;
-    let f, v, g;
+  return V(o, e, (p, h, g, S) => {
+    const d = p / g, m = h / S, y = d * 2 - 1, w = m * 2 - 1;
+    let f, v, x;
     if (n instanceof s.PerspectiveCamera) {
       const b = n.aspect, _ = n.fov * Math.PI / 180, T = 2 * u * Math.tan(_ / 2), C = T * b;
-      f = y * C / 2, v = w * T / 2, g = u;
+      f = y * C / 2, v = w * T / 2, x = u;
     } else if (n instanceof s.OrthographicCamera) {
       const b = n.left, _ = n.right, T = n.top, C = n.bottom;
-      f = b + (_ - b) * d, v = C + (T - C) * m, g = u;
+      f = b + (_ - b) * d, v = C + (T - C) * m, x = u;
     } else
-      f = y * r, v = w * r, g = u;
+      f = y * r, v = w * r, x = u;
     const P = d * c + l.x, D = m * c + l.y, F = q(P, D) * 0.2;
-    return f += F, v += q(P + 100, D + 100) * 0.2, a ? [f, v, 0, 1] : (g += O(P + 200, D + 200, 3, 2, 0.5) * r * 0.3, [f, v, g, 1]);
+    return f += F, v += q(P + 100, D + 100) * 0.2, a ? [f, v, 0, 1] : (x += O(P + 200, D + 200, 3, 2, 0.5) * r * 0.3, [f, v, x, 1]);
   });
 }
 function Sn(o, e, n) {
@@ -1051,7 +1051,7 @@ function Tn(o, e, n = {}) {
     noiseOffset: i = { x: 0, y: 0, z: 0 }
   } = n;
   return V(o, e, (l, u, p, h) => {
-    const x = l / p, S = u / h, d = x * a + i.x, m = S * a + i.y, y = q(d, m) * t, w = q(d + 100, m + 100) * t;
+    const g = l / p, S = u / h, d = g * a + i.x, m = S * a + i.y, y = q(d, m) * t, w = q(d + 100, m + 100) * t;
     if (r)
       return [y, w, 0, 1];
     {
@@ -1069,12 +1069,12 @@ function Pn(o, e, n = {}) {
     noiseOffset: i = { x: 0, y: 0, z: 0 }
   } = n;
   return V(o, e, (l, u, p, h) => {
-    const x = l / p, S = u / h, d = x * a + i.x, m = S * a + i.y, y = 0.01, w = q(d, m), f = q(d + y, m), v = q(d, m + y), g = -(f - w) / y * t, P = -(v - w) / y * t;
+    const g = l / p, S = u / h, d = g * a + i.x, m = S * a + i.y, y = 0.01, w = q(d, m), f = q(d + y, m), v = q(d, m + y), x = -(f - w) / y * t, P = -(v - w) / y * t;
     if (r)
-      return [g, P, 0, 1];
+      return [x, P, 0, 1];
     {
       const D = q(d + 200, m + 200) * t * 0.5;
-      return [g, P, D, 1];
+      return [x, P, D, 1];
     }
   });
 }
@@ -1088,8 +1088,8 @@ function Cn(o, e, n = {}) {
     numCenters: l = 3,
     rotationStrength: u = 1
   } = n;
-  return V(o, e, (p, h, x, S) => {
-    const d = p / x, m = h / S, y = d * 4 - 2, w = m * 4 - 2;
+  return V(o, e, (p, h, g, S) => {
+    const d = p / g, m = h / S, y = d * 4 - 2, w = m * 4 - 2;
     let f = 0, v = 0;
     for (let b = 0; b < l; b++) {
       const _ = c + b * 1e3, T = N(_), C = T() * 4 - 2, A = T() * 4 - 2, U = y - C, I = w - A, M = Math.sqrt(U * U + I * I);
@@ -1098,11 +1098,11 @@ function Cn(o, e, n = {}) {
         f += -I / M * R, v += U / M * R;
       }
     }
-    const g = d * a + i.x, P = m * a + i.y, D = q(g, P) * t * 0.3, F = q(g + 100, P + 100) * t * 0.3;
+    const x = d * a + i.x, P = m * a + i.y, D = q(x, P) * t * 0.3, F = q(x + 100, P + 100) * t * 0.3;
     if (f = (f + D) * t, v = (v + F) * t, r)
       return [f, v, 0, 1];
     {
-      const b = q(g + 200, P + 200) * t * 0.5;
+      const b = q(x + 200, P + 200) * t * 0.5;
       return [f, v, b, 1];
     }
   });
@@ -1117,8 +1117,8 @@ function qn(o, e, n = {}) {
     numCenters: l = 2,
     radialStrength: u = 1
   } = n;
-  return V(o, e, (p, h, x, S) => {
-    const d = p / x, m = h / S, y = d * 4 - 2, w = m * 4 - 2;
+  return V(o, e, (p, h, g, S) => {
+    const d = p / g, m = h / S, y = d * 4 - 2, w = m * 4 - 2;
     let f = 0, v = 0;
     for (let b = 0; b < l; b++) {
       const _ = c + b * 1e3, T = N(_), C = T() * 4 - 2, A = T() * 4 - 2, U = y - C, I = w - A, M = Math.sqrt(U * U + I * I);
@@ -1127,11 +1127,11 @@ function qn(o, e, n = {}) {
         f += U / M * R, v += I / M * R;
       }
     }
-    const g = d * a + i.x, P = m * a + i.y, D = q(g, P) * t * 0.2, F = q(g + 100, P + 100) * t * 0.2;
+    const x = d * a + i.x, P = m * a + i.y, D = q(x, P) * t * 0.2, F = q(x + 100, P + 100) * t * 0.2;
     if (f = (f + D) * t, v = (v + F) * t, r)
       return [f, v, 0, 1];
     {
-      const b = q(g + 200, P + 200) * t * 0.3;
+      const b = q(x + 200, P + 200) * t * 0.3;
       return [f, v, b, 1];
     }
   });
@@ -1146,13 +1146,13 @@ function Dn(o, e, n = {}) {
     turbulenceIntensity: l = 1,
     turbulenceOctaves: u = 4
   } = n;
-  return V(o, e, (p, h, x, S) => {
-    const d = p / x, m = h / S, y = d * a + i.x, w = m * a + i.y, f = O(y, w, u, 2, 0.5) * t * l, v = O(y + 100, w + 100, u, 2, 0.5) * t * l;
+  return V(o, e, (p, h, g, S) => {
+    const d = p / g, m = h / S, y = d * a + i.x, w = m * a + i.y, f = O(y, w, u, 2, 0.5) * t * l, v = O(y + 100, w + 100, u, 2, 0.5) * t * l;
     if (r)
       return [f, v, 0, 1];
     {
-      const g = O(y + 200, w + 200, u, 2, 0.5) * t * l;
-      return [f, v, g, 1];
+      const x = O(y + 200, w + 200, u, 2, 0.5) * t * l;
+      return [f, v, x, 1];
     }
   });
 }
@@ -1166,18 +1166,18 @@ function Fn(o, e, n = {}) {
     numWaves: l = 3,
     waveFrequency: u = 2
   } = n, p = N(c);
-  return V(o, e, (h, x, S, d) => {
-    const m = h / S, y = x / d;
+  return V(o, e, (h, g, S, d) => {
+    const m = h / S, y = g / d;
     let w = 0, f = 0;
     for (let F = 0; F < l; F++) {
       const b = p() * Math.PI * 2, _ = u * (F + 1);
       f += Math.sin(m * _ + b) * t * 0.5, w += Math.cos(y * _ + b) * t * 0.5;
     }
-    const v = m * a + i.x, g = y * a + i.y, P = q(v, g) * t * 0.3, D = q(v + 100, g + 100) * t * 0.3;
+    const v = m * a + i.x, x = y * a + i.y, P = q(v, x) * t * 0.3, D = q(v + 100, x + 100) * t * 0.3;
     if (w = (w + P) * t, f = (f + D) * t, r)
       return [w, f, 0, 1];
     {
-      const F = q(v + 200, g + 200) * t * 0.4;
+      const F = q(v + 200, x + 200) * t * 0.4;
       return [w, f, F, 1];
     }
   });
@@ -1192,8 +1192,8 @@ function Mn(o, e, n = {}) {
     numPoints: l = 2,
     convergenceStrength: u = 1
   } = n;
-  return V(o, e, (p, h, x, S) => {
-    const d = p / x, m = h / S, y = d * 4 - 2, w = m * 4 - 2;
+  return V(o, e, (p, h, g, S) => {
+    const d = p / g, m = h / S, y = d * 4 - 2, w = m * 4 - 2;
     let f = 0, v = 0;
     for (let b = 0; b < l; b++) {
       const _ = c + b * 1e3, T = N(_), C = T() * 4 - 2, A = T() * 4 - 2, U = C - y, I = A - w, M = Math.sqrt(U * U + I * I);
@@ -1202,11 +1202,11 @@ function Mn(o, e, n = {}) {
         f += U / M * R, v += I / M * R;
       }
     }
-    const g = d * a + i.x, P = m * a + i.y, D = q(g, P) * t * 0.2, F = q(g + 100, P + 100) * t * 0.2;
+    const x = d * a + i.x, P = m * a + i.y, D = q(x, P) * t * 0.2, F = q(x + 100, P + 100) * t * 0.2;
     if (f = (f + D) * t, v = (v + F) * t, r)
       return [f, v, 0, 1];
     {
-      const b = q(g + 200, P + 200) * t * 0.3;
+      const b = q(x + 200, P + 200) * t * 0.3;
       return [f, v, b, 1];
     }
   });
@@ -1224,11 +1224,11 @@ function _n(o, e, n = {}) {
       { type: "turbulent", weight: 0.3 }
     ]
   } = n;
-  return V(o, e, (u, p, h, x) => {
-    const S = u / h, d = p / x;
+  return V(o, e, (u, p, h, g) => {
+    const S = u / h, d = p / g;
     let m = 0, y = 0, w = 0, f = 0;
-    return l.forEach((v, g) => {
-      const P = c + g * 1e3, D = N(P);
+    return l.forEach((v, x) => {
+      const P = c + x * 1e3, D = N(P);
       let F = 0, b = 0, _ = 0;
       switch (v.type) {
         case "flow": {
@@ -1277,12 +1277,12 @@ function _n(o, e, n = {}) {
 }
 function De(o, e, n, t, r) {
   if (o instanceof s.Box3) {
-    const x = o, S = e ?? 16711680, d = x.getSize(new s.Vector3()), m = x.getCenter(new s.Vector3());
+    const g = o, S = e ?? 16711680, d = g.getSize(new s.Vector3()), m = g.getCenter(new s.Vector3());
     return De(d.x, d.y, d.z, S, m);
   }
   if (typeof e == "number" && typeof n == "number") {
-    const x = o, S = e, d = n, m = t ?? 65280, y = r ?? new s.Vector3(0, 0, 0), w = new s.BoxGeometry(x, S, d), f = new s.EdgesGeometry(w), v = new s.LineBasicMaterial({ color: m }), g = new s.LineSegments(f, v);
-    return g.position.copy(y), g;
+    const g = o, S = e, d = n, m = t ?? 65280, y = r ?? new s.Vector3(0, 0, 0), w = new s.BoxGeometry(g, S, d), f = new s.EdgesGeometry(w), v = new s.LineBasicMaterial({ color: m }), x = new s.LineSegments(f, v);
+    return x.position.copy(y), x;
   }
   const a = o, c = e ?? 65280, i = n instanceof s.Vector3 ? n : new s.Vector3(0, 0, 0), l = new s.BoxGeometry(a, a, a), u = new s.EdgesGeometry(l), p = new s.LineBasicMaterial({ color: c }), h = new s.LineSegments(u, p);
   return h.position.copy(i), h;
