@@ -757,8 +757,8 @@ function he(o) {
 function xe(o, e) {
   const { renderer: n, camera: t, dpi: r, scale: a } = o;
   function c() {
-    const i = window.innerWidth, l = window.innerHeight;
-    n.setSize(i * a, l * a, !1), o.canvas.style.width = `${i}px`, o.canvas.style.height = `${l}px`, t instanceof ie && (t.aspect = i / l, t.updateProjectionMatrix()), B.uResolution.value.set(i * a * r, l * a * r), e && e(o);
+    const i = o.canvas.clientWidth, l = o.canvas.clientHeight;
+    n.setSize(i * a, l * a, !1), t instanceof ie && (t.aspect = i / l, t.updateProjectionMatrix()), B.uResolution.value.set(i * a * r, l * a * r), e && e(o);
   }
   window.addEventListener("resize", c), c();
 }

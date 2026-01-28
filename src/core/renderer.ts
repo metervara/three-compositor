@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import type { RendererInfo, RendererOptions } from "../types";
 
-const defaultOptions: Required<RendererOptions> = {
+const defaultOptions: Required<Omit<RendererOptions, "canvas">> = {
   dpi: 1.0,
   scale: 1.0,
   antialias: true,
