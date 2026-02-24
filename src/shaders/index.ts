@@ -3,6 +3,7 @@ import passThroughVert from "./core/pass-through.vert";
 import textureFrag from "./core/texture.frag";
 import uvFrag from "./core/uv.frag";
 import commonGlsl from "./core/common.glsl";
+import colorGlsl from "./core/color.glsl";
 import easingGlsl from "./core/easing.glsl";
 import spaceGlsl from "./core/space.glsl";
 import bumpCurvesGlsl from "./core/bump-curves.glsl";
@@ -48,6 +49,7 @@ export const shaders = {
     textureFrag,
     uvFrag,
     commonGlsl,
+    colorGlsl,
     easingGlsl,
     spaceGlsl,
     bumpCurvesGlsl,

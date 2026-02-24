@@ -415,6 +415,7 @@ export declare const shaders: {
         readonly textureFrag: string;
         readonly uvFrag: string;
         readonly commonGlsl: string;
+        readonly colorGlsl: string;
         readonly easingGlsl: string;
         readonly spaceGlsl: string;
         readonly bumpCurvesGlsl: string;
