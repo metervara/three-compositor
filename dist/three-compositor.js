@@ -1,3435 +1,1283 @@
-var Be = Object.defineProperty;
-var Oe = (o, e, n) => e in o ? Be(o, e, { enumerable: !0, configurable: !0, writable: !0, value: n }) : o[e] = n;
-var S = (o, e, n) => (Oe(o, typeof e != "symbol" ? e + "" : e, n), n);
-import { LinearFilter as A, ClampToEdgeWrapping as E, RGBAFormat as Y, FloatType as Z, WebGLRenderTarget as X, OrthographicCamera as te, ShaderMaterial as j, Scene as Q, PlaneGeometry as ee, Mesh as ne, Vector2 as V, InstancedBufferGeometry as Pe, InstancedBufferAttribute as Te, NoBlending as pe, Vector4 as qe, Color as $, UnsignedByteType as ae, CustomBlending as fe, AddEquation as oe, OneFactor as re, ZeroFactor as ve, OneMinusSrcAlphaFactor as de, HalfFloatType as Ae, Vector3 as H, WebGLRenderer as Ve, PerspectiveCamera as ce, DataTexture as le, NearestFilter as K, RepeatWrapping as me, Box3 as ke, BoxGeometry as he, EdgesGeometry as xe, LineBasicMaterial as ge, LineSegments as ye, BufferGeometry as Ne, Float32BufferAttribute as we, Matrix4 as Le, Matrix3 as be } from "three";
-import { OrbitControls as Ye } from "three/examples/jsm/controls/OrbitControls.js";
-class Xe {
-  constructor(e, n, t) {
-    S(this, "rtA");
-    S(this, "rtB");
-    S(this, "flag", !1);
-    const r = {
-      minFilter: A,
-      magFilter: A,
-      wrapS: E,
-      wrapT: E,
-      format: Y,
-      type: Z,
-      depthBuffer: !1,
-      stencilBuffer: !1,
-      ...t
-    };
-    this.rtA = new X(e, n, r), this.rtB = new X(e, n, r), this.rtA.texture.generateMipmaps = !1, this.rtB.texture.generateMipmaps = !1, this.rtA.texture.anisotropy = 1, this.rtB.texture.anisotropy = 1;
-  }
-  get read() {
-    return this.flag ? this.rtA : this.rtB;
-  }
-  get write() {
-    return this.flag ? this.rtB : this.rtA;
-  }
-  swap() {
-    this.flag = !this.flag;
-  }
-  dispose() {
-    this.rtA.dispose(), this.rtB.dispose();
-  }
+import { AddEquation as e, Box3 as t, BoxGeometry as n, BufferGeometry as r, ClampToEdgeWrapping as i, Color as a, CustomBlending as o, DataTexture as s, EdgesGeometry as c, Float32BufferAttribute as l, FloatType as u, HalfFloatType as d, InstancedBufferAttribute as f, InstancedBufferGeometry as p, LineBasicMaterial as m, LineSegments as h, LinearFilter as g, Matrix3 as _, Matrix4 as v, Mesh as y, NearestFilter as b, NoBlending as x, OneFactor as S, OneMinusSrcAlphaFactor as C, OrthographicCamera as w, PerspectiveCamera as T, PlaneGeometry as E, RGBAFormat as D, RepeatWrapping as ee, Scene as O, ShaderMaterial as k, UnsignedByteType as A, Vector2 as j, Vector3 as M, Vector4 as N, WebGLRenderTarget as P, WebGLRenderer as te, ZeroFactor as ne } from "three";
+import { OrbitControls as re } from "three/examples/jsm/controls/OrbitControls.js";
+//#region src/utils/PingPongBuffer.ts
+var F = class {
+	rtA;
+	rtB;
+	flag = !1;
+	constructor(e, t, n) {
+		let r = {
+			minFilter: g,
+			magFilter: g,
+			wrapS: i,
+			wrapT: i,
+			format: D,
+			type: u,
+			depthBuffer: !1,
+			stencilBuffer: !1,
+			...n
+		};
+		this.rtA = new P(e, t, r), this.rtB = new P(e, t, r), this.rtA.texture.generateMipmaps = !1, this.rtB.texture.generateMipmaps = !1, this.rtA.texture.anisotropy = 1, this.rtB.texture.anisotropy = 1;
+	}
+	get read() {
+		return this.flag ? this.rtA : this.rtB;
+	}
+	get write() {
+		return this.flag ? this.rtB : this.rtA;
+	}
+	swap() {
+		this.flag = !this.flag;
+	}
+	dispose() {
+		this.rtA.dispose(), this.rtB.dispose();
+	}
+}, I = "varying vec2 vUv;\nvoid main() {\n  vUv = uv;\n  gl_Position = vec4(position, 1.0);\n}", ie = "precision highp float;\n\nuniform sampler2D srcTexture;\nvarying vec2 vUv;\n\nvoid main() {\n  gl_FragColor = texture2D(srcTexture, vUv);\n}", ae = new w(-1, 1, 1, -1, 0, 1), oe = new k({
+	uniforms: { srcTexture: { value: null } },
+	vertexShader: I,
+	fragmentShader: ie
+}), se = new O(), ce = new y(new E(2, 2), oe);
+se.add(ce);
+function L(e, t, n, r) {
+	let i = r ?? oe;
+	r && !("srcTexture" in r.uniforms) && console.warn("Blit: provided material does not have a `srcTexture` uniform. If it uses another sampler uniform name, you'll need to set it yourself before calling."), ce.material = i, i.uniforms.srcTexture.value = t, e.setRenderTarget(n), e.clear(), e.render(se, ae), e.setRenderTarget(null);
 }
-var ue = `varying vec2 vUv;
-void main() {
-  vUv = uv;
-  gl_Position = vec4(position, 1.0);
-}`, De = `precision highp float;
-
-uniform sampler2D srcTexture;
-varying vec2 vUv;
-
-void main() {
-  gl_FragColor = texture2D(srcTexture, vUv);
-}`;
-const Ge = new te(-1, 1, 1, -1, 0, 1), Ce = new j({
-  uniforms: {
-    srcTexture: { value: null }
-  },
-  vertexShader: ue,
-  fragmentShader: De
-}), Me = new Q(), We = new ee(2, 2), _e = new ne(
-  We,
-  Ce
-);
-Me.add(_e);
-function Ie(o, e, n, t) {
-  const r = t ?? Ce;
-  t && !("srcTexture" in t.uniforms) && console.warn(
-    "Blit: provided material does not have a `srcTexture` uniform. If it uses another sampler uniform name, you'll need to set it yourself before calling."
-  ), _e.material = r, r.uniforms.srcTexture.value = e, o.setRenderTarget(n), o.clear(), o.render(Me, Ge), o.setRenderTarget(null);
-}
-class Gn {
-  constructor(e) {
-    S(this, "passes", []);
-    S(this, "pingPongBuffers", /* @__PURE__ */ new Map());
-    S(this, "renderer");
-    S(this, "textureRegistry", /* @__PURE__ */ new Map());
-    S(this, "passRegistry", /* @__PURE__ */ new Map());
-    S(this, "pingPongPassMapping", /* @__PURE__ */ new Map());
-    this.renderer = e, window.__compositor = this;
-  }
-  addPass(e, n) {
-    return this.passes.push(e), n && this.passRegistry.set(n, e), e.opts.outputTextureName && e.texture && this.textureRegistry.set(e.opts.outputTextureName, e.texture), this;
-  }
-  getPass(e) {
-    return this.passRegistry.get(e);
-  }
-  getTexture(e) {
-    return this.textureRegistry.get(e);
-  }
-  registerTexture(e, n) {
-    return this.textureRegistry.set(e, n), this;
-  }
-  createPingPong(e, n, t, r) {
-    const a = new Xe(n, t, r);
-    return this.pingPongBuffers.set(e, a), this.textureRegistry.set(`${e}_read`, a.read.texture), this.textureRegistry.set(`${e}_write`, a.write.texture), a;
-  }
-  getPingPong(e) {
-    return this.pingPongBuffers.get(e);
-  }
-  swapPingPong(e) {
-    const n = this.pingPongBuffers.get(e);
-    return n && (n.swap(), this.textureRegistry.set(`${e}_read`, n.read.texture), this.textureRegistry.set(`${e}_write`, n.write.texture)), this;
-  }
-  swapAllPingPong() {
-    for (const [e, n] of this.pingPongBuffers)
-      n.swap(), this.textureRegistry.set(`${e}_read`, n.read.texture), this.textureRegistry.set(`${e}_write`, n.write.texture);
-    return this;
-  }
-  renderPass(e) {
-    if (e >= 0 && e < this.passes.length) {
-      const n = this.passes[e];
-      this.resolveDependencies(n), n.render(this.renderer);
-    }
-    return this;
-  }
-  renderPassByName(e) {
-    const n = this.getPass(e);
-    return n && (this.resolveDependencies(n), n.render(this.renderer)), this;
-  }
-  renderRange(e, n) {
-    const t = this.passes.slice(e, n);
-    for (const r of t)
-      this.resolveDependencies(r), r.render(this.renderer);
-    return this;
-  }
-  render() {
-    for (const e of this.passes)
-      this.resolveDependencies(e), e.render(this.renderer);
-    return this;
-  }
-  renderToScreen(e) {
-    const n = new V();
-    this.renderer.getSize(n), e && this.renderer.setViewport(e.x, e.y, e.width, e.height);
-    const t = this.passes[this.passes.length - 1];
-    return t && (this.resolveDependencies(t), t.render(this.renderer)), this.renderer.setViewport(0, 0, n.x, n.y), this;
-  }
-  blit(e, n) {
-    return Ie(this.renderer, e, n), this;
-  }
-  execute(e) {
-    return e(this.renderer), this;
-  }
-  clear() {
-    return this.passes = [], this.textureRegistry.clear(), this.passRegistry.clear(), this;
-  }
-  removePass(e) {
-    const n = this.passes.findIndex((t) => this.passRegistry.get(e) === t);
-    return n !== -1 && (this.passes.splice(n, 1), this.passRegistry.delete(e)), this;
-  }
-  getPassCount() {
-    return this.passes.length;
-  }
-  getDescription() {
-    var t, r, a, i;
-    const e = [];
-    let n = 0;
-    if (e.push(`Compositor with ${this.passes.length} pass${this.passes.length !== 1 ? "es" : ""}:`), this.passes.forEach((s, c) => {
-      const l = this.getPassNameByIndex(c), u = this.getPassType(s), m = this.getPassDetails(s), x = this.estimateQuadFragments(s);
-      x > 0 && (n += x), e.push(`  ${c + 1}. ${l} (${u})${m ? ` - ${m}` : ""}`);
-    }), n > 0) {
-      e.push("");
-      const s = Math.max(1, Math.round(Math.sqrt(n)));
-      e.push(`Estimated fragments (quad passes): ${n} (~${s}x${s})`);
-    }
-    if (this.pingPongBuffers.size > 0) {
-      e.push(""), e.push("Ping-pong buffers:");
-      for (const [s, c] of this.pingPongBuffers)
-        e.push(`  - ${s} (${c.read.width}x${c.read.height})`);
-    }
-    if (this.textureRegistry.size > 0) {
-      e.push(""), e.push("Registered textures:");
-      for (const [s, c] of this.textureRegistry) {
-        const l = `${((t = c.image) == null ? void 0 : t.width) || ((r = c.image) == null ? void 0 : r.videoWidth) || "?"}x${((a = c.image) == null ? void 0 : a.height) || ((i = c.image) == null ? void 0 : i.videoHeight) || "?"}`;
-        e.push(`  - ${s} (${l})`);
-      }
-    }
-    return e.join(`
-`);
-  }
-  getPassNameByIndex(e) {
-    for (const [n, t] of this.passRegistry)
-      if (this.passes[e] === t)
-        return n;
-    return `Pass ${e + 1}`;
-  }
-  getPassType(e) {
-    return e.constructor.name === "FullscreenPass" ? "Quad" : e.constructor.name === "ParticlePass" ? "Particle" : e.constructor.name === "WeightedOITParticlesPass" ? "WeightedOIT" : e.constructor.name;
-  }
-  getPassDetails(e) {
-    const n = [];
-    let t = null;
-    const r = this.getPassNameByIndex(this.passes.indexOf(e));
-    if (this.pingPongPassMapping.has(r))
-      t = this.pingPongPassMapping.get(r);
-    else
-      for (const [a, i] of this.pingPongBuffers)
-        if (e.outputTarget === i.write || e.outputTarget === i.read) {
-          t = a;
-          break;
-        }
-    if (t) {
-      const a = this.pingPongBuffers.get(t);
-      a && n.push(`ping-pong (${a.read.width}x${a.read.height}, ${t})`);
-    } else if (e.opts.rtSize)
-      n.push(`render-target (${e.opts.rtSize.width}x${e.opts.rtSize.height})`);
-    else if (e.opts.outputTarget)
-      n.push("custom render-target");
-    else {
-      const a = new V();
-      this.renderer.getSize(a), n.push(`screen (${a.x}x${a.y})`);
-    }
-    if (e.opts.viewport && n.push(`viewport (${e.opts.viewport.width}x${e.opts.viewport.height})`), e.opts.inputTextures && Object.keys(e.opts.inputTextures).length > 0) {
-      const a = Object.values(e.opts.inputTextures).join(", ");
-      n.push(`inputs: ${a}`);
-    }
-    return e.opts.outputTextureName && n.push(`output: ${e.opts.outputTextureName}`), e.opts.particleOptions && n.push(`${e.opts.particleOptions.count} particles`), n.join(", ");
-  }
-  updatePingPongPass(e, n, t, r) {
-    const a = this.getPass(e), i = this.getPingPong(n);
-    return a && i && (a.setUniform(t, i.read.texture), r && (a.outputTarget = r), this.pingPongPassMapping.set(e, n)), this;
-  }
-  resolveDependencies(e) {
-    if (e.opts.inputTextures)
-      for (const [n, t] of Object.entries(e.opts.inputTextures)) {
-        const r = this.textureRegistry.get(t);
-        r && e.setUniform(n, r);
-      }
-  }
-  estimateQuadFragments(e) {
-    let n = 0, t = 0;
-    const r = e;
-    if (e.constructor.name === "FullscreenPass")
-      if (r.outputTarget)
-        e.opts.rtSize ? (n = e.opts.rtSize.width, t = e.opts.rtSize.height) : r.outputTarget.width && r.outputTarget.height && (n = r.outputTarget.width, t = r.outputTarget.height);
-      else if (e.opts.viewport)
-        n = e.opts.viewport.width, t = e.opts.viewport.height;
-      else {
-        const s = new V();
-        this.renderer.getSize(s), n = s.x, t = s.y;
-      }
-    else if (e.constructor.name === "ParticlePass" && r.outRT === null)
-      if (e.opts.viewport)
-        n = e.opts.viewport.width, t = e.opts.viewport.height;
-      else {
-        const s = new V();
-        this.renderer.getSize(s), n = s.x, t = s.y;
-      }
-    const a = Math.max(0, Math.floor(n)), i = Math.max(0, Math.floor(t));
-    return a * i;
-  }
-  resize(e, n) {
-    for (const t of this.passes)
-      t.resize && t.resize(e, n);
-  }
-  resizePass(e, n, t) {
-    const r = this.getPass(e);
-    r && r.resize && r.resize(n, t);
-  }
-}
-function Fe(o, e = !1) {
-  if (!Number.isInteger(o) || o <= 0)
-    throw new Error("computeTextureSize: count must be a positive integer");
-  function n(s) {
-    return Math.pow(2, Math.ceil(Math.log2(s)));
-  }
-  if (!e) {
-    const s = Math.ceil(Math.sqrt(o)), c = Math.ceil(o / s);
-    return { width: s, height: c };
-  }
-  const t = Math.ceil(Math.sqrt(o)), r = n(t), a = Math.ceil(o / r), i = n(a);
-  return { width: r, height: i };
-}
-function Ue(o, e, n) {
-  if (!Number.isInteger(o) || o <= 0)
-    throw new Error("createInstancedUvBuffer: count must be a positive integer");
-  if (!Number.isInteger(e) || e <= 0)
-    throw new Error("createInstancedUvBuffer: width must be a positive integer");
-  if (!Number.isInteger(n) || n <= 0)
-    throw new Error("createInstancedUvBuffer: height must be a positive integer");
-  if (e * n < o)
-    throw new Error(
-      `createInstancedUvBuffer: texture too small (${e}x${n} = ${e * n} < count=${o})`
-    );
-  const t = new Float32Array(o * 2);
-  for (let r = 0; r < o; r++) {
-    const a = r % e + 0.5, i = Math.floor(r / e) + 0.5;
-    t[2 * r + 0] = a / e, t[2 * r + 1] = i / n;
-  }
-  return t;
-}
-class $e {
-  constructor(e) {
-    S(this, "mesh");
-    S(this, "material");
-    S(this, "geometry");
-    const { count: n, width: t, height: r, geometry: a, materialOptions: i } = e;
-    if (!i)
-      throw new Error("ParticleSystem: missing materialOptions");
-    const s = a || new ee(1, 1);
-    this.geometry = new Pe(), this.geometry.index = s.index, this.geometry.attributes = s.attributes;
-    const c = Ue(n, t, r);
-    this.geometry.setAttribute(
-      "instUv",
-      new Te(c, 2)
-    );
-    const l = { ...i.defines || {} }, u = !!i.transparent, m = i.depthWrite === void 0 ? !1 : i.depthWrite, x = i.depthTest === void 0 ? !0 : i.depthTest;
-    !u && m && x && (l.ENABLE_ALPHA_TEST = 1), this.material = new j({
-      ...i,
-      defines: l
-    }), this.mesh = new ne(this.geometry, this.material), this.mesh.frustumCulled = !1;
-  }
-  setUniform(e, n) {
-    this.material.uniforms[e] ? this.material.uniforms[e].value = n : this.material.uniforms[e] = { value: n };
-  }
-  getUniform(e) {
-    var n;
-    return (n = this.material.uniforms[e]) == null ? void 0 : n.value;
-  }
-  dispose() {
-    this.geometry.dispose(), this.material.dispose();
-  }
-}
-const B = {
-  uTime: { value: 0 },
-  uResolution: { value: new V() },
-  uMouse: { value: new V() },
-  uMouseUV: { value: new V() },
-  uMouseNDC: { value: new V() },
-  uMouseDelta: { value: new V() },
-  uMousePrev: { value: new V() },
-  uMouseUVPrev: { value: new V() },
-  uMouseNDCPrev: { value: new V() },
-  uMouseDeltaPrev: { value: new V() },
-  uScroll: { value: 0 }
+//#endregion
+//#region src/core/Compositor.ts
+var le = class {
+	passes = [];
+	pingPongBuffers = /* @__PURE__ */ new Map();
+	renderer;
+	textureRegistry = /* @__PURE__ */ new Map();
+	passRegistry = /* @__PURE__ */ new Map();
+	pingPongPassMapping = /* @__PURE__ */ new Map();
+	constructor(e) {
+		this.renderer = e, window.__compositor = this;
+	}
+	addPass(e, t) {
+		return this.passes.push(e), t && this.passRegistry.set(t, e), e.opts.outputTextureName && e.texture && this.textureRegistry.set(e.opts.outputTextureName, e.texture), this;
+	}
+	getPass(e) {
+		return this.passRegistry.get(e);
+	}
+	getTexture(e) {
+		return this.textureRegistry.get(e);
+	}
+	registerTexture(e, t) {
+		return this.textureRegistry.set(e, t), this;
+	}
+	createPingPong(e, t, n, r) {
+		let i = new F(t, n, r);
+		return this.pingPongBuffers.set(e, i), this.textureRegistry.set(`${e}_read`, i.read.texture), this.textureRegistry.set(`${e}_write`, i.write.texture), i;
+	}
+	getPingPong(e) {
+		return this.pingPongBuffers.get(e);
+	}
+	swapPingPong(e) {
+		let t = this.pingPongBuffers.get(e);
+		return t && (t.swap(), this.textureRegistry.set(`${e}_read`, t.read.texture), this.textureRegistry.set(`${e}_write`, t.write.texture)), this;
+	}
+	swapAllPingPong() {
+		for (let [e, t] of this.pingPongBuffers) t.swap(), this.textureRegistry.set(`${e}_read`, t.read.texture), this.textureRegistry.set(`${e}_write`, t.write.texture);
+		return this;
+	}
+	renderPass(e) {
+		if (e >= 0 && e < this.passes.length) {
+			let t = this.passes[e];
+			this.resolveDependencies(t), t.render(this.renderer);
+		}
+		return this;
+	}
+	renderPassByName(e) {
+		let t = this.getPass(e);
+		return t && (this.resolveDependencies(t), t.render(this.renderer)), this;
+	}
+	renderRange(e, t) {
+		let n = this.passes.slice(e, t);
+		for (let e of n) this.resolveDependencies(e), e.render(this.renderer);
+		return this;
+	}
+	render() {
+		for (let e of this.passes) this.resolveDependencies(e), e.render(this.renderer);
+		return this;
+	}
+	renderToScreen(e) {
+		let t = new j();
+		this.renderer.getSize(t), e && this.renderer.setViewport(e.x, e.y, e.width, e.height);
+		let n = this.passes[this.passes.length - 1];
+		return n && (this.resolveDependencies(n), n.render(this.renderer)), this.renderer.setViewport(0, 0, t.x, t.y), this;
+	}
+	blit(e, t) {
+		return L(this.renderer, e, t), this;
+	}
+	execute(e) {
+		return e(this.renderer), this;
+	}
+	clear() {
+		return this.passes = [], this.textureRegistry.clear(), this.passRegistry.clear(), this;
+	}
+	removePass(e) {
+		let t = this.passes.findIndex((t) => this.passRegistry.get(e) === t);
+		return t !== -1 && (this.passes.splice(t, 1), this.passRegistry.delete(e)), this;
+	}
+	getPassCount() {
+		return this.passes.length;
+	}
+	getDescription() {
+		let e = [], t = 0;
+		if (e.push(`Compositor with ${this.passes.length} pass${this.passes.length === 1 ? "" : "es"}:`), this.passes.forEach((n, r) => {
+			let i = this.getPassNameByIndex(r), a = this.getPassType(n), o = this.getPassDetails(n), s = this.estimateQuadFragments(n);
+			s > 0 && (t += s), e.push(`  ${r + 1}. ${i} (${a})${o ? ` - ${o}` : ""}`);
+		}), t > 0) {
+			e.push("");
+			let n = Math.max(1, Math.round(Math.sqrt(t)));
+			e.push(`Estimated fragments (quad passes): ${t} (~${n}x${n})`);
+		}
+		if (this.pingPongBuffers.size > 0) {
+			e.push(""), e.push("Ping-pong buffers:");
+			for (let [t, n] of this.pingPongBuffers) e.push(`  - ${t} (${n.read.width}x${n.read.height})`);
+		}
+		if (this.textureRegistry.size > 0) {
+			e.push(""), e.push("Registered textures:");
+			for (let [t, n] of this.textureRegistry) {
+				let r = `${n.image?.width || n.image?.videoWidth || "?"}x${n.image?.height || n.image?.videoHeight || "?"}`;
+				e.push(`  - ${t} (${r})`);
+			}
+		}
+		return e.join("\n");
+	}
+	getPassNameByIndex(e) {
+		for (let [t, n] of this.passRegistry) if (this.passes[e] === n) return t;
+		return `Pass ${e + 1}`;
+	}
+	getPassType(e) {
+		return e.constructor.name === "FullscreenPass" ? "Quad" : e.constructor.name === "ParticlePass" ? "Particle" : e.constructor.name === "WeightedOITParticlesPass" ? "WeightedOIT" : e.constructor.name;
+	}
+	getPassDetails(e) {
+		let t = [], n = null, r = this.getPassNameByIndex(this.passes.indexOf(e));
+		if (this.pingPongPassMapping.has(r)) n = this.pingPongPassMapping.get(r);
+		else for (let [t, r] of this.pingPongBuffers) if (e.outputTarget === r.write || e.outputTarget === r.read) {
+			n = t;
+			break;
+		}
+		if (n) {
+			let e = this.pingPongBuffers.get(n);
+			e && t.push(`ping-pong (${e.read.width}x${e.read.height}, ${n})`);
+		} else if (e.opts.rtSize) t.push(`render-target (${e.opts.rtSize.width}x${e.opts.rtSize.height})`);
+		else if (e.opts.outputTarget) t.push("custom render-target");
+		else {
+			let e = new j();
+			this.renderer.getSize(e), t.push(`screen (${e.x}x${e.y})`);
+		}
+		if (e.opts.viewport && t.push(`viewport (${e.opts.viewport.width}x${e.opts.viewport.height})`), e.opts.inputTextures && Object.keys(e.opts.inputTextures).length > 0) {
+			let n = Object.values(e.opts.inputTextures).join(", ");
+			t.push(`inputs: ${n}`);
+		}
+		return e.opts.outputTextureName && t.push(`output: ${e.opts.outputTextureName}`), e.opts.particleOptions && t.push(`${e.opts.particleOptions.count} particles`), t.join(", ");
+	}
+	updatePingPongPass(e, t, n, r) {
+		let i = this.getPass(e), a = this.getPingPong(t);
+		return i && a && (i.setUniform(n, a.read.texture), r && (i.outputTarget = r), this.pingPongPassMapping.set(e, t)), this;
+	}
+	resolveDependencies(e) {
+		if (e.opts.inputTextures) for (let [t, n] of Object.entries(e.opts.inputTextures)) {
+			let r = this.textureRegistry.get(n);
+			r && e.setUniform(t, r);
+		}
+	}
+	estimateQuadFragments(e) {
+		let t = 0, n = 0, r = e;
+		if (e.constructor.name === "FullscreenPass") if (r.outputTarget) e.opts.rtSize ? (t = e.opts.rtSize.width, n = e.opts.rtSize.height) : r.outputTarget.width && r.outputTarget.height && (t = r.outputTarget.width, n = r.outputTarget.height);
+		else if (e.opts.viewport) t = e.opts.viewport.width, n = e.opts.viewport.height;
+		else {
+			let e = new j();
+			this.renderer.getSize(e), t = e.x, n = e.y;
+		}
+		else if (e.constructor.name === "ParticlePass" && r.outRT === null) if (e.opts.viewport) t = e.opts.viewport.width, n = e.opts.viewport.height;
+		else {
+			let e = new j();
+			this.renderer.getSize(e), t = e.x, n = e.y;
+		}
+		return Math.max(0, Math.floor(t)) * Math.max(0, Math.floor(n));
+	}
+	resize(e, t) {
+		for (let n of this.passes) n.resize && n.resize(e, t);
+	}
+	resizePass(e, t, n) {
+		let r = this.getPass(e);
+		r && r.resize && r.resize(t, n);
+	}
 };
-function He(o, e = 2, n = 2) {
-  const t = {
-    ...B,
-    ...o.uniforms || {}
-  }, r = new ee(e, n), a = new j({
-    vertexShader: o.vertexShader,
-    fragmentShader: o.fragmentShader,
-    uniforms: t
-  });
-  return new ne(r, a);
+//#endregion
+//#region src/utils/particle.ts
+function R(e, t = !1) {
+	if (!Number.isInteger(e) || e <= 0) throw Error("computeTextureSize: count must be a positive integer");
+	function n(e) {
+		return 2 ** Math.ceil(Math.log2(e));
+	}
+	if (!t) {
+		let t = Math.ceil(Math.sqrt(e));
+		return {
+			width: t,
+			height: Math.ceil(e / t)
+		};
+	}
+	let r = n(Math.ceil(Math.sqrt(e)));
+	return {
+		width: r,
+		height: n(Math.ceil(e / r))
+	};
 }
-class Wn {
-  constructor(e) {
-    S(this, "scene");
-    S(this, "camera");
-    S(this, "outputTarget", null);
-    S(this, "material");
-    S(this, "opts");
-    this.opts = e;
-  }
-  init(e) {
-    const { renderer: n } = e, {
-      outputTarget: t,
-      rtSize: r,
-      clearColor: a = !0,
-      clearDepth: i = !1,
-      clearStencil: s = !1,
-      materialOptions: c,
-      seedTexture: l
-    } = this.opts;
-    if (!c)
-      throw new Error("FullscreenPass: missing materialOptions");
-    if (t)
-      this.outputTarget = t;
-    else if (r) {
-      const { width: m, height: x } = r;
-      this.outputTarget = new X(m, x, {
-        minFilter: A,
-        magFilter: A,
-        wrapS: E,
-        wrapT: E,
-        format: Y,
-        type: Z,
-        depthBuffer: !1,
-        stencilBuffer: !1
-      });
-    } else
-      this.outputTarget = null;
-    this.camera = new te(-1, 1, 1, -1, 0, 1), this.scene = new Q();
-    const u = He(c);
-    this.material = u.material, this.material && this.material.blending !== pe && (this.material.blending = pe, this.material.transparent = !1, this.material.depthWrite = !1, this.material.depthTest = !1), u.frustumCulled = !1, this.scene.add(u), this.opts.clearColor = a, this.opts.clearDepth = i, this.opts.clearStencil = s, l && this.outputTarget && Ie(
-      n,
-      l,
-      this.outputTarget
-    );
-  }
-  update(e) {
-  }
-  render(e) {
-    const {
-      clearColor: n = !0,
-      clearDepth: t = !1,
-      clearStencil: r = !1,
-      clearColorValue: a,
-      clearAlpha: i,
-      viewport: s
-    } = this.opts;
-    e.setRenderTarget(this.outputTarget);
-    let c = null;
-    s && !this.outputTarget && (c = new qe(), e.getViewport(c), e.setViewport(s.x, s.y, s.width, s.height));
-    let l = null, u = null;
-    if (n && (a !== void 0 || i !== void 0))
-      if (l = new $(), e.getClearColor(l), u = e.getClearAlpha ? e.getClearAlpha() : 1, a !== void 0) {
-        const m = a instanceof $ ? a : new $(a);
-        e.setClearColor(m, i !== void 0 ? i : u ?? 1);
-      } else
-        i !== void 0 && l && e.setClearColor(l, i);
-    (n || t || r) && e.clear(n, t, r), e.render(this.scene, this.camera), e.setRenderTarget(null), c && e.setViewport(c.x, c.y, c.z, c.w), l && e.setClearColor(l, u ?? 1);
-  }
-  get texture() {
-    return this.outputTarget ? this.outputTarget.texture : null;
-  }
-  setUniform(e, n) {
-    if (!this.material)
-      throw new Error("FullscreenPass: must call init() first");
-    this.material.uniforms[e] ? this.material.uniforms[e].value = n : this.material.uniforms[e] = { value: n };
-  }
-  resize(e, n) {
-    this.outputTarget && this.opts.rtSize && (this.outputTarget.dispose(), this.outputTarget = new X(e, n, {
-      minFilter: A,
-      magFilter: A,
-      wrapS: E,
-      wrapT: E,
-      format: Y,
-      type: Z,
-      depthBuffer: !1,
-      stencilBuffer: !1
-    }), this.opts.rtSize.width = e, this.opts.rtSize.height = n);
-  }
+function z(e, t, n) {
+	if (!Number.isInteger(e) || e <= 0) throw Error("createInstancedUvBuffer: count must be a positive integer");
+	if (!Number.isInteger(t) || t <= 0) throw Error("createInstancedUvBuffer: width must be a positive integer");
+	if (!Number.isInteger(n) || n <= 0) throw Error("createInstancedUvBuffer: height must be a positive integer");
+	if (t * n < e) throw Error(`createInstancedUvBuffer: texture too small (${t}x${n} = ${t * n} < count=${e})`);
+	let r = new Float32Array(e * 2);
+	for (let i = 0; i < e; i++) {
+		let e = i % t + .5, a = Math.floor(i / t) + .5;
+		r[2 * i + 0] = e / t, r[2 * i + 1] = a / n;
+	}
+	return r;
 }
-class $n {
-  constructor(e) {
-    S(this, "scene");
-    S(this, "camera");
-    S(this, "outRT");
-    S(this, "particleSystem");
-    S(this, "opts");
-    this.opts = e;
-  }
-  init(e) {
-    const {
-      outputTarget: n,
-      rtSize: t,
-      clearColor: r = !0,
-      clearDepth: a = !1,
-      clearStencil: i = !1,
-      materialOptions: s,
-      particleOptions: c,
-      particleSystem: l
-    } = this.opts;
-    if (this.scene = new Q(), this.camera = e.camera, l)
-      this.particleSystem = l;
-    else {
-      if (!c)
-        throw new Error("ParticlePass: missing particleOptions (or provide a particleSystem)");
-      if (!s)
-        throw new Error("ParticlePass: missing materialOptions (or provide a particleSystem)");
-      this.particleSystem = new $e({
-        count: c.count,
-        width: c.width,
-        height: c.height,
-        geometry: c.geometry,
-        materialOptions: s
-      });
-    }
-    if (this.scene.add(this.particleSystem.mesh), n)
-      this.outRT = n;
-    else if (t) {
-      const { width: u, height: m } = t;
-      this.outRT = new X(u, m, {
-        minFilter: A,
-        magFilter: A,
-        wrapS: E,
-        wrapT: E,
-        format: Y,
-        type: ae,
-        depthBuffer: this.opts.depthBuffer !== void 0 ? this.opts.depthBuffer : !1,
-        stencilBuffer: !1
-      });
-    } else
-      this.outRT = null;
-    this.opts.clearColor = r, this.opts.clearDepth = a, this.opts.clearStencil = i;
-  }
-  update(e) {
-  }
-  render(e) {
-    const {
-      clearColor: n = !0,
-      clearDepth: t = !1,
-      clearStencil: r = !1,
-      clearColorValue: a,
-      clearAlpha: i
-    } = this.opts;
-    e.setRenderTarget(this.outRT);
-    let s = null, c = null;
-    if (n && (a !== void 0 || i !== void 0))
-      if (s = new $(), e.getClearColor(s), c = e.getClearAlpha ? e.getClearAlpha() : 1, a !== void 0) {
-        const l = a instanceof $ ? a : new $(a);
-        e.setClearColor(l, i !== void 0 ? i : c ?? 1);
-      } else
-        i !== void 0 && s && e.setClearColor(s, i);
-    (n || t || r) && e.clear(n, t, r), e.render(this.scene, this.camera), s && e.setClearColor(s, c ?? 1), e.setRenderTarget(null);
-  }
-  get texture() {
-    return this.outRT ? this.outRT.texture : null;
-  }
-  get outputTarget() {
-    return this.outRT;
-  }
-  set outputTarget(e) {
-    this.outRT = e;
-  }
-  setUniform(e, n) {
-    this.particleSystem.setUniform(e, n);
-  }
-  resize(e, n) {
-    this.outRT && this.opts.rtSize && (this.outRT.dispose(), this.outRT = new X(e, n, {
-      minFilter: A,
-      magFilter: A,
-      wrapS: E,
-      wrapT: E,
-      format: Y,
-      type: ae,
-      depthBuffer: this.opts.depthBuffer !== void 0 ? this.opts.depthBuffer : !1,
-      stencilBuffer: !1
-    }), this.opts.rtSize.width = e, this.opts.rtSize.height = n);
-  }
-}
-class Hn {
-  constructor(e) {
-    S(this, "scene");
-    S(this, "camera");
-    S(this, "_outputTarget", null);
-    S(this, "opts");
-    this.opts = e;
-  }
-  init(e) {
-    const {
-      outputTarget: n,
-      rtSize: t,
-      clearColor: r = !0,
-      clearDepth: a = !0,
-      clearStencil: i = !1
-    } = this.opts;
-    if (this.scene = this.opts.scene || e.scene, this.camera = this.opts.camera || e.camera, n)
-      this._outputTarget = n;
-    else if (t) {
-      const { width: s, height: c } = t;
-      this._outputTarget = new X(s, c, {
-        minFilter: A,
-        magFilter: A,
-        wrapS: E,
-        wrapT: E,
-        format: Y,
-        type: ae,
-        depthBuffer: this.opts.depthBuffer !== void 0 ? this.opts.depthBuffer : !0,
-        stencilBuffer: !1
-      });
-    } else
-      this._outputTarget = null;
-    this.opts.clearColor = r, this.opts.clearDepth = a, this.opts.clearStencil = i;
-  }
-  update(e) {
-  }
-  render(e) {
-    const { clearColor: n = !0, clearDepth: t = !0, clearStencil: r = !1, viewport: a } = this.opts;
-    e.setRenderTarget(this._outputTarget);
-    let i = null;
-    a && !this._outputTarget && (i = new qe(), e.getViewport(i), e.setViewport(a.x, a.y, a.width, a.height)), (n || t || r) && e.clear(n, t, r), e.render(this.scene, this.camera), e.setRenderTarget(null), i && e.setViewport(i.x, i.y, i.z, i.w);
-  }
-  get texture() {
-    return this._outputTarget ? this._outputTarget.texture : null;
-  }
-  resize(e, n) {
-    this._outputTarget && this.opts.rtSize && (this._outputTarget.dispose(), this._outputTarget = new X(e, n, {
-      minFilter: A,
-      magFilter: A,
-      wrapS: E,
-      wrapT: E,
-      format: Y,
-      type: ae,
-      depthBuffer: this.opts.depthBuffer !== void 0 ? this.opts.depthBuffer : !0,
-      stencilBuffer: !1
-    }), this.opts.rtSize.width = e, this.opts.rtSize.height = n);
-  }
-}
-var Re = `precision highp float;
-
-uniform sampler2D tAccum;
-uniform sampler2D tReveal;
-varying vec2 vUv;
-
-void main() {
-  vec4 accum = texture2D(tAccum, vUv);
-  vec4 reveal = texture2D(tReveal, vUv);
-
-  float oneMinusAlpha = clamp(reveal.r, 0.0, 1.0);
-  float alpha = 1.0 - oneMinusAlpha;
-  vec3 color = accum.rgb / max(accum.a, 1e-6);
-  
-  gl_FragColor = vec4(color, alpha);
-}`;
-class jn {
-  constructor(e) {
-    S(this, "particleScene");
-    S(this, "camera");
-    S(this, "accumRT");
-    S(this, "revealRT");
-    S(this, "particleMesh");
-    S(this, "accumMaterial");
-    S(this, "revealMaterial");
-    S(this, "compositeScene");
-    S(this, "compositeCamera");
-    S(this, "compositeMesh");
-    S(this, "opts");
-    this.opts = e;
-  }
-  init(e) {
-    const {
-      materialOptions: n,
-      particleOptions: t,
-      rtSize: r
-    } = this.opts;
-    if (!n)
-      throw new Error("WeightedOITParticlesPass: missing materialOptions");
-    if (!t)
-      throw new Error("WeightedOITParticlesPass: missing particleOptions");
-    this.camera = e.camera, this.particleScene = new Q();
-    const a = t.geometry || new ee(1, 1), i = new Pe();
-    i.index = a.index, i.attributes = a.attributes;
-    const s = Ue(t.count, t.width, t.height);
-    i.setAttribute("instUv", new Te(s, 2)), this.accumMaterial = new j({
-      ...n,
-      transparent: !0,
-      depthWrite: !1,
-      blending: fe,
-      blendEquation: oe,
-      blendSrc: re,
-      blendDst: re,
-      blendEquationAlpha: oe,
-      blendSrcAlpha: re,
-      blendDstAlpha: re
-    }), this.revealMaterial = new j({
-      ...n,
-      defines: { ...n.defines || {}, REVEAL_PASS: 1 },
-      transparent: !0,
-      depthWrite: !1,
-      blending: fe,
-      blendEquation: oe,
-      blendSrc: ve,
-      blendDst: de,
-      blendEquationAlpha: oe,
-      blendSrcAlpha: ve,
-      blendDstAlpha: de
-    }), this.particleMesh = new ne(i, this.accumMaterial), this.particleMesh.frustumCulled = !1, this.particleScene.add(this.particleMesh);
-    const c = r || (() => {
-      const x = new V();
-      return e.renderer.getSize(x), { width: x.x, height: x.y };
-    })(), l = {
-      minFilter: A,
-      magFilter: A,
-      wrapS: E,
-      wrapT: E,
-      format: Y,
-      type: Ae,
-      depthBuffer: !1,
-      stencilBuffer: !1
-    };
-    this.accumRT = new X(c.width, c.height, l), this.revealRT = new X(c.width, c.height, l), this.compositeCamera = new te(-1, 1, 1, -1, 0, 1), this.compositeScene = new Q();
-    const u = new ee(2, 2), m = new j({
-      vertexShader: ue,
-      fragmentShader: Re,
-      uniforms: {
-        tAccum: { value: this.accumRT.texture },
-        tReveal: { value: this.revealRT.texture }
-      },
-      depthTest: !1,
-      depthWrite: !1,
-      transparent: !0
-    });
-    this.compositeMesh = new ne(u, m), this.compositeMesh.frustumCulled = !1, this.compositeScene.add(this.compositeMesh);
-  }
-  update(e) {
-  }
-  setUniform(e, n) {
-    this.accumMaterial.uniforms[e] ? this.accumMaterial.uniforms[e].value = n : this.accumMaterial.uniforms[e] = { value: n }, this.revealMaterial.uniforms[e] ? this.revealMaterial.uniforms[e].value = n : this.revealMaterial.uniforms[e] = { value: n };
-  }
-  render(e) {
-    const n = e.getClearColor(new $()).clone(), t = e.getClearAlpha();
-    e.setRenderTarget(null), e.render(this.particleScene.parent || this.particleScene, this.camera), e.setRenderTarget(this.accumRT), e.setClearColor(0, 0), e.clear(!0, !0, !1), this.particleMesh.material = this.accumMaterial, e.render(this.particleScene, this.camera), e.setRenderTarget(this.revealRT), e.setClearColor(16777215, 1), e.clear(!0, !0, !1), this.particleMesh.material = this.revealMaterial, e.render(this.particleScene, this.camera), e.setClearColor(n, t), e.setRenderTarget(null), e.render(this.compositeScene, this.compositeCamera);
-  }
-  get texture() {
-    return null;
-  }
-}
-const je = {
-  dpi: 1,
-  scale: 1,
-  antialias: !0,
-  imageRendering: "auto",
-  cameraType: "orthographic",
-  fov: 50,
-  near: 0.1,
-  far: 100,
-  cameraPosition: new H(0, 0, 5),
-  useOrbit: !1
+//#endregion
+//#region src/core/ParticleSystem.ts
+var B = class {
+	mesh;
+	material;
+	geometry;
+	constructor(e) {
+		let { count: t, width: n, height: r, geometry: i, materialOptions: a } = e;
+		if (!a) throw Error("ParticleSystem: missing materialOptions");
+		let o = i || new E(1, 1);
+		this.geometry = new p(), this.geometry.index = o.index, this.geometry.attributes = o.attributes;
+		let s = z(t, n, r);
+		this.geometry.setAttribute("instUv", new f(s, 2));
+		let c = { ...a.defines || {} }, l = !!a.transparent, u = a.depthWrite === void 0 ? !1 : a.depthWrite, d = a.depthTest === void 0 ? !0 : a.depthTest;
+		!l && u && d && (c.ENABLE_ALPHA_TEST = 1), this.material = new k({
+			...a,
+			defines: c
+		}), this.mesh = new y(this.geometry, this.material), this.mesh.frustumCulled = !1;
+	}
+	setUniform(e, t) {
+		this.material.uniforms[e] ? this.material.uniforms[e].value = t : this.material.uniforms[e] = { value: t };
+	}
+	getUniform(e) {
+		return this.material.uniforms[e]?.value;
+	}
+	dispose() {
+		this.geometry.dispose(), this.material.dispose();
+	}
+}, V = {
+	uTime: { value: 0 },
+	uResolution: { value: new j() },
+	uMouse: { value: new j() },
+	uMouseUV: { value: new j() },
+	uMouseNDC: { value: new j() },
+	uMouseDelta: { value: new j() },
+	uMousePrev: { value: new j() },
+	uMouseUVPrev: { value: new j() },
+	uMouseNDCPrev: { value: new j() },
+	uMouseDeltaPrev: { value: new j() },
+	uScroll: { value: 0 }
 };
-function Ze(o = {}) {
-  const e = { ...je, ...o }, n = e.canvas || document.createElement("canvas");
-  n.style.imageRendering = e.imageRendering, e.canvas || document.body.appendChild(n);
-  const t = new Ve({
-    canvas: n,
-    antialias: e.antialias
-  });
-  t.setPixelRatio(e.dpi), t.autoClear = !1;
-  let r;
-  const a = window.innerWidth / window.innerHeight;
-  if (e.cameraType === "perspective") {
-    const s = new ce(e.fov, a, e.near, e.far);
-    s.position.set(e.cameraPosition.x, e.cameraPosition.y, e.cameraPosition.z), s.lookAt(0, 0, 0), r = s;
-  } else {
-    const s = -a, c = a, l = 1, u = -1;
-    r = new te(s, c, l, u, e.near, e.far);
-  }
-  e.useOrbit && new Ye(r, t.domElement).update();
-  const i = new Q();
-  return { renderer: t, scene: i, camera: r, canvas: n, dpi: e.dpi, scale: e.scale };
-}
-let se = !1, ie = -1;
-function Qe(o) {
-  const { dpi: e, scale: n } = o, t = e * n;
-  let r, a, i, s;
-  const c = () => {
-    if (r === void 0 || a === void 0 || i === void 0 || s === void 0) {
-      requestAnimationFrame(c);
-      return;
-    }
-    const l = o.canvas.getBoundingClientRect(), u = l.width, m = l.height, x = i - l.left, b = s - l.top, v = x * t, d = m * t - b * t, g = x / u, y = b / m, p = g * 2 - 1, f = -(y * 2 - 1), h = v - r, P = d - a;
-    r = v, a = d, B.uMousePrev.value.set(r, a), B.uMouseUVPrev.value.set(B.uMouseUV.value.x, B.uMouseUV.value.y), B.uMouseNDCPrev.value.set(B.uMouseNDC.value.x, B.uMouseNDC.value.y), B.uMouseDeltaPrev.value.set(B.uMouseDelta.value.x, B.uMouseDelta.value.y), B.uMouse.value.set(v, d), B.uMouseUV.value.set(g, y), B.uMouseNDC.value.set(p, f), B.uMouseDelta.value.set(h, P), requestAnimationFrame(c);
-  };
-  window.addEventListener("mousemove", (l) => {
-    if (i = l.clientX, s = l.clientY, r === void 0 || a === void 0) {
-      const u = o.canvas.getBoundingClientRect(), m = l.clientX - u.left, x = l.clientY - u.top;
-      r = m * t, a = u.height * t - x * t, requestAnimationFrame(c);
-    }
-  }), window.addEventListener("scroll", () => {
-    B.uScroll.value = window.scrollY;
-  }), window.addEventListener("mousedown", (l) => {
-    se = !0, ie = l.button;
-  }), window.addEventListener("mouseup", () => {
-    se = !1, ie = -1;
-  }), window.addEventListener("mouseleave", () => {
-    se = !1, ie = -1;
-  });
-}
-function Ke(o, e) {
-  const { renderer: n, camera: t, dpi: r, scale: a } = o;
-  function i() {
-    const s = o.canvas.clientWidth, c = o.canvas.clientHeight;
-    n.setSize(s * a, c * a, !1), t instanceof ce && (t.aspect = s / c, t.updateProjectionMatrix()), B.uResolution.value.set(s * a * r, c * a * r), e && e(o);
-  }
-  window.addEventListener("resize", i), i();
-}
-function Je(o, e) {
-  function n(t) {
-    const r = t * 1e-3;
-    B.uTime.value = r, e(r), requestAnimationFrame(n);
-  }
-  requestAnimationFrame(n);
-}
-function Zn(o) {
-  const e = Ze(o.config), n = o.setupInputs ?? !0, t = o.setupResize ?? !0;
-  n && Qe(e), t && Ke(e, o.onResize), o.init(e), en(), tn(), rn(o.onToggleInfo), Je(e, o.update);
-}
-function en() {
-  setTimeout(() => {
-    const o = window.__compositor;
-    if (o && typeof o.getDescription == "function") {
-      const e = o.getDescription();
-      an(e);
-    }
-  }, 0);
-}
-function nn() {
-  let o = document.getElementById("info-overlay");
-  return o || (o = document.createElement("div"), o.id = "info-overlay", o.className = "info-overlay", document.body.appendChild(o)), o.style.display = "none", o;
-}
-function tn() {
-  document.removeEventListener("keydown", Se), document.addEventListener("keydown", Se);
-}
-function Se(o) {
-  (o.key === "i" || o.key === "I") && on();
-}
-function on() {
-  const o = document.getElementById("info-overlay");
-  if (o) {
-    const t = getComputedStyle(o).display === "none";
-    o.style.display = t ? "block" : "none", typeof ze() == "function" && ze()(t);
-  }
-}
-let Ee;
-function rn(o) {
-  Ee = o;
-}
-function ze() {
-  return Ee;
-}
-function an(o) {
-  let e = document.getElementById("compositor-description");
-  e ? e.innerHTML = "" : (e = document.createElement("div"), e.id = "compositor-description", e.className = "compositor-description", nn().appendChild(e));
-  const n = o.split(`
-`);
-  n.forEach((t, r) => {
-    if (t.trim()) {
-      const a = document.createElement("span");
-      a.textContent = t, t.includes(":") && !t.startsWith("  ") && !t.startsWith("	") && a.classList.add("title"), e.appendChild(a);
-    }
-    r < n.length - 1 && e.appendChild(document.createElement("br"));
-  });
-}
-function N(o, e, n, t) {
-  const r = o * e * 4, a = new Float32Array(r);
-  let i = 0;
-  for (let c = 0; c < e; c++)
-    for (let l = 0; l < o; l++) {
-      const [u, m, x, b] = n(l, c, o, e);
-      a[i++] = u, a[i++] = m, a[i++] = x, a[i++] = b;
-    }
-  const s = new le(
-    a,
-    o,
-    e,
-    Y,
-    Z
-  );
-  return s.minFilter = (t == null ? void 0 : t.minFilter) ?? K, s.magFilter = (t == null ? void 0 : t.magFilter) ?? K, s.wrapS = (t == null ? void 0 : t.wrapS) ?? me, s.wrapT = (t == null ? void 0 : t.wrapT) ?? me, s.needsUpdate = !0, s;
-}
-function sn(o) {
-  return o - Math.floor(o * (1 / 289)) * 289;
-}
-function U(o) {
-  return sn((o * 34 + 1) * o);
-}
-function J(o) {
-  return o * o * o * (o * (o * 6 - 15) + 10);
-}
-function L(o, e, n, t) {
-  const r = o & 15, a = r < 8 ? e : n, i = r < 4 ? n : r === 12 || r === 14 ? e : t ?? 0;
-  return (r & 1 ? -a : a) + (r & 2 ? -i : i);
-}
-function q(o, e) {
-  const n = Math.floor(o), t = Math.floor(e);
-  o = o - n, e = e - t;
-  const r = J(o), a = J(e), i = L(U(U(n) + t), o, e), s = L(U(U(n) + t + 1), o, e - 1), c = L(U(U(n + 1) + t), o - 1, e), l = L(U(U(n + 1) + t + 1), o - 1, e - 1), u = i + r * (c - i), m = s + r * (l - s);
-  return 2.3 * (u + a * (m - u));
-}
-function cn(o, e, n) {
-  const t = Math.floor(o), r = Math.floor(e), a = Math.floor(n);
-  o = o - t, e = e - r, n = n - a;
-  const i = J(o), s = J(e), c = J(n), l = U(t) + r, u = U(l) + a, m = U(l + 1) + a, x = U(t + 1) + r, b = U(x) + a, v = U(x + 1) + a, d = L(U(u), o, e, n), g = L(U(m), o, e, n - 1), y = L(U(u + 1), o, e - 1, n), p = L(U(m + 1), o, e - 1, n - 1), f = L(U(b), o - 1, e, n), h = L(U(v), o - 1, e, n - 1), P = L(U(b + 1), o - 1, e - 1, n), D = L(U(v + 1), o - 1, e - 1, n - 1), C = d + i * (f - d), w = g + i * (h - g), _ = y + i * (P - y), z = p + i * (D - p), T = C + s * (_ - C), O = w + s * (z - w);
-  return 2.3 * (T + c * (O - T));
-}
-function k(o, e, n = 6, t = 2, r = 0.5) {
-  let a = 0, i = 0.5, s = 1;
-  for (let c = 0; c < n; c++)
-    a += i * q(o * s, e * s), s *= t, i *= r;
-  return a;
-}
-function Qn(o, e, n, t = 6, r = 2, a = 0.5) {
-  let i = 0, s = 0.5, c = 1;
-  for (let l = 0; l < t; l++)
-    i += s * cn(o * c, e * c, n * c), c *= r, s *= a;
-  return i;
-}
-function Kn(o, e, n = 6, t = 2, r = 0.5, a = 1) {
-  let i = 0, s = 0.5, c = 1;
-  for (let l = 0; l < n; l++) {
-    let u = q(o * c, e * c);
-    u = a - Math.abs(u), u *= u, i += u * s, c *= t, s *= r;
-  }
-  return i * 1.25;
-}
-function ln(o, e, n = 0.1) {
-  const t = q(o, e) * n, r = q(o + 100, e + 100) * n;
-  return {
-    x: o + t,
-    y: e + r
-  };
-}
-function G(o) {
-  let e = o;
-  return () => (e = (e * 1664525 + 1013904223) % 4294967296, e / 4294967296);
-}
-function Jn(o, e, n = {}) {
-  const {
-    bounds: t = 2,
-    is2D: r = !1,
-    noiseScale: a = 0.1,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 }
-  } = n, c = G(i);
-  return N(o, e, (l, u, m, x) => {
-    const b = l / m, v = u / x, d = c() * 0.1, g = (b + d) * a + s.x, y = (v + d) * a + s.y, f = k(g, y, 4, 2, 0.5) * t, h = k(g + 100, y + 100, 4, 2, 0.5) * t;
-    if (r)
-      return [f, h, 0, 1];
-    {
-      const P = k(g + 200, y + 200, 4, 2, 0.5) * t;
-      return [f, h, P, 1];
-    }
-  });
-}
-function et(o, e, n = {}) {
-  const {
-    bounds: t = 2,
-    is2D: r = !1,
-    noiseScale: a = 0.1,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 }
-  } = n, c = G(i);
-  return N(o, e, (l, u, m, x) => {
-    const b = l / m, v = u / x, d = b * Math.PI * 4, g = v * t, y = (b + c() * 0.1) * a + s.x, p = (v + c() * 0.1) * a + s.y, f = q(y, p) * 0.3, h = (g + f) * Math.cos(d), P = (g + f) * Math.sin(d);
-    if (r)
-      return [h, P, 0, 1];
-    {
-      const D = k(y + 200, p + 200, 3, 2, 0.5) * t * 0.5;
-      return [h, P, D, 1];
-    }
-  });
-}
-function nt(o, e, n = {}) {
-  const {
-    bounds: t = 2,
-    is2D: r = !1,
-    noiseScale: a = 0.1,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 },
-    numClusters: c = 5,
-    clusterSize: l = 0.8
-  } = n;
-  return N(o, e, (u, m, x, b) => {
-    const v = u / x, d = m / b;
-    let g = 1 / 0, y = { x: 0, y: 0 };
-    for (let w = 0; w < c; w++) {
-      const _ = i + w * 1e3, z = G(_), T = z() * t * 2 - t, O = z() * t * 2 - t, R = Math.sqrt((v - (T + t) / (t * 2)) ** 2 + (d - (O + t) / (t * 2)) ** 2);
-      R < g && (g = R, y = { x: T, y: O });
-    }
-    const p = v * a + s.x, f = d * a + s.y, h = ln(p, f, 0.2), P = q(h.x, h.y) * l, D = y.x + P, C = y.y + q(h.x + 100, h.y + 100) * l;
-    if (r)
-      return [D, C, 0, 1];
-    {
-      const w = k(h.x + 200, h.y + 200, 3, 2, 0.5) * t * 0.5;
-      return [D, C, w, 1];
-    }
-  });
-}
-function tt(o, e, n = {}) {
-  const {
-    bounds: t = 2,
-    is2D: r = !1,
-    noiseScale: a = 0.1,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 },
-    numWaves: c = 3,
-    waveAmplitude: l = 0.5
-  } = n, u = G(i);
-  return N(o, e, (m, x, b, v) => {
-    const d = m / b, g = x / v;
-    let y = 0, p = 0;
-    for (let w = 0; w < c; w++) {
-      const _ = (w + 1) * 2, z = u() * Math.PI * 2;
-      y += Math.sin(g * _ + z) * l, p += Math.cos(d * _ + z) * l;
-    }
-    const f = d * a + s.x, h = g * a + s.y, P = q(f, h) * 0.3, D = d * t * 2 - t + y + P, C = g * t * 2 - t + p + q(f + 100, h + 100) * 0.3;
-    if (r)
-      return [D, C, 0, 1];
-    {
-      const w = k(f + 200, h + 200, 3, 2, 0.5) * t * 0.5;
-      return [D, C, w, 1];
-    }
-  });
-}
-function ot(o, e, n, t = {}) {
-  const {
-    bounds: r = 2,
-    is2D: a = !1,
-    noiseScale: i = 0.1,
-    seed: s = Math.random() * 1e3,
-    noiseOffset: c = { x: 0, y: 0, z: 0 },
-    distance: l = 5
-  } = t;
-  return N(o, e, (u, m, x, b) => {
-    const v = u / x, d = m / b, g = v * 2 - 1, y = d * 2 - 1;
-    let p, f, h;
-    if (n instanceof ce) {
-      const w = n.aspect, _ = n.fov * Math.PI / 180, z = 2 * l * Math.tan(_ / 2), T = z * w;
-      p = g * T / 2, f = y * z / 2, h = l;
-    } else if (n instanceof te) {
-      const w = n.left, _ = n.right, z = n.top, T = n.bottom;
-      p = w + (_ - w) * v, f = T + (z - T) * d, h = l;
-    } else
-      p = g * r, f = y * r, h = l;
-    const P = v * i + c.x, D = d * i + c.y, C = q(P, D) * 0.2;
-    return p += C, f += q(P + 100, D + 100) * 0.2, a ? [p, f, 0, 1] : (h += k(P + 200, D + 200, 3, 2, 0.5) * r * 0.3, [p, f, h, 1]);
-  });
-}
-function rt(o, e, n) {
-  const { width: t, height: r } = Fe(e), a = t * r, i = new Float32Array(a * 4);
-  for (let c = 0; c < e; c++) {
-    const l = c * 3, u = c * 4;
-    i[u + 0] = o[l + 0], i[u + 1] = o[l + 1], i[u + 2] = o[l + 2], i[u + 3] = n ? n[c] : 1;
-  }
-  for (let c = e; c < a; c++) {
-    const l = c * 4;
-    i[l + 0] = 0, i[l + 1] = 0, i[l + 2] = 0, i[l + 3] = 0;
-  }
-  const s = new le(
-    i,
-    t,
-    r,
-    Y,
-    Z
-  );
-  return s.minFilter = K, s.magFilter = K, s.wrapS = E, s.wrapT = E, s.needsUpdate = !0, { texture: s, width: t, height: r };
-}
-function at(o, e) {
-  const { width: n, height: t } = Fe(e), r = n * t, a = new Float32Array(r * 4);
-  for (let s = 0; s < e; s++) {
-    const c = s * 3, l = s * 4;
-    a[l + 0] = o[c + 0], a[l + 1] = o[c + 1], a[l + 2] = o[c + 2], a[l + 3] = 1;
-  }
-  for (let s = e; s < r; s++) {
-    const c = s * 4;
-    a[c + 0] = 0, a[c + 1] = 1, a[c + 2] = 0, a[c + 3] = 1;
-  }
-  const i = new le(
-    a,
-    n,
-    t,
-    Y,
-    Z
-  );
-  return i.minFilter = K, i.magFilter = K, i.wrapS = E, i.wrapT = E, i.needsUpdate = !0, { texture: i, width: n, height: t };
-}
-function st(o, e, n = {}) {
-  const {
-    maxSpeed: t = 0.5,
-    is2D: r = !1,
-    noiseScale: a = 0.05,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 }
-  } = n;
-  return N(o, e, (c, l, u, m) => {
-    const x = c / u, b = l / m, v = x * a + s.x, d = b * a + s.y, g = q(v, d) * t, y = q(v + 100, d + 100) * t;
-    if (r)
-      return [g, y, 0, 1];
-    {
-      const p = q(v + 200, d + 200) * t;
-      return [g, y, p, 1];
-    }
-  });
-}
-function it(o, e, n = {}) {
-  const {
-    maxSpeed: t = 0.5,
-    is2D: r = !1,
-    noiseScale: a = 0.05,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 }
-  } = n;
-  return N(o, e, (c, l, u, m) => {
-    const x = c / u, b = l / m, v = x * a + s.x, d = b * a + s.y, g = 0.01, y = q(v, d), p = q(v + g, d), f = q(v, d + g), h = -(p - y) / g * t, P = -(f - y) / g * t;
-    if (r)
-      return [h, P, 0, 1];
-    {
-      const D = q(v + 200, d + 200) * t * 0.5;
-      return [h, P, D, 1];
-    }
-  });
-}
-function ct(o, e, n = {}) {
-  const {
-    maxSpeed: t = 0.5,
-    is2D: r = !1,
-    noiseScale: a = 0.05,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 },
-    numCenters: c = 3,
-    rotationStrength: l = 1
-  } = n;
-  return N(o, e, (u, m, x, b) => {
-    const v = u / x, d = m / b, g = v * 4 - 2, y = d * 4 - 2;
-    let p = 0, f = 0;
-    for (let w = 0; w < c; w++) {
-      const _ = i + w * 1e3, z = G(_), T = z() * 4 - 2, O = z() * 4 - 2, R = g - T, I = y - O, M = Math.sqrt(R * R + I * I);
-      if (M > 0.01) {
-        const F = l * Math.exp(-M * 2);
-        p += -I / M * F, f += R / M * F;
-      }
-    }
-    const h = v * a + s.x, P = d * a + s.y, D = q(h, P) * t * 0.3, C = q(h + 100, P + 100) * t * 0.3;
-    if (p = (p + D) * t, f = (f + C) * t, r)
-      return [p, f, 0, 1];
-    {
-      const w = q(h + 200, P + 200) * t * 0.5;
-      return [p, f, w, 1];
-    }
-  });
-}
-function lt(o, e, n = {}) {
-  const {
-    maxSpeed: t = 0.5,
-    is2D: r = !1,
-    noiseScale: a = 0.05,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 },
-    numCenters: c = 2,
-    radialStrength: l = 1
-  } = n;
-  return N(o, e, (u, m, x, b) => {
-    const v = u / x, d = m / b, g = v * 4 - 2, y = d * 4 - 2;
-    let p = 0, f = 0;
-    for (let w = 0; w < c; w++) {
-      const _ = i + w * 1e3, z = G(_), T = z() * 4 - 2, O = z() * 4 - 2, R = g - T, I = y - O, M = Math.sqrt(R * R + I * I);
-      if (M > 0.01) {
-        const F = l * Math.exp(-M * 1.5);
-        p += R / M * F, f += I / M * F;
-      }
-    }
-    const h = v * a + s.x, P = d * a + s.y, D = q(h, P) * t * 0.2, C = q(h + 100, P + 100) * t * 0.2;
-    if (p = (p + D) * t, f = (f + C) * t, r)
-      return [p, f, 0, 1];
-    {
-      const w = q(h + 200, P + 200) * t * 0.3;
-      return [p, f, w, 1];
-    }
-  });
-}
-function ut(o, e, n = {}) {
-  const {
-    maxSpeed: t = 0.5,
-    is2D: r = !1,
-    noiseScale: a = 0.05,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 },
-    turbulenceIntensity: c = 1,
-    turbulenceOctaves: l = 4
-  } = n;
-  return N(o, e, (u, m, x, b) => {
-    const v = u / x, d = m / b, g = v * a + s.x, y = d * a + s.y, p = k(g, y, l, 2, 0.5) * t * c, f = k(g + 100, y + 100, l, 2, 0.5) * t * c;
-    if (r)
-      return [p, f, 0, 1];
-    {
-      const h = k(g + 200, y + 200, l, 2, 0.5) * t * c;
-      return [p, f, h, 1];
-    }
-  });
-}
-function pt(o, e, n = {}) {
-  const {
-    maxSpeed: t = 0.5,
-    is2D: r = !1,
-    noiseScale: a = 0.05,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 },
-    numWaves: c = 3,
-    waveFrequency: l = 2
-  } = n, u = G(i);
-  return N(o, e, (m, x, b, v) => {
-    const d = m / b, g = x / v;
-    let y = 0, p = 0;
-    for (let C = 0; C < c; C++) {
-      const w = u() * Math.PI * 2, _ = l * (C + 1);
-      p += Math.sin(d * _ + w) * t * 0.5, y += Math.cos(g * _ + w) * t * 0.5;
-    }
-    const f = d * a + s.x, h = g * a + s.y, P = q(f, h) * t * 0.3, D = q(f + 100, h + 100) * t * 0.3;
-    if (y = (y + P) * t, p = (p + D) * t, r)
-      return [y, p, 0, 1];
-    {
-      const C = q(f + 200, h + 200) * t * 0.4;
-      return [y, p, C, 1];
-    }
-  });
-}
-function ft(o, e, n = {}) {
-  const {
-    maxSpeed: t = 0.5,
-    is2D: r = !1,
-    noiseScale: a = 0.05,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 },
-    numPoints: c = 2,
-    convergenceStrength: l = 1
-  } = n;
-  return N(o, e, (u, m, x, b) => {
-    const v = u / x, d = m / b, g = v * 4 - 2, y = d * 4 - 2;
-    let p = 0, f = 0;
-    for (let w = 0; w < c; w++) {
-      const _ = i + w * 1e3, z = G(_), T = z() * 4 - 2, O = z() * 4 - 2, R = T - g, I = O - y, M = Math.sqrt(R * R + I * I);
-      if (M > 0.01) {
-        const F = l * Math.exp(-M * 1);
-        p += R / M * F, f += I / M * F;
-      }
-    }
-    const h = v * a + s.x, P = d * a + s.y, D = q(h, P) * t * 0.2, C = q(h + 100, P + 100) * t * 0.2;
-    if (p = (p + D) * t, f = (f + C) * t, r)
-      return [p, f, 0, 1];
-    {
-      const w = q(h + 200, P + 200) * t * 0.3;
-      return [p, f, w, 1];
-    }
-  });
-}
-function vt(o, e, n = {}) {
-  const {
-    maxSpeed: t = 0.5,
-    is2D: r = !1,
-    noiseScale: a = 0.05,
-    seed: i = Math.random() * 1e3,
-    noiseOffset: s = { x: 0, y: 0, z: 0 },
-    patterns: c = [
-      { type: "flow", weight: 0.4 },
-      { type: "rotational", weight: 0.3 },
-      { type: "turbulent", weight: 0.3 }
-    ]
-  } = n;
-  return N(o, e, (l, u, m, x) => {
-    const b = l / m, v = u / x;
-    let d = 0, g = 0, y = 0, p = 0;
-    return c.forEach((f, h) => {
-      const P = i + h * 1e3, D = G(P);
-      let C = 0, w = 0, _ = 0;
-      switch (f.type) {
-        case "flow": {
-          const z = b * a + s.x, T = v * a + s.y;
-          C = q(z, T) * t, w = q(z + 100, T + 100) * t, r || (_ = q(z + 200, T + 200) * t);
-          break;
-        }
-        case "rotational": {
-          const z = b * 4 - 2, T = v * 4 - 2, O = D() * 4 - 2, R = D() * 4 - 2, I = z - O, M = T - R, F = Math.sqrt(I * I + M * M);
-          if (F > 0.01) {
-            const W = Math.exp(-F * 2);
-            C = -M / F * W * t, w = I / F * W * t;
-          }
-          break;
-        }
-        case "turbulent": {
-          const z = b * a + s.x, T = v * a + s.y;
-          C = k(z, T, 4, 2, 0.5) * t, w = k(z + 100, T + 100, 4, 2, 0.5) * t, r || (_ = k(z + 200, T + 200, 4, 2, 0.5) * t);
-          break;
-        }
-        case "wave": {
-          const T = D() * Math.PI * 2;
-          C = Math.cos(v * 2 + T) * t * 0.5, w = Math.sin(b * 2 + T) * t * 0.5;
-          break;
-        }
-        case "radial": {
-          const z = b * 4 - 2, T = v * 4 - 2, O = D() * 4 - 2, R = D() * 4 - 2, I = z - O, M = T - R, F = Math.sqrt(I * I + M * M);
-          if (F > 0.01) {
-            const W = Math.exp(-F * 1.5);
-            C = I / F * W * t, w = M / F * W * t;
-          }
-          break;
-        }
-        case "convergent": {
-          const z = b * 4 - 2, T = v * 4 - 2, O = D() * 4 - 2, R = D() * 4 - 2, I = O - z, M = R - T, F = Math.sqrt(I * I + M * M);
-          if (F > 0.01) {
-            const W = Math.exp(-F * 1);
-            C = I / F * W * t, w = M / F * W * t;
-          }
-          break;
-        }
-      }
-      d += C * f.weight, g += w * f.weight, y += _ * f.weight, p += f.weight;
-    }), p > 0 && (d /= p, g /= p, y /= p), r ? [d, g, 0, 1] : [d, g, y, 1];
-  });
-}
-function un(o, e, n, t, r) {
-  if (o instanceof ke) {
-    const x = o, b = e ?? 16711680, v = x.getSize(new H()), d = x.getCenter(new H());
-    return un(v.x, v.y, v.z, b, d);
-  }
-  if (typeof e == "number" && typeof n == "number") {
-    const x = o, b = e, v = n, d = t ?? 65280, g = r ?? new H(0, 0, 0), y = new he(x, b, v), p = new xe(y), f = new ge({ color: d }), h = new ye(p, f);
-    return h.position.copy(g), h;
-  }
-  const a = o, i = e ?? 65280, s = n instanceof H ? n : new H(0, 0, 0), c = new he(a, a, a), l = new xe(c), u = new ge({ color: i }), m = new ye(l, u);
-  return m.position.copy(s), m;
-}
-function pn(o = 0.2) {
-  const e = new Ne(), n = [], t = [], r = [];
-  return n.push(
-    0,
-    0.5,
-    0,
-    -0.5,
-    -0.5,
-    0,
-    0,
-    -0.5 + o,
-    0,
-    0.5,
-    -0.5,
-    0
-  ), t.push(
-    0.5,
-    1,
-    0,
-    0,
-    0.5,
-    0.2,
-    1,
-    0
-  ), r.push(
-    0,
-    1,
-    2,
-    0,
-    2,
-    3
-  ), e.setAttribute("position", new we(n, 3)), e.setAttribute("uv", new we(t, 2)), e.setIndex(r), e.computeVertexNormals(), e;
-}
-function dt() {
-  return pn(0.2);
-}
-function mt(o, e = 0) {
-  const t = new Le().multiplyMatrices(
-    o.projectionMatrix,
-    o.matrixWorldInverse
-  ).elements, r = (s, c) => t[c * 4 + s], a = new be().set(
-    r(0, 0),
-    r(0, 1),
-    r(0, 2) * e + r(0, 3),
-    r(1, 0),
-    r(1, 1),
-    r(1, 2) * e + r(1, 3),
-    r(3, 0),
-    r(3, 1),
-    r(3, 2) * e + r(3, 3)
-  ), i = a.determinant();
-  return Math.abs(i) < 1e-8 ? null : new be().copy(a).invert();
-}
-var fn = `uniform vec2 uResolution;
-
-void main() {
-  vec2 uv = (gl_FragCoord.xy ) / uResolution.xy;
-  gl_FragColor = vec4(uv, 0.0, 1.0);
-}`, vn = `float circleSDF(vec2 uv, float r) {
-  return length(uv) - r;
-}
-
-vec3 pal(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
-  return a + b * cos(6.28318 * (c * t + d));
-}
-
-mat4 rotationAxisAngle( vec3 v, float angle )
-{
-    float s = sin( angle );
-    float c = cos( angle );
-    float ic = 1.0 - c;
-
-    return mat4( v.x*v.x*ic + c,     v.y*v.x*ic - s*v.z, v.z*v.x*ic + s*v.y, 0.0,
-                 v.x*v.y*ic + s*v.z, v.y*v.y*ic + c,     v.z*v.y*ic - s*v.x, 0.0,
-                 v.x*v.z*ic - s*v.y, v.y*v.z*ic + s*v.x, v.z*v.z*ic + c,     0.0,
-			     0.0,                0.0,                0.0,                1.0 );
-}`, dn = `vec3 sample6LobesSphereLinear(vec3 dir,
-                              vec3 colPosX, vec3 colNegX,
-                              vec3 colPosY, vec3 colNegY,
-                              vec3 colPosZ, vec3 colNegZ,
-                              float sharpness)
-{
-    float len2 = dot(dir, dir);
-    if (len2 < 1e-12) return colPosZ;
-    dir *= inversesqrt(len2);
-
-    float wxp = pow(max( dir.x, 0.0), sharpness);
-    float wxn = pow(max(-dir.x, 0.0), sharpness);
-    float wyp = pow(max( dir.y, 0.0), sharpness);
-    float wyn = pow(max(-dir.y, 0.0), sharpness);
-    float wzp = pow(max( dir.z, 0.0), sharpness);
-    float wzn = pow(max(-dir.z, 0.0), sharpness);
-
-    float wSum = max(wxp + wxn + wyp + wyn + wzp + wzn, 1e-8);
-
-    return (colPosX * wxp + colNegX * wxn +
-            colPosY * wyp + colNegY * wyn +
-            colPosZ * wzp + colNegZ * wzn) / wSum;
-}`, mn = `float easeLinear(float t) {
-  return t;
-}
-
-float easeInQuad(float t) {
-  return t * t;
-}
-
-float easeOutQuad(float t) {
-  return 1.0 - (1.0 - t) * (1.0 - t);
-}
-
-float easeInOutQuad(float t) {
-  return t < 0.5 ? 2.0 * t * t : 1.0 - pow(-2.0 * t + 2.0, 2.0) / 2.0;
-}
-
-float easeInCubic(float t) {
-  return t * t * t;
-}
-
-float easeOutCubic(float t) {
-  return 1.0 - pow(1.0 - t, 3.0);
-}
-
-float easeInOutCubic(float t) {
-  return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0;
-}
-
-float easeInQuart(float t) {
-  return t * t * t * t;
-}
-
-float easeOutQuart(float t) {
-  return 1.0 - pow(1.0 - t, 4.0);
-}
-
-float easeInOutQuart(float t) {
-  return t < 0.5 ? 8.0 * t * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 4.0) / 2.0;
-}
-
-float easeInQuint(float t) {
-  return t * t * t * t * t;
-}
-
-float easeOutQuint(float t) {
-  return 1.0 - pow(1.0 - t, 5.0);
-}
-
-float easeInOutQuint(float t) {
-  return t < 0.5 ? 16.0 * t * t * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 5.0) / 2.0;
-}
-
-float easeInSine(float t) {
-  return 1.0 - cos((t * 3.14159265359) / 2.0);
-}
-
-float easeOutSine(float t) {
-  return sin((t * 3.14159265359) / 2.0);
-}
-
-float easeInOutSine(float t) {
-  return -(cos(3.14159265359 * t) - 1.0) / 2.0;
-}
-
-float easeInExpo(float t) {
-  return t == 0.0 ? 0.0 : pow(2.0, 10.0 * (t - 1.0));
-}
-
-float easeOutExpo(float t) {
-  return t == 1.0 ? 1.0 : 1.0 - pow(2.0, -10.0 * t);
-}
-
-float easeInOutExpo(float t) {
-  if (t == 0.0) return 0.0;
-  if (t == 1.0) return 1.0;
-  return t < 0.5 ? pow(2.0, 20.0 * t - 10.0) / 2.0 : (2.0 - pow(2.0, -20.0 * t + 10.0)) / 2.0;
-}
-
-float easeInCirc(float t) {
-  return 1.0 - sqrt(1.0 - pow(t, 2.0));
-}
-
-float easeOutCirc(float t) {
-  return sqrt(1.0 - pow(t - 1.0, 2.0));
-}
-
-float easeInOutCirc(float t) {
-  return t < 0.5 ? (1.0 - sqrt(1.0 - pow(2.0 * t, 2.0))) / 2.0 : (sqrt(1.0 - pow(-2.0 * t + 2.0, 2.0)) + 1.0) / 2.0;
-}
-
-float easeInBack(float t) {
-  const float c1 = 1.70158;
-  const float c3 = c1 + 1.0;
-  return c3 * t * t * t - c1 * t * t;
-}
-
-float easeOutBack(float t) {
-  const float c1 = 1.70158;
-  const float c3 = c1 + 1.0;
-  return 1.0 + c3 * pow(t - 1.0, 3.0) + c1 * pow(t - 1.0, 2.0);
-}
-
-float easeInOutBack(float t) {
-  const float c1 = 1.70158;
-  const float c2 = c1 * 1.525;
-  return t < 0.5 ? (pow(2.0 * t, 2.0) * ((c2 + 1.0) * 2.0 * t - c2)) / 2.0 : (pow(2.0 * t - 2.0, 2.0) * ((c2 + 1.0) * (t * 2.0 - 2.0) + c2) + 2.0) / 2.0;
-}
-
-float easeInElastic(float t) {
-  if (t == 0.0) return 0.0;
-  if (t == 1.0) return 1.0;
-  return -pow(2.0, 10.0 * t - 10.0) * sin((t * 10.0 - 10.75) * (2.0 * 3.14159265359) / 3.0);
-}
-
-float easeOutElastic(float t) {
-  if (t == 0.0) return 0.0;
-  if (t == 1.0) return 1.0;
-  return pow(2.0, -10.0 * t) * sin((t * 10.0 - 0.75) * (2.0 * 3.14159265359) / 3.0) + 1.0;
-}
-
-float easeInOutElastic(float t) {
-  if (t == 0.0) return 0.0;
-  if (t == 1.0) return 1.0;
-  return t < 0.5 ? -(pow(2.0, 20.0 * t - 10.0) * sin((20.0 * t - 11.125) * (2.0 * 3.14159265359) / 4.5)) / 2.0 : (pow(2.0, -20.0 * t + 10.0) * sin((20.0 * t - 11.125) * (2.0 * 3.14159265359) / 4.5)) / 2.0 + 1.0;
-}
-
-float easeOutBounce(float t) {
-  const float n1 = 7.5625;
-  const float d1 = 2.75;
-  
-  if (t < 1.0 / d1) {
-    return n1 * t * t;
-  } else if (t < 2.0 / d1) {
-    return n1 * (t -= 1.5 / d1) * t + 0.75;
-  } else if (t < 2.5 / d1) {
-    return n1 * (t -= 2.25 / d1) * t + 0.9375;
-  } else {
-    return n1 * (t -= 2.625 / d1) * t + 0.984375;
-  }
-}
-
-float easeInBounce(float t) {
-  return 1.0 - easeOutBounce(1.0 - t);
-}
-
-float easeInOutBounce(float t) {
-  return t < 0.5 ? (1.0 - easeOutBounce(1.0 - 2.0 * t)) / 2.0 : (1.0 + easeOutBounce(2.0 * t - 1.0)) / 2.0;
-}`, hn = `vec3 toroidalDelta(vec3 cur, vec3 prev, vec3 bounds) {
-  vec3 d = cur - prev;
-  vec3 halfB = bounds * 0.5;
-  if (d.x >  halfB.x) d.x -= bounds.x; else if (d.x < -halfB.x) d.x += bounds.x;
-  if (d.y >  halfB.y) d.y -= bounds.y; else if (d.y < -halfB.y) d.y += bounds.y;
-  if (d.z >  halfB.z) d.z -= bounds.z; else if (d.z < -halfB.z) d.z += bounds.z;
-  return d;
-}
-
-vec3 wrapHysteresis(vec3 p, vec3 innerBounds, float margin) {
-  vec3 innerHalf = innerBounds * 0.5;
-  vec3 outerHalf = innerHalf * (1.0 + margin);
-  const float eps = 0.001;
-  if (p.x < -outerHalf.x)      p.x =  outerHalf.x - eps;
-  else if (p.x >  outerHalf.x) p.x = -outerHalf.x + eps;
-  if (p.y < -outerHalf.y)      p.y =  outerHalf.y - eps;
-  else if (p.y >  outerHalf.y) p.y = -outerHalf.y + eps;
-  if (p.z < -outerHalf.z)      p.z =  outerHalf.z - eps;
-  else if (p.z >  outerHalf.z) p.z = -outerHalf.z + eps;
-  return p;
-}
-
-float edgeFactorWithinBounds(vec3 pos, vec3 bounds, float wrapMargin) {
-  vec3 innerHalf = 0.5 * bounds;
-  vec3 outerHalf = innerHalf * (1.0 + wrapMargin);
-  vec3 ap = abs(pos);
-  vec3 over = max(ap - innerHalf, 0.0);
-  vec3 span = max(outerHalf - innerHalf, vec3(1e-6));
-  vec3 t = clamp(over / span, 0.0, 1.0);
-  return 1.0 - max(max(t.x, t.y), t.z);
-}`, xn = `#define PI 3.14159265358979323846
-#define TAU 6.28318530717958647692
-
-float bumpSine(float x) {
-    x = clamp(x, 0.0, 1.0);
-    return sin(PI * x);
-}
-
-float bumpCirc(float x) {
-    x = clamp(x, 0.0, 1.0);
-    float u = 2.0 * x - 1.0;          
-    return sqrt(max(0.0, 1.0 - u*u)); 
-}
-
-float bumpTriangle(float x) {
-    x = clamp(x, 0.0, 1.0);
-    return 1.0 - abs(2.0 * x - 1.0);
-}`, gn = `precision highp float;
-
-varying vec2 vUv;
-
-uniform sampler2D uInput;
-uniform vec2 uTexelSize; 
-
-void main() {
-  vec2 d = vec2(uTexelSize.x, 0.0);
-  vec4 sum = vec4(0.0);
-  sum += texture2D(uInput, vUv + d * -4.0) * 0.05;
-  sum += texture2D(uInput, vUv + d * -3.0) * 0.09;
-  sum += texture2D(uInput, vUv + d * -2.0) * 0.12;
-  sum += texture2D(uInput, vUv + d * -1.0) * 0.15;
-  sum += texture2D(uInput, vUv)             * 0.16;
-  sum += texture2D(uInput, vUv + d *  1.0) * 0.15;
-  sum += texture2D(uInput, vUv + d *  2.0) * 0.12;
-  sum += texture2D(uInput, vUv + d *  3.0) * 0.09;
-  sum += texture2D(uInput, vUv + d *  4.0) * 0.05;
-  gl_FragColor = sum;
-}`, yn = `precision highp float;
-
-varying vec2 vUv;
-
-uniform sampler2D uInput;
-uniform vec2 uTexelSize; 
-
-void main() {
-  vec2 d = vec2(0.0, uTexelSize.y);
-  vec4 sum = vec4(0.0);
-  sum += texture2D(uInput, vUv + d * -4.0) * 0.05;
-  sum += texture2D(uInput, vUv + d * -3.0) * 0.09;
-  sum += texture2D(uInput, vUv + d * -2.0) * 0.12;
-  sum += texture2D(uInput, vUv + d * -1.0) * 0.15;
-  sum += texture2D(uInput, vUv)             * 0.16;
-  sum += texture2D(uInput, vUv + d *  1.0) * 0.15;
-  sum += texture2D(uInput, vUv + d *  2.0) * 0.12;
-  sum += texture2D(uInput, vUv + d *  3.0) * 0.09;
-  sum += texture2D(uInput, vUv + d *  4.0) * 0.05;
-  gl_FragColor = sum;
-}`, wn = `precision highp float;
-
-varying vec2 vUv;
-
-uniform sampler2D uInput;
-uniform vec2 uTexelSize;
-uniform float uBlurScale;
-uniform float uDepthThreshold;
-
-void main() {
-    vec4 centerSample = texture2D(uInput, vUv);
-    float centerDepth = centerSample.a;
-    
-    vec4 colorSum = vec4(0.0);
-    float weightSum = 0.0;
-    
-    vec2 dir = vec2(uTexelSize.x * uBlurScale, 0.0);
-    
-    
-    
-    
-    vec4 s; float d; float dw; float w;
-    float depthThreshSq = uDepthThreshold * uDepthThreshold + 0.0001;
-    
-    
-    s = texture2D(uInput, vUv + dir * -4.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.05 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * -3.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.09 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * -2.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.12 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * -1.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.15 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    d = 0.0;  
-    dw = 1.0;
-    w = 0.16 * dw;
-    colorSum += centerSample * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * 1.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.15 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * 2.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.12 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * 3.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.09 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * 4.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.05 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    gl_FragColor = colorSum / max(weightSum, 0.0001);
-}`, bn = `precision highp float;
-
-varying vec2 vUv;
-
-uniform sampler2D uInput;
-uniform vec2 uTexelSize;
-uniform float uBlurScale;
-uniform float uDepthThreshold;
-
-void main() {
-    vec4 centerSample = texture2D(uInput, vUv);
-    float centerDepth = centerSample.a;
-    
-    vec4 colorSum = vec4(0.0);
-    float weightSum = 0.0;
-    
-    vec2 dir = vec2(0.0, uTexelSize.y * uBlurScale);
-    
-    
-    
-    
-    vec4 s; float d; float dw; float w;
-    float depthThreshSq = uDepthThreshold * uDepthThreshold + 0.0001;
-    
-    
-    s = texture2D(uInput, vUv + dir * -4.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.05 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * -3.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.09 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * -2.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.12 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * -1.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.15 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    d = 0.0;  
-    dw = 1.0;
-    w = 0.16 * dw;
-    colorSum += centerSample * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * 1.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.15 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * 2.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.12 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * 3.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.09 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    s = texture2D(uInput, vUv + dir * 4.0);
-    d = abs(s.a - centerDepth);
-    dw = exp(-d * d / depthThreshSq);
-    w = 0.05 * dw;
-    colorSum += s * w; weightSum += w;
-    
-    
-    gl_FragColor = colorSum / max(weightSum, 0.0001);
-}`, Sn = `attribute vec2 instUv;       
-uniform sampler2D uPositionTex;
-uniform float quadSize;   
-
-varying vec2 vUv;
-varying vec2 vQuadUv;
-varying float vAlive;  
-
-void main() {
-  
-  vec4 posData = texture2D(uPositionTex, instUv);
-  vec3 pos = posData.xyz;
-  vAlive = posData.w;  
-
-  
-  vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
-
-  
-  vec2 offset = position.xy * quadSize * mvPos.w;
-
-  mvPos.xy += offset;
-
-  
-  gl_Position = projectionMatrix * mvPos;
-
-  
-  vUv = instUv;
-  vQuadUv = uv;
-}`, zn = `attribute vec2 instUv; 
-
-uniform sampler2D uPositionTex;
-uniform sampler2D uPrevPositionTex;
-uniform float quadSize; 
-uniform float stretchFactor; 
-uniform float squashFactor; 
-uniform float uTime;
-
-varying vec2 vUv;
-
-void main() {
-  vec3 curPos = texture2D(uPositionTex, instUv).xyz;
-  vec3 prevPos = texture2D(uPrevPositionTex, instUv).xyz;
-  vec3 Vcur = (modelViewMatrix * vec4(curPos,1.)).xyz;
-  vec3 Vprev = (modelViewMatrix * vec4(prevPos,1.)).xyz;
-
-  
-  vec3 motion = Vcur - Vprev;
-  float speed = length(motion);
-  vec3 mDir = speed > 1e-6 ? motion/speed : vec3(0,1,0);
-
-  
-  vec3 normal = normalize(-Vcur);
-  vec3 upUn = mDir - normal * dot(mDir, normal);
-  vec3 up = length(upUn) > 1e-6 ? normalize(upUn) : vec3(0,1,0);
-  vec3 right = normalize(cross(normal, up));
-
-  
-  vec4 mvPos = vec4(Vcur, 1.0);
-  float halfSz = quadSize * mvPos.w;
-  float stretch = 1.0 + speed * stretchFactor;
-  float invStretch = 1.0 / stretch;
-  float squash = mix(1.0, invStretch, squashFactor);
-
-  
-  vec3 offset = right*(position.x * halfSz * squash) + up*(position.y * halfSz * stretch);
-  mvPos.xyz += offset;
-  gl_Position = projectionMatrix * mvPos;
-
-  vUv = position.xy + 0.5; 
-}`, Pn = `attribute vec2 instUv; 
-
-uniform sampler2D uPositionTex;
-uniform sampler2D uVelocityTex;
-uniform float quadSize; 
-uniform float stretchFactor; 
-uniform float squashFactor; 
-uniform float speedMin; 
-uniform float speedMax; 
-uniform float useSpeedVariation; 
-uniform float uTime;
-
-varying vec2 vUv;
-
-void main() {
-  vec3 curPos = texture2D(uPositionTex, instUv).xyz;
-  vec3 velocity = texture2D(uVelocityTex, instUv).xyz;
-  vec3 Vcur = (modelViewMatrix * vec4(curPos,1.)).xyz;
-
-  
-  float speed = length(velocity);
-  vec3 mDir = speed > 1e-6 ? normalize(velocity) : vec3(0,1,0);
-  
-  
-  vec3 mDirView = normalize((modelViewMatrix * vec4(mDir, 0.0)).xyz);
-
-  
-  vec3 normal = normalize(-Vcur);
-  vec3 upUn = mDirView - normal * dot(mDirView, normal);
-  vec3 up = length(upUn) > 1e-6 ? normalize(upUn) : vec3(0,1,0);
-  vec3 right = normalize(cross(normal, up));
-
-  
-  vec4 mvPos = vec4(Vcur, 1.0);
-  float halfSz = quadSize * mvPos.w;
-  
-  
-  float effectAmount = 0.0;
-  
-  if (useSpeedVariation > 0.5) {
-    
-    if (speed > speedMin) {
-      float speedRange = speedMax - speedMin;
-      if (speedRange > 0.0) {
-        effectAmount = clamp((speed - speedMin) / speedRange, 0.0, 1.0);
-      }
-    }
-  } else {
-    
-    effectAmount = speed > 0.01 ? 1.0 : 0.0;
-  }
-  
-  float stretchAmount = effectAmount * stretchFactor;
-  float stretch = 1.0 + stretchAmount;
-  
-  float squashAmount = effectAmount * squashFactor;
-  float invStretch = 1.0 / stretch;
-  float squash = mix(1.0, invStretch, squashAmount);
-
-  
-  vec3 offset = right*(position.x * halfSz * squash) + up*(position.y * halfSz * stretch);
-  mvPos.xyz += offset;
-  gl_Position = projectionMatrix * mvPos;
-
-  vUv = position.xy + 0.5; 
-}`, Tn = `#define PI 3.14159265358979323846
-#define TAU 6.28318530717958647692
-
-float bumpSine(float x) {
-    x = clamp(x, 0.0, 1.0);
-    return sin(PI * x);
-}
-
-float bumpCirc(float x) {
-    x = clamp(x, 0.0, 1.0);
-    float u = 2.0 * x - 1.0;          
-    return sqrt(max(0.0, 1.0 - u*u)); 
-}
-
-float bumpTriangle(float x) {
-    x = clamp(x, 0.0, 1.0);
-    return 1.0 - abs(2.0 * x - 1.0);
-}
-
-attribute vec2 instUv;       
-uniform sampler2D uPositionTex;
-uniform float quadSize;   
-
-varying vec2 vUv;
-varying vec2 vQuadUv;
-
-void main() {
-  
-  vec4 posData = texture2D(uPositionTex, instUv);
-  vec3 pos = posData.xyz;
-  float life = posData.w;
-
-  
-  vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
-
-  float lifeScale = bumpSine(life);
-  float scaledQuadSize = quadSize * lifeScale;
-
-  
-  vec2 offset = position.xy * scaledQuadSize * mvPos.w;
-
-  mvPos.xy += offset;
-
-  
-  gl_Position = projectionMatrix * mvPos;
-
-  
-  vUv = instUv;
-  vQuadUv = uv;
-}`, qn = `float circleAlpha(vec2 uv, float softEdge) {
-  vec2 center = uv * 2.0 - 1.0;
-  float d = length(center);
-  float a = 1.0 - clamp((d - (1.0 - softEdge)) / softEdge, 0.0, 1.0);
-  return a;
-}
-
-void alphaTestDiscard(float alpha, float threshold) {
-  if (alpha < threshold) discard;
-}
-
-#ifdef ENABLE_ALPHA_TEST
-  #define ALPHA_TEST(alpha, threshold) if ((alpha) < (threshold)) discard;
-#else
-  #define ALPHA_TEST(alpha, threshold)
-#endif`, Dn = `varying vec2 vUv;
-varying vec2 vQuadUv;
-void main() {
-  
-  
-  gl_FragColor = vec4(vQuadUv, 0.0, 1.0);
-}`, Cn = `uniform vec3 uColorAlive;
-uniform vec3 uColorDead;
-
-varying float vAlive;
-
-void main() {
-  vec3 color = mix(uColorDead, uColorAlive, vAlive);
-  gl_FragColor = vec4(color, 1.0);
-}`, Mn = `precision highp float;
-
-uniform sampler2D uPositionTex; 
-varying vec2 vUv;               
-varying vec2 vQuadUv;           
-
-uniform float uSmoothFrom;      
-uniform float uSmoothTo;        
-
-void main() {
-  float life = texture2D(uPositionTex, vUv).w;
-  if (life <= 0.0) discard;     
-  
-  
-  vec2 center = vec2(0.5, 0.5);
-  float dist = distance(vQuadUv, center);
-  float radius = 0.5;
-  
-  
-  
-  float edge = smoothstep(uSmoothFrom * radius, uSmoothTo * radius, dist);
-  float alpha = 1.0 - edge;
-  
-  
-  alpha *= life;
-  
-  
-  vec3 color = vec3(1.0, 1.0, 1.0);
-  
-  gl_FragColor = vec4(color, alpha);
-}`, _n = `uniform sampler2D uVelocityTex;
-uniform float speedMin;
-uniform float speedMax;
-uniform float useSpeedVariation;
-
-varying vec2 vUv;
-
-void main() {
-  
-  vec3 velocity = texture2D(uVelocityTex, vUv).xyz;
-  float speed = length(velocity);
-  
-  vec3 color;
-  
-  if (useSpeedVariation > 0.5) {
-    
-    float normalizedSpeed = clamp((speed - speedMin) / (speedMax - speedMin), 0.0, 1.0);
-    color = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), normalizedSpeed);
-  } else {
-    
-    if (speed > 0.01) {
-      color = vec3(0.0, 0.8, 1.0); 
-    } else {
-      color = vec3(1.0, 0.0, 0.0); 
-    }
-  }
-  
-  
-  float alpha = 0.7 + 0.3 * clamp(speed, 0.0, 1.0);
-  
-  gl_FragColor = vec4(color, alpha);
-}`, In = `#ifndef GLCORE_NOISE_COMMON_GLSL
-#define GLCORE_NOISE_COMMON_GLSL
-
-float mod289(float x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-
-vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
-vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
-
-vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-vec3 taylorInvSqrt(vec3 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-
-vec3 fade(vec3 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
-vec2 fade(vec2 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
-
-#endif`, Fn = `#ifndef GLCORE_NOISE_PERLIN_GLSL
-#define GLCORE_NOISE_PERLIN_GLSL
-
-float mod289(float x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-
-vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
-vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
-
-vec3 fade(vec3 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
-vec2 fade(vec2 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
-
-float pnoise(vec2 P)
-{
-  vec2 Pi = floor(P);
-  vec2 Pf = P - Pi;
-  vec2 f = fade(Pf);
-
-  
-  vec4 ix = vec4(Pi.x, Pi.x + 1.0, Pi.x,     Pi.x + 1.0);
-  vec4 iy = vec4(Pi.y, Pi.y,       Pi.y + 1.0, Pi.y + 1.0);
-
-  vec4 i  = permute(permute(ix) + iy);
-
-  
-  vec4 gx = fract(i * (1.0 / 41.0)) * 2.0 - 1.0;
-  vec4 gy = abs(gx) - 0.5;
-  vec4 tx = floor(gx + 0.5);
-  gx = gx - tx;
-
-  vec2 g00 = vec2(gx.x, gy.x);
-  vec2 g10 = vec2(gx.y, gy.y);
-  vec2 g01 = vec2(gx.z, gy.z);
-  vec2 g11 = vec2(gx.w, gy.w);
-
-  float n00 = dot(g00, Pf);
-  float n10 = dot(g10, Pf - vec2(1.0, 0.0));
-  float n01 = dot(g01, Pf - vec2(0.0, 1.0));
-  float n11 = dot(g11, Pf - vec2(1.0, 1.0));
-
-  float nx0 = mix(n00, n10, f.x);
-  float nx1 = mix(n01, n11, f.x);
-  float nxy = mix(nx0, nx1, f.y);
-  return 2.3 * nxy; 
-}
-
-float pnoise(vec3 P)
-{
-  vec3 Pi = floor(P);
-  vec3 Pf = P - Pi;
-  vec3 f = fade(Pf);
-
-  
-  vec4 ix = vec4(Pi.x, Pi.x + 1.0, Pi.x,     Pi.x + 1.0);
-  vec4 iy = vec4(Pi.y, Pi.y,       Pi.y + 1.0, Pi.y + 1.0);
-  vec4 iz0 = vec4(Pi.z);
-  vec4 iz1 = vec4(Pi.z + 1.0);
-
-  vec4 i0 = permute(permute(permute(ix) + iy) + iz0);
-  vec4 i1 = permute(permute(permute(ix) + iy) + iz1);
-
-  
-  vec4 gx0 = fract(i0 * (1.0 / 41.0)) * 2.0 - 1.0;
-  vec4 gy0 = abs(gx0) - 0.5;
-  vec4 gz0 = 1.5 - abs(gx0) - abs(gy0);
-  vec4 sz0 = step(gz0, vec4(0.0));
-  gx0 -= sz0 * (step(0.0, gx0) - 0.5);
-
-  vec4 gx1 = fract(i1 * (1.0 / 41.0)) * 2.0 - 1.0;
-  vec4 gy1 = abs(gx1) - 0.5;
-  vec4 gz1 = 1.5 - abs(gx1) - abs(gy1);
-  vec4 sz1 = step(gz1, vec4(0.0));
-  gx1 -= sz1 * (step(0.0, gx1) - 0.5);
-
-  vec3 g000 = vec3(gx0.x, gy0.x, gz0.x);
-  vec3 g100 = vec3(gx0.y, gy0.y, gz0.y);
-  vec3 g010 = vec3(gx0.z, gy0.z, gz0.z);
-  vec3 g110 = vec3(gx0.w, gy0.w, gz0.w);
-  vec3 g001 = vec3(gx1.x, gy1.x, gz1.x);
-  vec3 g101 = vec3(gx1.y, gy1.y, gz1.y);
-  vec3 g011 = vec3(gx1.z, gy1.z, gz1.z);
-  vec3 g111 = vec3(gx1.w, gy1.w, gz1.w);
-
-  float n000 = dot(g000, Pf);
-  float n100 = dot(g100, Pf - vec3(1.0, 0.0, 0.0));
-  float n010 = dot(g010, Pf - vec3(0.0, 1.0, 0.0));
-  float n110 = dot(g110, Pf - vec3(1.0, 1.0, 0.0));
-  float n001 = dot(g001, Pf - vec3(0.0, 0.0, 1.0));
-  float n101 = dot(g101, Pf - vec3(1.0, 0.0, 1.0));
-  float n011 = dot(g011, Pf - vec3(0.0, 1.0, 1.0));
-  float n111 = dot(g111, Pf - vec3(1.0, 1.0, 1.0));
-
-  float nx00 = mix(n000, n100, f.x);
-  float nx10 = mix(n010, n110, f.x);
-  float nx01 = mix(n001, n101, f.x);
-  float nx11 = mix(n011, n111, f.x);
-
-  float nxy0 = mix(nx00, nx10, f.y);
-  float nxy1 = mix(nx01, nx11, f.y);
-
-  float nxyz = mix(nxy0, nxy1, f.z);
-  return 2.2 * nxyz; 
-}
-
-#endif`, Un = `#ifndef GLCORE_NOISE_SIMPLEX_GLSL
-#define GLCORE_NOISE_SIMPLEX_GLSL
-
-float mod289(float x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
-
-vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
-vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
-
-vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-vec3 taylorInvSqrt(vec3 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-
-float snoise(vec2 v)
-{
-  const vec4 C = vec4(0.211324865405187,  
-                      0.366025403784439,  
-                     -0.577350269189626,  
-                      0.024390243902439); 
-  
-  vec2 i  = floor(v + dot(v, C.yy));
-  vec2 x0 = v - i + dot(i, C.xx);
-
-  
-  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-
-  
-  i = mod289(i);
-  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0))
-                 + i.x + vec3(0.0, i1.x, 1.0));
-
-  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
-  m = m * m;
-  m = m * m;
-
-  
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-
-  
-  
-  m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
-
-  
-  vec3 g;
-  g.x  = a0.x * x0.x + h.x * x0.y;
-  g.y  = a0.y * x12.x + h.y * x12.y;
-  g.z  = a0.z * x12.z + h.z * x12.w;
-  return 130.0 * dot(m, g);
-}
-
-float snoise(vec3 v)
-{
-  const vec2  C  = vec2(1.0 / 6.0, 1.0 / 3.0);
-  const vec4  D  = vec4(0.0, 0.5, 1.0, 2.0);
-
-  
-  vec3 i  = floor(v + dot(v, C.yyy));
-  vec3 x0 = v - i + dot(i, C.xxx);
-
-  
-  vec3 g = step(x0.yzx, x0.xyz);
-  vec3 l = 1.0 - g;
-  vec3 i1 = min(g.xyz, l.zxy);
-  vec3 i2 = max(g.xyz, l.zxy);
-
-  
-  vec3 x1 = x0 - i1 + 1.0 * C.xxx;
-  vec3 x2 = x0 - i2 + 2.0 * C.xxx;
-  vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;
-
-  
-  i = mod289(i);
-  vec4 p = permute(permute(permute(
-            i.z + vec4(0.0, i1.z, i2.z, 1.0))
-          + i.y + vec4(0.0, i1.y, i2.y, 1.0))
-          + i.x + vec4(0.0, i1.x, i2.x, 1.0));
-
-  
-  float n_ = 0.142857142857; 
-  vec3  ns = n_ * D.wyz - D.xzx;
-
-  vec4 j = p - 49.0 * floor(p * ns.z * ns.z); 
-
-  vec4 x_ = floor(j * ns.z);
-  vec4 y_ = floor(j - 7.0 * x_);    
-
-  vec4 x = x_ * ns.x + ns.yyyy;
-  vec4 y = y_ * ns.x + ns.yyyy;
-  vec4 h = 1.0 - abs(x) - abs(y);
-
-  vec4 b0 = vec4(x.xy, y.xy);
-  vec4 b1 = vec4(x.zw, y.zw);
-
-  vec4 s0 = floor(b0) * 2.0 + 1.0;
-  vec4 s1 = floor(b1) * 2.0 + 1.0;
-  vec4 sh = -step(h, vec4(0.0));
-
-  vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
-  vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
-
-  vec3 p0 = vec3(a0.xy, h.x);
-  vec3 p1 = vec3(a0.zw, h.y);
-  vec3 p2 = vec3(a1.xy, h.z);
-  vec3 p3 = vec3(a1.zw, h.w);
-
-  
-  vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
-  p0 *= norm.x;
-  p1 *= norm.y;
-  p2 *= norm.z;
-  p3 *= norm.w;
-
-  
-  vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
-  m = m * m;
-  return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
-}
-
-#endif`, Rn = `#ifndef GLCORE_NOISE_WORLEY_GLSL
-#define GLCORE_NOISE_WORLEY_GLSL
-
-vec3 hash3(vec3 p) {
-  p = vec3(
-    dot(p, vec3(127.1, 311.7, 74.7)),
-    dot(p, vec3(269.5, 183.3, 246.1)),
-    dot(p, vec3(113.5, 271.9, 124.6))
-  );
-  return fract(sin(p) * 43758.5453123);
-}
-
-vec2 hash2(vec2 p) {
-  p = vec2(
-    dot(p, vec2(127.1, 311.7)),
-    dot(p, vec2(269.5, 183.3))
-  );
-  return fract(sin(p) * 43758.5453123);
-}
-
-vec2 worley2D(vec2 p) {
-  vec2 n = floor(p);
-  vec2 f = fract(p);
-
-  float F1 = 8.0;
-  float F2 = 8.0;
-
-  for (int j = -1; j <= 1; j++) {
-    for (int i = -1; i <= 1; i++) {
-      vec2 g = vec2(float(i), float(j));
-      vec2 o = hash2(n + g);
-      vec2 r = g - f + o;
-      float d = dot(r, r);
-
-      if (d < F1) {
-        F2 = F1;
-        F1 = d;
-      } else if (d < F2) {
-        F2 = d;
-      }
-    }
-  }
-
-  return vec2(sqrt(F1), sqrt(F2));
-}
-
-vec2 worley3D(vec3 p) {
-  vec3 n = floor(p);
-  vec3 f = fract(p);
-
-  float F1 = 8.0;
-  float F2 = 8.0;
-
-  for (int k = -1; k <= 1; k++) {
-    for (int j = -1; j <= 1; j++) {
-      for (int i = -1; i <= 1; i++) {
-        vec3 g = vec3(float(i), float(j), float(k));
-        vec3 o = hash3(n + g);
-        vec3 r = g - f + o;
-        float d = dot(r, r);
-
-        if (d < F1) {
-          F2 = F1;
-          F1 = d;
-        } else if (d < F2) {
-          F2 = d;
-        }
-      }
-    }
-  }
-
-  return vec2(sqrt(F1), sqrt(F2));
-}
-
-float worley(vec2 p) {
-  return worley2D(p).x;
-}
-
-float worley(vec3 p) {
-  return worley3D(p).x;
-}
-
-float smin(float a, float b, float k) {
-  float h = max(k - abs(a - b), 0.0) / k;
-  return min(a, b) - h * h * k * 0.25;
-}
-
-vec2 worley3DSmooth(vec3 p, float smoothness) {
-  vec3 n = floor(p);
-  vec3 f = fract(p);
-
-  float F1 = 8.0;
-  float F2 = 8.0;
-
-  for (int k = -1; k <= 1; k++) {
-    for (int j = -1; j <= 1; j++) {
-      for (int i = -1; i <= 1; i++) {
-        vec3 g = vec3(float(i), float(j), float(k));
-        vec3 o = hash3(n + g);
-        vec3 r = g - f + o;
-        float d = dot(r, r);
-
-        float newF1 = smin(F1, d, smoothness);
-        if (newF1 < F1) {
-          F2 = F1;
-          F1 = newF1;
-        } else {
-          F2 = smin(F2, d, smoothness);
-        }
-      }
-    }
-  }
-
-  return vec2(sqrt(F1), sqrt(F2));
-}
-
-#endif`, En = `#ifndef GLCORE_NOISE_FBM_GLSL
-#define GLCORE_NOISE_FBM_GLSL
-
-#if !defined(NOISE2) || !defined(NOISE3)
-  
-  
-  float snoise(vec2);
-  float snoise(vec3);
-  #ifndef NOISE2
-  #define NOISE2 snoise
-  #endif
-  #ifndef NOISE3
-  #define NOISE3 snoise
-  #endif
-#endif
-
-float fbm(vec2 p, int octaves, float lacunarity, float gain)
-{
-  float sum = 0.0;
-  float amp = 0.5;
-  vec2  pp  = p;
-  for (int i = 0; i < 32; i++) {
-    if (i >= octaves) break;
-    sum += amp * NOISE2(pp);
-    pp  *= lacunarity;
-    amp *= gain;
-  }
-  return sum;
-}
-
-float fbm(vec3 p, int octaves, float lacunarity, float gain)
-{
-  float sum = 0.0;
-  float amp = 0.5;
-  vec3  pp  = p;
-  for (int i = 0; i < 32; i++) {
-    if (i >= octaves) break;
-    sum += amp * NOISE3(pp);
-    pp  *= lacunarity;
-    amp *= gain;
-  }
-  return sum;
-}
-
-float fbm(vec2 p)
-{
-  return fbm(p, 6, 2.0, 0.5);
-}
-
-float fbm(vec3 p)
-{
-  return fbm(p, 6, 2.0, 0.5);
-}
-
-float fbmRidged(vec2 p, int octaves, float lacunarity, float gain, float offset)
-{
-  float sum = 0.0;
-  float amp = 0.5;
-  vec2  pp  = p;
-  for (int i = 0; i < 32; i++) {
-    if (i >= octaves) break;
-    float n = NOISE2(pp);
-    n = offset - abs(n);
-    n *= n;
-    sum += n * amp;
-    pp  *= lacunarity;
-    amp *= gain;
-  }
-  return sum * 1.25; 
-}
-
-float fbmRidged(vec3 p, int octaves, float lacunarity, float gain, float offset)
-{
-  float sum = 0.0;
-  float amp = 0.5;
-  vec3  pp  = p;
-  for (int i = 0; i < 32; i++) {
-    if (i >= octaves) break;
-    float n = NOISE3(pp);
-    n = offset - abs(n);
-    n *= n;
-    sum += n * amp;
-    pp  *= lacunarity;
-    amp *= gain;
-  }
-  return sum * 1.25;
-}
-
-float fbmTurbulence(vec2 p, int octaves, float lacunarity, float gain)
-{
-  float sum = 0.0;
-  float amp = 0.5;
-  vec2  pp  = p;
-  for (int i = 0; i < 32; i++) {
-    if (i >= octaves) break;
-    sum += amp * abs(NOISE2(pp));
-    pp  *= lacunarity;
-    amp *= gain;
-  }
-  return sum;
-}
-
-float fbmTurbulence(vec3 p, int octaves, float lacunarity, float gain)
-{
-  float sum = 0.0;
-  float amp = 0.5;
-  vec3  pp  = p;
-  for (int i = 0; i < 32; i++) {
-    if (i >= octaves) break;
-    sum += amp * abs(NOISE3(pp));
-    pp  *= lacunarity;
-    amp *= gain;
-  }
-  return sum;
-}
-
-#endif`, Bn = `attribute float aLocalY; 
-
-attribute vec3 aStartPos;
-attribute vec3 aEndPos;
-attribute float aStartRadius;
-attribute float aEndRadius;
-attribute float aUvOffset;
-attribute float aSegmentLength;
-
-varying vec2 vUv;
-varying vec3 vNormal;
-varying vec3 vWorldPos;
-varying float vViewZ;
-
-varying vec3 vCapsuleStart;
-varying vec3 vCapsuleEnd;
-
-void main() {
-  
-  vec3 axis = aEndPos - aStartPos;
-  float len = length(axis);
-  vec3 up = len > 0.0001 ? axis / len : vec3(0.0, 1.0, 0.0);
-
-  
-  vec3 notUp = abs(up.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
-  vec3 tangent = normalize(cross(up, notUp));
-  vec3 bitangent = cross(up, tangent);
-
-  
-  float r = mix(aStartRadius, aEndRadius, aLocalY);
-
-  
-  
-  
-  
-  
-
-  vec3 localPos = position;
-
-  
-  vec3 radialOffset = tangent * localPos.x * r + bitangent * localPos.z * r;
-
-  
-  
-  
-  
-  vec3 axialPos;
-  if (localPos.y < 0.0) {
-    
-    axialPos = aStartPos + up * (localPos.y * aStartRadius);
-  } else if (localPos.y > 1.0) {
-    
-    axialPos = aEndPos + up * ((localPos.y - 1.0) * aEndRadius);
-  } else {
-    
-    axialPos = mix(aStartPos, aEndPos, localPos.y);
-  }
-
-  vec3 worldPos = axialPos + radialOffset;
-
-  
-  
-  vec3 localNormal = normal;
-  vec3 worldNormal = normalize(
-    tangent * localNormal.x + up * localNormal.y + bitangent * localNormal.z
-  );
-
-  
-  
-  
-  vUv.x = uv.x;
-  vUv.y = aUvOffset + uv.y * aSegmentLength;
-
-  
-  vNormal = worldNormal;
-  vWorldPos = worldPos;
-  
-  
-  vCapsuleStart = aStartPos;
-  vCapsuleEnd = aEndPos;
-  
-  
-  vec4 viewPos = modelViewMatrix * vec4(worldPos, 1.0);
-  vViewZ = -viewPos.z; 
-
-  gl_Position = projectionMatrix * viewPos;
-}`, On = `uniform float uTileScale;
-
-varying vec2 vUv;
-varying vec3 vNormal;
-varying vec3 vWorldPos;
-
-void main() {
-  
-  vec2 scaledUv = vUv * uTileScale;
-
-  
-  float checker = mod(floor(scaledUv.x * 4.0) + floor(scaledUv.y), 2.0);
-
-  
-  vec3 colorA = vec3(1.0, 1.0, 1.0);
-  vec3 colorB = vec3(0.0, 0.0, 0.0);
-  vec3 baseColor = mix(colorA, colorB, checker);
-
-  
-  vec3 lightDir = normalize(vec3(0.5, 1.0, 0.3));
-  float ndotl = max(dot(normalize(vNormal), lightDir), 0.0);
-  float ambient = 0.3;
-  float lighting = ambient + (1.0 - ambient) * ndotl;
-
-  vec3 finalColor = baseColor * lighting;
-
-  gl_FragColor = vec4(finalColor, 1.0);
-}`, An = `uniform float uTileScale;
-
-varying vec2 vUv;
-varying vec3 vNormal;
-varying vec3 vWorldPos;
-
-vec3 mod289(vec3 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
-}
-
-vec4 mod289(vec4 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
-}
-
-vec4 permute(vec4 x) {
-  return mod289(((x * 34.0) + 1.0) * x);
-}
-
-vec4 taylorInvSqrt(vec4 r) {
-  return 1.79284291400159 - 0.85373472095314 * r;
-}
-
-float snoise(vec3 v) {
-  const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
-  const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
-
-  
-  vec3 i = floor(v + dot(v, C.yyy));
-  vec3 x0 = v - i + dot(i, C.xxx);
-
-  
-  vec3 g = step(x0.yzx, x0.xyz);
-  vec3 l = 1.0 - g;
-  vec3 i1 = min(g.xyz, l.zxy);
-  vec3 i2 = max(g.xyz, l.zxy);
-
-  vec3 x1 = x0 - i1 + C.xxx;
-  vec3 x2 = x0 - i2 + C.yyy;
-  vec3 x3 = x0 - D.yyy;
-
-  
-  i = mod289(i);
-  vec4 p = permute(permute(permute(
-      i.z + vec4(0.0, i1.z, i2.z, 1.0))
-    + i.y + vec4(0.0, i1.y, i2.y, 1.0))
-    + i.x + vec4(0.0, i1.x, i2.x, 1.0));
-
-  
-  float n_ = 0.142857142857; 
-  vec3 ns = n_ * D.wyz - D.xzx;
-
-  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
-
-  vec4 x_ = floor(j * ns.z);
-  vec4 y_ = floor(j - 7.0 * x_);
-
-  vec4 x = x_ * ns.x + ns.yyyy;
-  vec4 y = y_ * ns.x + ns.yyyy;
-  vec4 h = 1.0 - abs(x) - abs(y);
-
-  vec4 b0 = vec4(x.xy, y.xy);
-  vec4 b1 = vec4(x.zw, y.zw);
-
-  vec4 s0 = floor(b0) * 2.0 + 1.0;
-  vec4 s1 = floor(b1) * 2.0 + 1.0;
-  vec4 sh = -step(h, vec4(0.0));
-
-  vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
-  vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
-
-  vec3 p0 = vec3(a0.xy, h.x);
-  vec3 p1 = vec3(a0.zw, h.y);
-  vec3 p2 = vec3(a1.xy, h.z);
-  vec3 p3 = vec3(a1.zw, h.w);
-
-  
-  vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
-  p0 *= norm.x;
-  p1 *= norm.y;
-  p2 *= norm.z;
-  p3 *= norm.w;
-
-  
-  vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
-  m = m * m;
-  return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
-}
-
-void main() {
-  
-  vec3 samplePos = vWorldPos * uTileScale;
-  
-  
-  float noise = snoise(samplePos);
-  float value = noise * 0.5 + 0.5;
-  
-  
-  
-  value = smoothstep(0.2, 0.8, value);
-  
-  
-  vec3 baseColor = vec3(value);
-
-  
-  vec3 lightDir = normalize(vec3(0.5, 1.0, 0.3));
-  float ndotl = max(dot(normalize(vNormal), lightDir), 0.0);
-  float ambient = 0.3;
-  float lighting = ambient + (1.0 - ambient) * ndotl;
-
-  vec3 finalColor = baseColor * lighting;
-
-  gl_FragColor = vec4(finalColor, 1.0);
-}`, Vn = `uniform float uTileScale;
-uniform float uFogNear;  
-uniform float uFogFar;   
-uniform vec3 uFogColor;  
-
-varying vec2 vUv;
-varying vec3 vNormal;
-varying vec3 vWorldPos;
-varying float vViewZ;
-
-vec3 mod289(vec3 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
-}
-
-vec4 mod289(vec4 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
-}
-
-vec4 permute(vec4 x) {
-  return mod289(((x * 34.0) + 1.0) * x);
-}
-
-vec4 taylorInvSqrt(vec4 r) {
-  return 1.79284291400159 - 0.85373472095314 * r;
-}
-
-float snoise(vec3 v) {
-  const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
-  const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
-
-  
-  vec3 i = floor(v + dot(v, C.yyy));
-  vec3 x0 = v - i + dot(i, C.xxx);
-
-  
-  vec3 g = step(x0.yzx, x0.xyz);
-  vec3 l = 1.0 - g;
-  vec3 i1 = min(g.xyz, l.zxy);
-  vec3 i2 = max(g.xyz, l.zxy);
-
-  vec3 x1 = x0 - i1 + C.xxx;
-  vec3 x2 = x0 - i2 + C.yyy;
-  vec3 x3 = x0 - D.yyy;
-
-  
-  i = mod289(i);
-  vec4 p = permute(permute(permute(
-      i.z + vec4(0.0, i1.z, i2.z, 1.0))
-    + i.y + vec4(0.0, i1.y, i2.y, 1.0))
-    + i.x + vec4(0.0, i1.x, i2.x, 1.0));
-
-  
-  float n_ = 0.142857142857; 
-  vec3 ns = n_ * D.wyz - D.xzx;
-
-  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
-
-  vec4 x_ = floor(j * ns.z);
-  vec4 y_ = floor(j - 7.0 * x_);
-
-  vec4 x = x_ * ns.x + ns.yyyy;
-  vec4 y = y_ * ns.x + ns.yyyy;
-  vec4 h = 1.0 - abs(x) - abs(y);
-
-  vec4 b0 = vec4(x.xy, y.xy);
-  vec4 b1 = vec4(x.zw, y.zw);
-
-  vec4 s0 = floor(b0) * 2.0 + 1.0;
-  vec4 s1 = floor(b1) * 2.0 + 1.0;
-  vec4 sh = -step(h, vec4(0.0));
-
-  vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
-  vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
-
-  vec3 p0 = vec3(a0.xy, h.x);
-  vec3 p1 = vec3(a0.zw, h.y);
-  vec3 p2 = vec3(a1.xy, h.z);
-  vec3 p3 = vec3(a1.zw, h.w);
-
-  
-  vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
-  p0 *= norm.x;
-  p1 *= norm.y;
-  p2 *= norm.z;
-  p3 *= norm.w;
-
-  
-  vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
-  m = m * m;
-  return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
-}
-
-void main() {
-  
-  vec3 samplePos = vWorldPos * uTileScale;
-  
-  
-  float noise = snoise(samplePos);
-  float value = noise * 0.5 + 0.5;
-  
-  
-  value = smoothstep(0.2, 0.8, value);
-  
-  
-  vec3 baseColor = vec3(value);
-
-  
-  float fogFactor = smoothstep(uFogNear, uFogFar, vViewZ);
-  vec3 finalColor = mix(baseColor, uFogColor, fogFactor);
-
-  gl_FragColor = vec4(finalColor, 1.0);
-}`, kn = `#pragma once
-
-float dot2( in vec2 v ) { return dot(v,v); }
-float dot2( in vec3 v ) { return dot(v,v); }
-float ndot( in vec2 a, in vec2 b ) { return a.x*b.x - a.y*b.y; }
-
-float sdSphere(vec3 p, float r) {
-  return length(p) - r;
-}
-
-float sdBox(vec3 p, vec3 b) {
-  vec3 q = abs(p) - b;
-  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
-}
-
-float sdRoundBox( vec3 p, vec3 b, float r )
-{
-  vec3 q = abs(p) - b + r;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
-}
-
-float sdBoxFrame( vec3 p, vec3 b, float e )
-{
-       p = abs(p  )-b;
-  vec3 q = abs(p+e)-e;
-  return min(min(
-      length(max(vec3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),
-      length(max(vec3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),
-      length(max(vec3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));
-}
-
-float sdTorus( vec3 p, vec2 t )
-{
-  vec2 q = vec2(length(p.xz)-t.x,p.y);
-  return length(q)-t.y;
-}
-
-float sdCappedTorus( vec3 p, vec2 sc, float ra, float rb)
-{
-  p.x = abs(p.x);
-  float k = (sc.y*p.x>sc.x*p.y) ? dot(p.xy,sc) : length(p.xy);
-  return sqrt( dot(p,p) + ra*ra - 2.0*ra*k ) - rb;
-}
-
-float sdLink( vec3 p, float le, float r1, float r2 )
-{
-  vec3 q = vec3( p.x, max(abs(p.y)-le,0.0), p.z );
-  return length(vec2(length(q.xy)-r1,q.z)) - r2;
-}
-
-float sdCylinder( vec3 p, vec3 c )
-{
-  return length(p.xz-c.xy)-c.z;
-}
-
-float sdCone( vec3 p, vec2 c, float h )
-{
-  float q = length(p.xz);
-  return max(dot(c.xy,vec2(q,p.y)),-h-p.y);
-}
-
-float sdCone( vec3 p, vec2 c )
-{
-    
-    vec2 q = vec2( length(p.xz), -p.y );
-    float d = length(q-c*max(dot(q,c), 0.0));
-    return d * ((q.x*c.y-q.y*c.x<0.0)?-1.0:1.0);
-}
-
-float sdPlane( vec3 p, vec3 n, float h )
-{
-  
-  return dot(p,n) + h;
-}
-
-float sdHexPrism( vec3 p, vec2 h )
-{
-  const vec3 k = vec3(-0.8660254, 0.5, 0.57735);
-  p = abs(p);
-  p.xy -= 2.0*min(dot(k.xy, p.xy), 0.0)*k.xy;
-  vec2 d = vec2(
-       length(p.xy-vec2(clamp(p.x,-k.z*h.x,k.z*h.x), h.x))*sign(p.y-h.x),
-       p.z-h.y );
-  return min(max(d.x,d.y),0.0) + length(max(d,0.0));
-}
-
-float sdTriPrism( vec3 p, vec2 h )
-{
-  vec3 q = abs(p);
-  return max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5);
-}
-
-float sdCapsule( vec3 p, vec3 a, vec3 b, float r )
-{
-  vec3 pa = p - a, ba = b - a;
-  float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
-  return length( pa - ba*h ) - r;
-}
-
-float sdVerticalCapsule( vec3 p, float h, float r )
-{
-  p.y -= clamp( p.y, 0.0, h );
-  return length( p ) - r;
-}
-
-float sdCappedCylinder( vec3 p, float h, float r )
-{
-  vec2 d = abs(vec2(length(p.xz),p.y)) - vec2(r,h);
-  return min(max(d.x,d.y),0.0) + length(max(d,0.0));
-}
-
-float sdCappedCylinder( vec3 p, vec3 a, vec3 b, float r )
-{
-  vec3  ba = b - a;
-  vec3  pa = p - a;
-  float baba = dot(ba,ba);
-  float paba = dot(pa,ba);
-  float x = length(pa*baba-ba*paba) - r*baba;
-  float y = abs(paba-baba*0.5)-baba*0.5;
-  float x2 = x*x;
-  float y2 = y*y*baba;
-  float d = (max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));
-  return sign(d)*sqrt(abs(d))/baba;
-}
-
-float sdRoundedCylinder( vec3 p, float ra, float rb, float h )
-{
-  vec2 d = vec2( length(p.xz)-2.0*ra+rb, abs(p.y) - h );
-  return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rb;
-}
-
-float sdCappedCone( vec3 p, float h, float r1, float r2 )
-{
-  vec2 q = vec2( length(p.xz), p.y );
-  vec2 k1 = vec2(r2,h);
-  vec2 k2 = vec2(r2-r1,2.0*h);
-  vec2 ca = vec2(q.x-min(q.x,(q.y<0.0)?r1:r2), abs(q.y)-h);
-  vec2 cb = q - k1 + k2*clamp( dot(k1-q,k2)/dot2(k2), 0.0, 1.0 );
-  float s = (cb.x<0.0 && ca.y<0.0) ? -1.0 : 1.0;
-  return s*sqrt( min(dot2(ca),dot2(cb)) );
-}
-
-float sdCappedCone( vec3 p, vec3 a, vec3 b, float ra, float rb )
-{
-  float rba  = rb-ra;
-  float baba = dot(b-a,b-a);
-  float papa = dot(p-a,p-a);
-  float paba = dot(p-a,b-a)/baba;
-  float x = sqrt( papa - paba*paba*baba );
-  float cax = max(0.0,x-((paba<0.5)?ra:rb));
-  float cay = abs(paba-0.5)-0.5;
-  float k = rba*rba + baba;
-  float f = clamp( (rba*(x-ra)+paba*baba)/k, 0.0, 1.0 );
-  float cbx = x-ra - f*rba;
-  float cby = paba - f;
-  float s = (cbx<0.0 && cay<0.0) ? -1.0 : 1.0;
-  return s*sqrt( min(cax*cax + cay*cay*baba,
-                     cbx*cbx + cby*cby*baba) );
-}
-
-float sdSolidAngle( vec3 p, vec2 c, float ra )
-{
-  
-  vec2 q = vec2( length(p.xz), p.y );
-  float l = length(q) - ra;
-  float m = length(q - c*clamp(dot(q,c),0.0,ra) );
-  return max(l,m*sign(c.y*q.x-c.x*q.y));
-}
-
-float sdCutSphere( vec3 p, float r, float h )
-{
-  
-  float w = sqrt(r*r-h*h);
-
-  
-  vec2 q = vec2( length(p.xz), p.y );
-  float s = max( (h-r)*q.x*q.x+w*w*(h+r-2.0*q.y), h*q.x-w*q.y );
-  return (s<0.0) ? length(q)-r :
-         (q.x<w) ? h - q.y     :
-                   length(q-vec2(w,h));
-}
-
-float sdCutHollowSphere( vec3 p, float r, float h, float t )
-{
-  
-  float w = sqrt(r*r-h*h);
-  
-  
-  vec2 q = vec2( length(p.xz), p.y );
-  return ((h*q.x<w*q.y) ? length(q-vec2(w,h)) : 
-                          abs(length(q)-r) ) - t;
-}
-
-float sdDeathStar( vec3 p2, float ra, float rb, float d )
-{
-  
-  float a = (ra*ra - rb*rb + d*d)/(2.0*d);
-  float b = sqrt(max(ra*ra-a*a,0.0));
-	
-  
-  vec2 p = vec2( p2.x, length(p2.yz) );
-  if( p.x*b-p.y*a > d*max(b-p.y,0.0) )
-    return length(p-vec2(a,b));
-  else
-    return max( (length(p            )-ra),
-               -(length(p-vec2(d,0.0))-rb));
-}
-
-float sdRoundCone( vec3 p, float r1, float r2, float h )
-{
-  
-  float b = (r1-r2)/h;
-  float a = sqrt(1.0-b*b);
-
-  
-  vec2 q = vec2( length(p.xz), p.y );
-  float k = dot(q,vec2(-b,a));
-  if( k<0.0 ) return length(q) - r1;
-  if( k>a*h ) return length(q-vec2(0.0,h)) - r2;
-  return dot(q, vec2(a,b) ) - r1;
-}
-
-float sdRoundCone( vec3 p, vec3 a, vec3 b, float r1, float r2 )
-{
-  
-  vec3  ba = b - a;
-  float l2 = dot(ba,ba);
-  float rr = r1 - r2;
-  float a2 = l2 - rr*rr;
-  float il2 = 1.0/l2;
-    
-  
-  vec3 pa = p - a;
-  float y = dot(pa,ba);
-  float z = y - l2;
-  float x2 = dot2( pa*l2 - ba*y );
-  float y2 = y*y*l2;
-  float z2 = z*z*l2;
-
-  
-  float k = sign(rr)*rr*rr*x2;
-  if( sign(z)*a2*z2>k ) return  sqrt(x2 + z2)        *il2 - r2;
-  if( sign(y)*a2*y2<k ) return  sqrt(x2 + y2)        *il2 - r1;
-                        return (sqrt(x2*a2*il2)+y*rr)*il2 - r1;
-}
-
-float sdEllipsoid( vec3 p, vec3 r )
-{
-  float k0 = length(p/r);
-  float k1 = length(p/(r*r));
-  return k0*(k0-1.0)/k1;
-}
-
-float sdVesicaSegment( in vec3 p, in vec3 a, in vec3 b, in float w )
-{
-    vec3  c = (a+b)*0.5;
-    float l = length(b-a);
-    vec3  v = (b-a)/l;
-    float y = dot(p-c,v);
-    vec2  q = vec2(length(p-c-y*v),abs(y));
-    
-    float r = 0.5*l;
-    float d = 0.5*(r*r-w*w)/w;
-    vec3  h = (r*q.x<d*(q.y-r)) ? vec3(0.0,r,0.0) : vec3(-d,0.0,d+w);
- 
-    return length(q-h.xy) - h.z;
-}
-
-float sdRhombus( vec3 p, float la, float lb, float h, float ra )
-{
-  p = abs(p);
-  vec2 b = vec2(la,lb);
-  float f = clamp( (ndot(b,b-2.0*p.xz))/dot(b,b), -1.0, 1.0 );
-  vec2 q = vec2(length(p.xz-0.5*b*vec2(1.0-f,1.0+f))*sign(p.x*b.y+p.z*b.x-b.x*b.y)-ra, p.y-h);
-  return min(max(q.x,q.y),0.0) + length(max(q,0.0));
-}
-
-float sdOctahedron( vec3 p, float s )
-{
-  p = abs(p);
-  float m = p.x+p.y+p.z-s;
-  vec3 q;
-       if( 3.0*p.x < m ) q = p.xyz;
-  else if( 3.0*p.y < m ) q = p.yzx;
-  else if( 3.0*p.z < m ) q = p.zxy;
-  else return m*0.57735027;
-    
-  float k = clamp(0.5*(q.z-q.y+s),0.0,s); 
-  return length(vec3(q.x,q.y-s+k,q.z-k)); 
-}
-
-/*
-float sdOctahedron( vec3 p, float s)
-{
-  p = abs(p);
-  return (p.x+p.y+p.z-s)*0.57735027;
-}
-*/
-
-float sdPyramid( vec3 p, float h )
-{
-  float m2 = h*h + 0.25;
-    
-  p.xz = abs(p.xz);
-  p.xz = (p.z>p.x) ? p.zx : p.xz;
-  p.xz -= 0.5;
-
-  vec3 q = vec3( p.z, h*p.y - 0.5*p.x, h*p.x + 0.5*p.y);
-   
-  float s = max(-q.x,0.0);
-  float t = clamp( (q.y-0.5*p.z)/(m2+0.25), 0.0, 1.0 );
-    
-  float a = m2*(q.x+s)*(q.x+s) + q.y*q.y;
-  float b = m2*(q.x+0.5*t)*(q.x+0.5*t) + (q.y-m2*t)*(q.y-m2*t);
-    
-  float d2 = min(q.y,-q.x*m2-q.y*0.5) > 0.0 ? 0.0 : min(a,b);
-    
-  return sqrt( (d2+q.z*q.z)/m2 ) * sign(max(q.z,-p.y));
-}
-
-float udTriangle( vec3 p, vec3 a, vec3 b, vec3 c )
-{
-  vec3 ba = b - a; vec3 pa = p - a;
-  vec3 cb = c - b; vec3 pb = p - b;
-  vec3 ac = a - c; vec3 pc = p - c;
-  vec3 nor = cross( ba, ac );
-
-  return sqrt(
-    (sign(dot(cross(ba,nor),pa)) +
-     sign(dot(cross(cb,nor),pb)) +
-     sign(dot(cross(ac,nor),pc))<2.0)
-     ?
-     min( min(
-     dot2(ba*clamp(dot(ba,pa)/dot2(ba),0.0,1.0)-pa),
-     dot2(cb*clamp(dot(cb,pb)/dot2(cb),0.0,1.0)-pb) ),
-     dot2(ac*clamp(dot(ac,pc)/dot2(ac),0.0,1.0)-pc) )
-     :
-     dot(nor,pa)*dot(nor,pa)/dot2(nor) );
-}
-
-float udQuad( vec3 p, vec3 a, vec3 b, vec3 c, vec3 d )
-{
-  vec3 ba = b - a; vec3 pa = p - a;
-  vec3 cb = c - b; vec3 pb = p - b;
-  vec3 dc = d - c; vec3 pc = p - c;
-  vec3 ad = a - d; vec3 pd = p - d;
-  vec3 nor = cross( ba, ad );
-
-  return sqrt(
-    (sign(dot(cross(ba,nor),pa)) +
-     sign(dot(cross(cb,nor),pb)) +
-     sign(dot(cross(dc,nor),pc)) +
-     sign(dot(cross(ad,nor),pd))<3.0)
-     ?
-     min( min( min(
-     dot2(ba*clamp(dot(ba,pa)/dot2(ba),0.0,1.0)-pa),
-     dot2(cb*clamp(dot(cb,pb)/dot2(cb),0.0,1.0)-pb) ),
-     dot2(dc*clamp(dot(dc,pc)/dot2(dc),0.0,1.0)-pc) ),
-     dot2(ad*clamp(dot(ad,pd)/dot2(ad),0.0,1.0)-pd) )
-     :
-     dot(nor,pa)*dot(nor,pa)/dot2(nor) );
-}`, Nn = `float opRound( float d, float rad )
-{
-    return d - rad;
-}
-/*
-float opOnion( in float sdf, in float thickness )
-{
-    return abs(sdf)-thickness;
-}
-
-float length2( vec3 p ) { p=p*p; return sqrt( p.x+p.y+p.z); }
-
-float length6( vec3 p ) { p=p*p*p; p=p*p; return pow(p.x+p.y+p.z,1.0/6.0); }
-
-float length8( vec3 p ) { p=p*p; p=p*p; p=p*p; return pow(p.x+p.y+p.z,1.0/8.0); }
-*/
-float opUnion( float d1, float d2 )
-{
-    return min(d1,d2);
-}
-float opSubtraction( float d1, float d2 )
-{
-    return max(-d1,d2);
-}
-float opIntersection( float d1, float d2 )
-{
-    return max(d1,d2);
-}
-float opXor(float d1, float d2 )
-{
-    return max(min(d1,d2),-max(d1,d2));
-}
-
-float opSmoothUnion( float d1, float d2, float k )
-{
-    float h = clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 );
-    return mix( d2, d1, h ) - k*h*(1.0-h);
-}
-
-float opSmoothSubtraction( float d1, float d2, float k )
-{
-    float h = clamp( 0.5 - 0.5*(d2+d1)/k, 0.0, 1.0 );
-    return mix( d2, -d1, h ) + k*h*(1.0-h);
-}
-
-float opSmoothIntersection( float d1, float d2, float k )
-{
-    float h = clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 );
-    return mix( d2, d1, h ) + k*h*(1.0-h);
-}
-/*
-
-vec3 opTx( in vec3 p, in transform t, in sdf3d primitive )
-{
-    return primitive( invert(t)*p );
-}
-
-float opScale( in vec3 p, in float s, in sdf3d primitive )
-{
-    return primitive(p/s)*s;
-}
-
-float opRepetition( in vec3 p, in vec3 s, in sdf3d primitive )
-{
-    vec3 q = p - s*round(p/s);
-    return primitive( q );
-}
-
-vec3 opLimitedRepetition( in vec3 p, in float s, in vec3 l, in sdf3d primitive )
-{
-    vec3 q = p - s*clamp(round(p/s),-l,l);
-    return primitive( q );
-}
-
-float opTwist( in sdf3d primitive, in vec3 p )
-{
-    const float k = 10.0; 
-    float c = cos(k*p.y);
-    float s = sin(k*p.y);
-    mat2  m = mat2(c,-s,s,c);
-    vec3  q = vec3(m*p.xz,p.y);
-    return primitive(q);
-}
-
-float opCheapBend( in sdf3d primitive, in vec3 p )
-{
-    const float k = 10.0; 
-    float c = cos(k*p.x);
-    float s = sin(k*p.x);
-    mat2  m = mat2(c,-s,s,c);
-    vec3  q = vec3(m*p.xy,p.z);
-    return primitive(q);
-}
-*/`;
-const ht = {
-  core: {
-    passThroughVert: ue,
-    textureFrag: De,
-    uvFrag: fn,
-    commonGlsl: vn,
-    colorGlsl: dn,
-    easingGlsl: mn,
-    spaceGlsl: hn,
-    bumpCurvesGlsl: xn,
-    blurHFrag: gn,
-    blurVFrag: yn,
-    blurBilateralHFrag: wn,
-    blurBilateralVFrag: bn
-  },
-  particles: {
-    billboardVert: Sn,
-    billboardStretchedVert: zn,
-    billboardStretchedVelocityVert: Pn,
-    billboardLifescaleVert: Tn,
-    commonGlsl: qn,
-    particleDebugFrag: Dn,
-    particleFlatColorFrag: Cn,
-    particleLifeDiscardFrag: Mn,
-    speedDebugFrag: _n
-  },
-  noise: {
-    commonGlsl: In,
-    perlinGlsl: Fn,
-    simplexGlsl: Un,
-    worleyGlsl: Rn,
-    fbmGlsl: En
-  },
-  oit: {
-    compositeFrag: Re
-  },
-  capsule: {
-    capsuleVert: Bn,
-    capsuleCheckerFrag: On,
-    capsuleNoise3dFrag: An,
-    capsuleNoise3dFogFrag: Vn
-  },
-  sdf: {
-    primitivesGlsl: kn,
-    modifiersGlsl: Nn
-  }
+//#endregion
+//#region src/mesh/quad.ts
+function H(e, t = 2, n = 2) {
+	let r = {
+		...V,
+		...e.uniforms || {}
+	};
+	return new y(new E(t, n), new k({
+		vertexShader: e.vertexShader,
+		fragmentShader: e.fragmentShader,
+		uniforms: r
+	}));
+}
+//#endregion
+//#region src/core/passes/FullscreenPass.ts
+var ue = class {
+	scene;
+	camera;
+	outputTarget = null;
+	material;
+	opts;
+	constructor(e) {
+		this.opts = e;
+	}
+	init(e) {
+		let { renderer: t } = e, { outputTarget: n, rtSize: r, clearColor: a = !0, clearDepth: o = !1, clearStencil: s = !1, materialOptions: c, seedTexture: l } = this.opts;
+		if (!c) throw Error("FullscreenPass: missing materialOptions");
+		if (n) this.outputTarget = n;
+		else if (r) {
+			let { width: e, height: t } = r;
+			this.outputTarget = new P(e, t, {
+				minFilter: g,
+				magFilter: g,
+				wrapS: i,
+				wrapT: i,
+				format: D,
+				type: u,
+				depthBuffer: !1,
+				stencilBuffer: !1
+			});
+		} else this.outputTarget = null;
+		this.camera = new w(-1, 1, 1, -1, 0, 1), this.scene = new O();
+		let d = H(c);
+		this.material = d.material, this.material && this.material.blending !== x && (this.material.blending = x, this.material.transparent = !1, this.material.depthWrite = !1, this.material.depthTest = !1), d.frustumCulled = !1, this.scene.add(d), this.opts.clearColor = a, this.opts.clearDepth = o, this.opts.clearStencil = s, l && this.outputTarget && L(t, l, this.outputTarget);
+	}
+	update(e) {}
+	render(e) {
+		let { clearColor: t = !0, clearDepth: n = !1, clearStencil: r = !1, clearColorValue: i, clearAlpha: o, viewport: s } = this.opts;
+		e.setRenderTarget(this.outputTarget);
+		let c = null;
+		s && !this.outputTarget && (c = new N(), e.getViewport(c), e.setViewport(s.x, s.y, s.width, s.height));
+		let l = null, u = null;
+		if (t && (i !== void 0 || o !== void 0)) if (l = new a(), e.getClearColor(l), u = e.getClearAlpha ? e.getClearAlpha() : 1, i !== void 0) {
+			let t = i instanceof a ? i : new a(i);
+			e.setClearColor(t, o === void 0 ? u ?? 1 : o);
+		} else o !== void 0 && l && e.setClearColor(l, o);
+		(t || n || r) && e.clear(t, n, r), e.render(this.scene, this.camera), e.setRenderTarget(null), c && e.setViewport(c.x, c.y, c.z, c.w), l && e.setClearColor(l, u ?? 1);
+	}
+	get texture() {
+		return this.outputTarget ? this.outputTarget.texture : null;
+	}
+	setUniform(e, t) {
+		if (!this.material) throw Error("FullscreenPass: must call init() first");
+		this.material.uniforms[e] ? this.material.uniforms[e].value = t : this.material.uniforms[e] = { value: t };
+	}
+	resize(e, t) {
+		this.outputTarget && this.opts.rtSize && (this.outputTarget.dispose(), this.outputTarget = new P(e, t, {
+			minFilter: g,
+			magFilter: g,
+			wrapS: i,
+			wrapT: i,
+			format: D,
+			type: u,
+			depthBuffer: !1,
+			stencilBuffer: !1
+		}), this.opts.rtSize.width = e, this.opts.rtSize.height = t);
+	}
+}, de = class {
+	scene;
+	camera;
+	outRT;
+	particleSystem;
+	opts;
+	constructor(e) {
+		this.opts = e;
+	}
+	init(e) {
+		let { outputTarget: t, rtSize: n, clearColor: r = !0, clearDepth: a = !1, clearStencil: o = !1, materialOptions: s, particleOptions: c, particleSystem: l } = this.opts;
+		if (this.scene = new O(), this.camera = e.camera, l) this.particleSystem = l;
+		else {
+			if (!c) throw Error("ParticlePass: missing particleOptions (or provide a particleSystem)");
+			if (!s) throw Error("ParticlePass: missing materialOptions (or provide a particleSystem)");
+			this.particleSystem = new B({
+				count: c.count,
+				width: c.width,
+				height: c.height,
+				geometry: c.geometry,
+				materialOptions: s
+			});
+		}
+		if (this.scene.add(this.particleSystem.mesh), t) this.outRT = t;
+		else if (n) {
+			let { width: e, height: t } = n;
+			this.outRT = new P(e, t, {
+				minFilter: g,
+				magFilter: g,
+				wrapS: i,
+				wrapT: i,
+				format: D,
+				type: A,
+				depthBuffer: this.opts.depthBuffer === void 0 ? !1 : this.opts.depthBuffer,
+				stencilBuffer: !1
+			});
+		} else this.outRT = null;
+		this.opts.clearColor = r, this.opts.clearDepth = a, this.opts.clearStencil = o;
+	}
+	update(e) {}
+	render(e) {
+		let { clearColor: t = !0, clearDepth: n = !1, clearStencil: r = !1, clearColorValue: i, clearAlpha: o } = this.opts;
+		e.setRenderTarget(this.outRT);
+		let s = null, c = null;
+		if (t && (i !== void 0 || o !== void 0)) if (s = new a(), e.getClearColor(s), c = e.getClearAlpha ? e.getClearAlpha() : 1, i !== void 0) {
+			let t = i instanceof a ? i : new a(i);
+			e.setClearColor(t, o === void 0 ? c ?? 1 : o);
+		} else o !== void 0 && s && e.setClearColor(s, o);
+		(t || n || r) && e.clear(t, n, r), e.render(this.scene, this.camera), s && e.setClearColor(s, c ?? 1), e.setRenderTarget(null);
+	}
+	get texture() {
+		return this.outRT ? this.outRT.texture : null;
+	}
+	get outputTarget() {
+		return this.outRT;
+	}
+	set outputTarget(e) {
+		this.outRT = e;
+	}
+	setUniform(e, t) {
+		this.particleSystem.setUniform(e, t);
+	}
+	resize(e, t) {
+		this.outRT && this.opts.rtSize && (this.outRT.dispose(), this.outRT = new P(e, t, {
+			minFilter: g,
+			magFilter: g,
+			wrapS: i,
+			wrapT: i,
+			format: D,
+			type: A,
+			depthBuffer: this.opts.depthBuffer === void 0 ? !1 : this.opts.depthBuffer,
+			stencilBuffer: !1
+		}), this.opts.rtSize.width = e, this.opts.rtSize.height = t);
+	}
+}, fe = class {
+	scene;
+	camera;
+	_outputTarget = null;
+	opts;
+	constructor(e) {
+		this.opts = e;
+	}
+	init(e) {
+		let { outputTarget: t, rtSize: n, clearColor: r = !0, clearDepth: a = !0, clearStencil: o = !1 } = this.opts;
+		if (this.scene = this.opts.scene || e.scene, this.camera = this.opts.camera || e.camera, t) this._outputTarget = t;
+		else if (n) {
+			let { width: e, height: t } = n;
+			this._outputTarget = new P(e, t, {
+				minFilter: g,
+				magFilter: g,
+				wrapS: i,
+				wrapT: i,
+				format: D,
+				type: A,
+				depthBuffer: this.opts.depthBuffer === void 0 ? !0 : this.opts.depthBuffer,
+				stencilBuffer: !1
+			});
+		} else this._outputTarget = null;
+		this.opts.clearColor = r, this.opts.clearDepth = a, this.opts.clearStencil = o;
+	}
+	update(e) {}
+	render(e) {
+		let { clearColor: t = !0, clearDepth: n = !0, clearStencil: r = !1, viewport: i } = this.opts;
+		e.setRenderTarget(this._outputTarget);
+		let a = null;
+		i && !this._outputTarget && (a = new N(), e.getViewport(a), e.setViewport(i.x, i.y, i.width, i.height)), (t || n || r) && e.clear(t, n, r), e.render(this.scene, this.camera), e.setRenderTarget(null), a && e.setViewport(a.x, a.y, a.z, a.w);
+	}
+	get texture() {
+		return this._outputTarget ? this._outputTarget.texture : null;
+	}
+	resize(e, t) {
+		this._outputTarget && this.opts.rtSize && (this._outputTarget.dispose(), this._outputTarget = new P(e, t, {
+			minFilter: g,
+			magFilter: g,
+			wrapS: i,
+			wrapT: i,
+			format: D,
+			type: A,
+			depthBuffer: this.opts.depthBuffer === void 0 ? !0 : this.opts.depthBuffer,
+			stencilBuffer: !1
+		}), this.opts.rtSize.width = e, this.opts.rtSize.height = t);
+	}
+}, U = "precision highp float;\n\nuniform sampler2D tAccum;\nuniform sampler2D tReveal;\nvarying vec2 vUv;\n\nvoid main() {\n  vec4 accum = texture2D(tAccum, vUv);\n  vec4 reveal = texture2D(tReveal, vUv);\n\n  float oneMinusAlpha = clamp(reveal.r, 0.0, 1.0);\n  float alpha = 1.0 - oneMinusAlpha;\n  vec3 color = accum.rgb / max(accum.a, 1e-6);\n  \n  gl_FragColor = vec4(color, alpha);\n}", pe = class {
+	particleScene;
+	camera;
+	accumRT;
+	revealRT;
+	particleMesh;
+	accumMaterial;
+	revealMaterial;
+	compositeScene;
+	compositeCamera;
+	compositeMesh;
+	opts;
+	constructor(e) {
+		this.opts = e;
+	}
+	init(t) {
+		let { materialOptions: n, particleOptions: r, rtSize: a } = this.opts;
+		if (!n) throw Error("WeightedOITParticlesPass: missing materialOptions");
+		if (!r) throw Error("WeightedOITParticlesPass: missing particleOptions");
+		this.camera = t.camera, this.particleScene = new O();
+		let s = r.geometry || new E(1, 1), c = new p();
+		c.index = s.index, c.attributes = s.attributes;
+		let l = z(r.count, r.width, r.height);
+		c.setAttribute("instUv", new f(l, 2)), this.accumMaterial = new k({
+			...n,
+			transparent: !0,
+			depthWrite: !1,
+			blending: o,
+			blendEquation: e,
+			blendSrc: S,
+			blendDst: S,
+			blendEquationAlpha: e,
+			blendSrcAlpha: S,
+			blendDstAlpha: S
+		}), this.revealMaterial = new k({
+			...n,
+			defines: {
+				...n.defines || {},
+				REVEAL_PASS: 1
+			},
+			transparent: !0,
+			depthWrite: !1,
+			blending: o,
+			blendEquation: e,
+			blendSrc: ne,
+			blendDst: C,
+			blendEquationAlpha: e,
+			blendSrcAlpha: ne,
+			blendDstAlpha: C
+		}), this.particleMesh = new y(c, this.accumMaterial), this.particleMesh.frustumCulled = !1, this.particleScene.add(this.particleMesh);
+		let u = a || (() => {
+			let e = new j();
+			return t.renderer.getSize(e), {
+				width: e.x,
+				height: e.y
+			};
+		})(), m = {
+			minFilter: g,
+			magFilter: g,
+			wrapS: i,
+			wrapT: i,
+			format: D,
+			type: d,
+			depthBuffer: !1,
+			stencilBuffer: !1
+		};
+		this.accumRT = new P(u.width, u.height, m), this.revealRT = new P(u.width, u.height, m), this.compositeCamera = new w(-1, 1, 1, -1, 0, 1), this.compositeScene = new O(), this.compositeMesh = new y(new E(2, 2), new k({
+			vertexShader: I,
+			fragmentShader: U,
+			uniforms: {
+				tAccum: { value: this.accumRT.texture },
+				tReveal: { value: this.revealRT.texture }
+			},
+			depthTest: !1,
+			depthWrite: !1,
+			transparent: !0
+		})), this.compositeMesh.frustumCulled = !1, this.compositeScene.add(this.compositeMesh);
+	}
+	update(e) {}
+	setUniform(e, t) {
+		this.accumMaterial.uniforms[e] ? this.accumMaterial.uniforms[e].value = t : this.accumMaterial.uniforms[e] = { value: t }, this.revealMaterial.uniforms[e] ? this.revealMaterial.uniforms[e].value = t : this.revealMaterial.uniforms[e] = { value: t };
+	}
+	render(e) {
+		let t = e.getClearColor(new a()).clone(), n = e.getClearAlpha();
+		e.setRenderTarget(null), e.render(this.particleScene.parent || this.particleScene, this.camera), e.setRenderTarget(this.accumRT), e.setClearColor(0, 0), e.clear(!0, !0, !1), this.particleMesh.material = this.accumMaterial, e.render(this.particleScene, this.camera), e.setRenderTarget(this.revealRT), e.setClearColor(16777215, 1), e.clear(!0, !0, !1), this.particleMesh.material = this.revealMaterial, e.render(this.particleScene, this.camera), e.setClearColor(t, n), e.setRenderTarget(null), e.render(this.compositeScene, this.compositeCamera);
+	}
+	get texture() {
+		return null;
+	}
+}, me = {
+	dpi: 1,
+	scale: 1,
+	antialias: !0,
+	imageRendering: "auto",
+	cameraType: "orthographic",
+	fov: 50,
+	near: .1,
+	far: 100,
+	cameraPosition: new M(0, 0, 5),
+	useOrbit: !1
 };
-export {
-  Gn as Compositor,
-  Wn as FullscreenPass,
-  $n as ParticlePass,
-  $e as ParticleSystem,
-  Xe as PingPongBuffer,
-  Hn as ScenePass,
-  jn as WeightedOITParticlesPass,
-  Ie as blit,
-  mt as buildNDCToZConst,
-  Fe as computeTextureSize,
-  pn as createArrowGeometry,
-  nt as createClusterPositionTexture,
-  ft as createConvergentVelocityTexture,
-  N as createDataTexture,
-  st as createFlowVelocityTexture,
-  it as createGradientFlowVelocityTexture,
-  Ue as createInstancedUvBuffer,
-  vt as createMixedVelocityTexture,
-  Jn as createNoisePositionTexture,
-  at as createNormalTextureFromArray,
-  dt as createParticleArrowGeometry,
-  rt as createPositionTextureFromArray,
-  He as createQuad,
-  lt as createRadialVelocityTexture,
-  Ze as createRenderer,
-  ct as createRotationalVelocityTexture,
-  ot as createScreenSpacePositionTexture,
-  et as createSpiralPositionTexture,
-  ut as createTurbulentVelocityTexture,
-  tt as createWavePositionTexture,
-  pt as createWaveVelocityTexture,
-  un as createWireframeBox,
-  ln as domainWarp2D,
-  k as fbm2D,
-  Qn as fbm3D,
-  B as globalUniforms,
-  se as isMousePressed,
-  ie as mouseButton,
-  q as perlin2D,
-  cn as perlin3D,
-  Kn as ridged2D,
-  Zn as runExperiment,
-  G as seededRandom,
-  Qe as setupInputs,
-  Ke as setupResize,
-  ht as shaders,
-  Je as startLoop
+function W(e = {}) {
+	let t = {
+		...me,
+		...e
+	}, n = t.canvas || document.createElement("canvas");
+	n.style.imageRendering = t.imageRendering, t.canvas || document.body.appendChild(n);
+	let r = new te({
+		canvas: n,
+		antialias: t.antialias
+	});
+	r.setPixelRatio(t.dpi), r.autoClear = !1;
+	let i, a = window.innerWidth / window.innerHeight;
+	if (t.cameraType === "perspective") {
+		let e = new T(t.fov, a, t.near, t.far);
+		e.position.set(t.cameraPosition.x, t.cameraPosition.y, t.cameraPosition.z), e.lookAt(0, 0, 0), i = e;
+	} else i = new w(-a, a, 1, -1, t.near, t.far);
+	return t.useOrbit && new re(i, r.domElement).update(), {
+		renderer: r,
+		scene: new O(),
+		camera: i,
+		canvas: n,
+		dpi: t.dpi,
+		scale: t.scale
+	};
+}
+//#endregion
+//#region src/core/input.ts
+var G = !1, K = -1;
+function he(e) {
+	let { dpi: t, scale: n } = e, r = t * n, i, a, o, s, c = () => {
+		if (i === void 0 || a === void 0 || o === void 0 || s === void 0) {
+			requestAnimationFrame(c);
+			return;
+		}
+		let t = e.canvas.getBoundingClientRect(), n = t.width, l = t.height, u = o - t.left, d = s - t.top, f = u * r, p = l * r - d * r, m = u / n, h = d / l, g = m * 2 - 1, _ = -(h * 2 - 1), v = f - i, y = p - a;
+		i = f, a = p, V.uMousePrev.value.set(i, a), V.uMouseUVPrev.value.set(V.uMouseUV.value.x, V.uMouseUV.value.y), V.uMouseNDCPrev.value.set(V.uMouseNDC.value.x, V.uMouseNDC.value.y), V.uMouseDeltaPrev.value.set(V.uMouseDelta.value.x, V.uMouseDelta.value.y), V.uMouse.value.set(f, p), V.uMouseUV.value.set(m, h), V.uMouseNDC.value.set(g, _), V.uMouseDelta.value.set(v, y), requestAnimationFrame(c);
+	};
+	window.addEventListener("mousemove", (t) => {
+		if (o = t.clientX, s = t.clientY, i === void 0 || a === void 0) {
+			let n = e.canvas.getBoundingClientRect(), o = t.clientX - n.left, s = t.clientY - n.top;
+			i = o * r, a = n.height * r - s * r, requestAnimationFrame(c);
+		}
+	}), window.addEventListener("scroll", () => {
+		V.uScroll.value = window.scrollY;
+	}), window.addEventListener("mousedown", (e) => {
+		G = !0, K = e.button;
+	}), window.addEventListener("mouseup", () => {
+		G = !1, K = -1;
+	}), window.addEventListener("mouseleave", () => {
+		G = !1, K = -1;
+	});
+}
+//#endregion
+//#region src/core/resize.ts
+function ge(e, t) {
+	let { renderer: n, camera: r, dpi: i, scale: a } = e;
+	function o() {
+		let o = e.canvas.clientWidth, s = e.canvas.clientHeight;
+		n.setSize(o * a, s * a, !1), r instanceof T && (r.aspect = o / s, r.updateProjectionMatrix()), V.uResolution.value.set(o * a * i, s * a * i), t && t(e);
+	}
+	window.addEventListener("resize", o), o();
+}
+//#endregion
+//#region src/core/loop.ts
+function _e(e, t) {
+	function n(e) {
+		let r = e * .001;
+		V.uTime.value = r, t(r), requestAnimationFrame(n);
+	}
+	requestAnimationFrame(n);
+}
+//#endregion
+//#region src/core/experimentRunner.ts
+function ve(e) {
+	let t = W(e.config), n = e.setupInputs ?? !0, r = e.setupResize ?? !0;
+	n && he(t), r && ge(t, e.onResize), e.init(t), ye(), xe(), Te(e.onToggleInfo), _e(t, e.update);
+}
+function ye() {
+	setTimeout(() => {
+		let e = window.__compositor;
+		e && typeof e.getDescription == "function" && De(e.getDescription());
+	}, 0);
+}
+function be() {
+	let e = document.getElementById("info-overlay");
+	return e || (e = document.createElement("div"), e.id = "info-overlay", e.className = "info-overlay", document.body.appendChild(e)), e.style.display = "none", e;
+}
+function xe() {
+	document.removeEventListener("keydown", Se), document.addEventListener("keydown", Se);
+}
+function Se(e) {
+	(e.key === "i" || e.key === "I") && Ce();
+}
+function Ce() {
+	let e = document.getElementById("info-overlay");
+	if (e) {
+		let t = getComputedStyle(e).display === "none";
+		e.style.display = t ? "block" : "none", typeof Ee() == "function" && Ee()(t);
+	}
+}
+var we;
+function Te(e) {
+	we = e;
+}
+function Ee() {
+	return we;
+}
+function De(e) {
+	let t = document.getElementById("compositor-description");
+	t ? t.innerHTML = "" : (t = document.createElement("div"), t.id = "compositor-description", t.className = "compositor-description", be().appendChild(t));
+	let n = e.split("\n");
+	n.forEach((e, r) => {
+		if (e.trim()) {
+			let n = document.createElement("span");
+			n.textContent = e, e.includes(":") && !e.startsWith("  ") && !e.startsWith("	") && n.classList.add("title"), t.appendChild(n);
+		}
+		r < n.length - 1 && t.appendChild(document.createElement("br"));
+	});
+}
+//#endregion
+//#region src/utils/texture.ts
+function q(e, t, n, r) {
+	let i = e * t * 4, a = new Float32Array(i), o = 0;
+	for (let r = 0; r < t; r++) for (let i = 0; i < e; i++) {
+		let [s, c, l, u] = n(i, r, e, t);
+		a[o++] = s, a[o++] = c, a[o++] = l, a[o++] = u;
+	}
+	let c = new s(a, e, t, D, u);
+	return c.minFilter = r?.minFilter ?? b, c.magFilter = r?.magFilter ?? b, c.wrapS = r?.wrapS ?? ee, c.wrapT = r?.wrapT ?? ee, c.needsUpdate = !0, c;
+}
+//#endregion
+//#region src/utils/noise.ts
+function Oe(e) {
+	return e - Math.floor(1 / 289 * e) * 289;
+}
+function J(e) {
+	return Oe((e * 34 + 1) * e);
+}
+function Y(e) {
+	return e * e * e * (e * (e * 6 - 15) + 10);
+}
+function X(e, t, n, r) {
+	let i = e & 15, a = i < 8 ? t : n, o = i < 4 ? n : i === 12 || i === 14 ? t : r ?? 0;
+	return (i & 1 ? -a : a) + (i & 2 ? -o : o);
+}
+function Z(e, t) {
+	let n = Math.floor(e), r = Math.floor(t);
+	e -= n, t -= r;
+	let i = Y(e), a = Y(t), o = X(J(J(n) + r), e, t), s = X(J(J(n) + r + 1), e, t - 1), c = X(J(J(n + 1) + r), e - 1, t), l = X(J(J(n + 1) + r + 1), e - 1, t - 1), u = o + i * (c - o);
+	return 2.3 * (u + a * (s + i * (l - s) - u));
+}
+function ke(e, t, n) {
+	let r = Math.floor(e), i = Math.floor(t), a = Math.floor(n);
+	e -= r, t -= i, n -= a;
+	let o = Y(e), s = Y(t), c = Y(n), l = J(r) + i, u = J(l) + a, d = J(l + 1) + a, f = J(r + 1) + i, p = J(f) + a, m = J(f + 1) + a, h = X(J(u), e, t, n), g = X(J(d), e, t, n - 1), _ = X(J(u + 1), e, t - 1, n), v = X(J(d + 1), e, t - 1, n - 1), y = X(J(p), e - 1, t, n), b = X(J(m), e - 1, t, n - 1), x = X(J(p + 1), e - 1, t - 1, n), S = X(J(m + 1), e - 1, t - 1, n - 1), C = h + o * (y - h), w = g + o * (b - g), T = _ + o * (x - _), E = v + o * (S - v), D = C + s * (T - C);
+	return 2.3 * (D + c * (w + s * (E - w) - D));
+}
+function Q(e, t, n = 6, r = 2, i = .5) {
+	let a = 0, o = .5, s = 1;
+	for (let c = 0; c < n; c++) a += o * Z(e * s, t * s), s *= r, o *= i;
+	return a;
+}
+function Ae(e, t, n, r = 6, i = 2, a = .5) {
+	let o = 0, s = .5, c = 1;
+	for (let l = 0; l < r; l++) o += s * ke(e * c, t * c, n * c), c *= i, s *= a;
+	return o;
+}
+function je(e, t, n = 6, r = 2, i = .5, a = 1) {
+	let o = 0, s = .5, c = 1;
+	for (let l = 0; l < n; l++) {
+		let n = Z(e * c, t * c);
+		n = a - Math.abs(n), n *= n, o += n * s, c *= r, s *= i;
+	}
+	return o * 1.25;
+}
+function Me(e, t, n = .1) {
+	let r = Z(e, t) * n, i = Z(e + 100, t + 100) * n;
+	return {
+		x: e + r,
+		y: t + i
+	};
+}
+function $(e) {
+	let t = e;
+	return () => (t = (t * 1664525 + 1013904223) % 4294967296, t / 4294967296);
+}
+//#endregion
+//#region src/utils/positionTextures.ts
+function Ne(e, t, n = {}) {
+	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	} } = n, c = $(o);
+	return q(e, t, (e, t, n, o) => {
+		let l = e / n, u = t / o, d = c() * .1, f = (l + d) * a + s.x, p = (u + d) * a + s.y, m = Q(f, p, 4, 2, .5) * r, h = Q(f + 100, p + 100, 4, 2, .5) * r;
+		return i ? [
+			m,
+			h,
+			0,
+			1
+		] : [
+			m,
+			h,
+			Q(f + 200, p + 200, 4, 2, .5) * r,
+			1
+		];
+	});
+}
+function Pe(e, t, n = {}) {
+	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	} } = n, c = $(o);
+	return q(e, t, (e, t, n, o) => {
+		let l = e / n, u = t / o, d = l * Math.PI * 4, f = u * r, p = (l + c() * .1) * a + s.x, m = (u + c() * .1) * a + s.y, h = Z(p, m) * .3, g = (f + h) * Math.cos(d), _ = (f + h) * Math.sin(d);
+		return i ? [
+			g,
+			_,
+			0,
+			1
+		] : [
+			g,
+			_,
+			Q(p + 200, m + 200, 3, 2, .5) * r * .5,
+			1
+		];
+	});
+}
+function Fe(e, t, n = {}) {
+	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, numClusters: c = 5, clusterSize: l = .8 } = n;
+	return q(e, t, (e, t, n, u) => {
+		let d = e / n, f = t / u, p = Infinity, m = {
+			x: 0,
+			y: 0
+		};
+		for (let e = 0; e < c; e++) {
+			let t = $(o + e * 1e3), n = t() * r * 2 - r, i = t() * r * 2 - r, a = Math.sqrt((d - (n + r) / (r * 2)) ** 2 + (f - (i + r) / (r * 2)) ** 2);
+			a < p && (p = a, m = {
+				x: n,
+				y: i
+			});
+		}
+		let h = Me(d * a + s.x, f * a + s.y, .2), g = Z(h.x, h.y) * l, _ = m.x + g, v = m.y + Z(h.x + 100, h.y + 100) * l;
+		return i ? [
+			_,
+			v,
+			0,
+			1
+		] : [
+			_,
+			v,
+			Q(h.x + 200, h.y + 200, 3, 2, .5) * r * .5,
+			1
+		];
+	});
+}
+function Ie(e, t, n = {}) {
+	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, numWaves: c = 3, waveAmplitude: l = .5 } = n, u = $(o);
+	return q(e, t, (e, t, n, o) => {
+		let d = e / n, f = t / o, p = 0, m = 0;
+		for (let e = 0; e < c; e++) {
+			let t = (e + 1) * 2, n = u() * Math.PI * 2;
+			p += Math.sin(f * t + n) * l, m += Math.cos(d * t + n) * l;
+		}
+		let h = d * a + s.x, g = f * a + s.y, _ = Z(h, g) * .3, v = d * r * 2 - r + p + _, y = f * r * 2 - r + m + Z(h + 100, g + 100) * .3;
+		return i ? [
+			v,
+			y,
+			0,
+			1
+		] : [
+			v,
+			y,
+			Q(h + 200, g + 200, 3, 2, .5) * r * .5,
+			1
+		];
+	});
+}
+function Le(e, t, n, r = {}) {
+	let { bounds: i = 2, is2D: a = !1, noiseScale: o = .1, seed: s = Math.random() * 1e3, noiseOffset: c = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, distance: l = 5 } = r;
+	return q(e, t, (e, t, r, s) => {
+		let u = e / r, d = t / s, f = u * 2 - 1, p = d * 2 - 1, m, h, g;
+		if (n instanceof T) {
+			let e = n.aspect, t = n.fov * Math.PI / 180, r = 2 * l * Math.tan(t / 2);
+			m = r * e * f / 2, h = p * r / 2, g = l;
+		} else if (n instanceof w) {
+			let e = n.left, t = n.right, r = n.top, i = n.bottom;
+			m = e + (t - e) * u, h = i + (r - i) * d, g = l;
+		} else m = f * i, h = p * i, g = l;
+		let _ = u * o + c.x, v = d * o + c.y, y = Z(_, v) * .2;
+		return m += y, h += Z(_ + 100, v + 100) * .2, a ? [
+			m,
+			h,
+			0,
+			1
+		] : (g += Q(_ + 200, v + 200, 3, 2, .5) * i * .3, [
+			m,
+			h,
+			g,
+			1
+		]);
+	});
+}
+function Re(e, t, n) {
+	let { width: r, height: a } = R(t), o = r * a, c = new Float32Array(o * 4);
+	for (let r = 0; r < t; r++) {
+		let t = r * 3, i = r * 4;
+		c[i + 0] = e[t + 0], c[i + 1] = e[t + 1], c[i + 2] = e[t + 2], c[i + 3] = n ? n[r] : 1;
+	}
+	for (let e = t; e < o; e++) {
+		let t = e * 4;
+		c[t + 0] = 0, c[t + 1] = 0, c[t + 2] = 0, c[t + 3] = 0;
+	}
+	let l = new s(c, r, a, D, u);
+	return l.minFilter = b, l.magFilter = b, l.wrapS = i, l.wrapT = i, l.needsUpdate = !0, {
+		texture: l,
+		width: r,
+		height: a
+	};
+}
+function ze(e, t) {
+	let { width: n, height: r } = R(t), a = n * r, o = new Float32Array(a * 4);
+	for (let n = 0; n < t; n++) {
+		let t = n * 3, r = n * 4;
+		o[r + 0] = e[t + 0], o[r + 1] = e[t + 1], o[r + 2] = e[t + 2], o[r + 3] = 1;
+	}
+	for (let e = t; e < a; e++) {
+		let t = e * 4;
+		o[t + 0] = 0, o[t + 1] = 1, o[t + 2] = 0, o[t + 3] = 1;
+	}
+	let c = new s(o, n, r, D, u);
+	return c.minFilter = b, c.magFilter = b, c.wrapS = i, c.wrapT = i, c.needsUpdate = !0, {
+		texture: c,
+		width: n,
+		height: r
+	};
+}
+//#endregion
+//#region src/utils/velocityTextures.ts
+function Be(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	} } = n;
+	return q(e, t, (e, t, n, o) => {
+		let c = e / n, l = t / o, u = c * a + s.x, d = l * a + s.y, f = Z(u, d) * r, p = Z(u + 100, d + 100) * r;
+		return i ? [
+			f,
+			p,
+			0,
+			1
+		] : [
+			f,
+			p,
+			Z(u + 200, d + 200) * r,
+			1
+		];
+	});
+}
+function Ve(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	} } = n;
+	return q(e, t, (e, t, n, o) => {
+		let c = e / n, l = t / o, u = c * a + s.x, d = l * a + s.y, f = .01, p = Z(u, d), m = Z(u + f, d), h = Z(u, d + f), g = -(m - p) / f * r, _ = -(h - p) / f * r;
+		return i ? [
+			g,
+			_,
+			0,
+			1
+		] : [
+			g,
+			_,
+			Z(u + 200, d + 200) * r * .5,
+			1
+		];
+	});
+}
+function He(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, numCenters: c = 3, rotationStrength: l = 1 } = n;
+	return q(e, t, (e, t, n, u) => {
+		let d = e / n, f = t / u, p = d * 4 - 2, m = f * 4 - 2, h = 0, g = 0;
+		for (let e = 0; e < c; e++) {
+			let t = $(o + e * 1e3), n = t() * 4 - 2, r = t() * 4 - 2, i = p - n, a = m - r, s = Math.sqrt(i * i + a * a);
+			if (s > .01) {
+				let e = l * Math.exp(-s * 2);
+				h += -a / s * e, g += i / s * e;
+			}
+		}
+		let _ = d * a + s.x, v = f * a + s.y, y = Z(_, v) * r * .3, b = Z(_ + 100, v + 100) * r * .3;
+		if (h = (h + y) * r, g = (g + b) * r, i) return [
+			h,
+			g,
+			0,
+			1
+		];
+		{
+			let e = Z(_ + 200, v + 200) * r * .5;
+			return [
+				h,
+				g,
+				e,
+				1
+			];
+		}
+	});
+}
+function Ue(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, numCenters: c = 2, radialStrength: l = 1 } = n;
+	return q(e, t, (e, t, n, u) => {
+		let d = e / n, f = t / u, p = d * 4 - 2, m = f * 4 - 2, h = 0, g = 0;
+		for (let e = 0; e < c; e++) {
+			let t = $(o + e * 1e3), n = t() * 4 - 2, r = t() * 4 - 2, i = p - n, a = m - r, s = Math.sqrt(i * i + a * a);
+			if (s > .01) {
+				let e = l * Math.exp(-s * 1.5);
+				h += i / s * e, g += a / s * e;
+			}
+		}
+		let _ = d * a + s.x, v = f * a + s.y, y = Z(_, v) * r * .2, b = Z(_ + 100, v + 100) * r * .2;
+		if (h = (h + y) * r, g = (g + b) * r, i) return [
+			h,
+			g,
+			0,
+			1
+		];
+		{
+			let e = Z(_ + 200, v + 200) * r * .3;
+			return [
+				h,
+				g,
+				e,
+				1
+			];
+		}
+	});
+}
+function We(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, turbulenceIntensity: c = 1, turbulenceOctaves: l = 4 } = n;
+	return q(e, t, (e, t, n, o) => {
+		let u = e / n, d = t / o, f = u * a + s.x, p = d * a + s.y, m = Q(f, p, l, 2, .5) * r * c, h = Q(f + 100, p + 100, l, 2, .5) * r * c;
+		return i ? [
+			m,
+			h,
+			0,
+			1
+		] : [
+			m,
+			h,
+			Q(f + 200, p + 200, l, 2, .5) * r * c,
+			1
+		];
+	});
+}
+function Ge(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, numWaves: c = 3, waveFrequency: l = 2 } = n, u = $(o);
+	return q(e, t, (e, t, n, o) => {
+		let d = e / n, f = t / o, p = 0, m = 0;
+		for (let e = 0; e < c; e++) {
+			let t = u() * Math.PI * 2, n = l * (e + 1);
+			m += Math.sin(d * n + t) * r * .5, p += Math.cos(f * n + t) * r * .5;
+		}
+		let h = d * a + s.x, g = f * a + s.y, _ = Z(h, g) * r * .3, v = Z(h + 100, g + 100) * r * .3;
+		if (p = (p + _) * r, m = (m + v) * r, i) return [
+			p,
+			m,
+			0,
+			1
+		];
+		{
+			let e = Z(h + 200, g + 200) * r * .4;
+			return [
+				p,
+				m,
+				e,
+				1
+			];
+		}
+	});
+}
+function Ke(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, numPoints: c = 2, convergenceStrength: l = 1 } = n;
+	return q(e, t, (e, t, n, u) => {
+		let d = e / n, f = t / u, p = d * 4 - 2, m = f * 4 - 2, h = 0, g = 0;
+		for (let e = 0; e < c; e++) {
+			let t = $(o + e * 1e3), n = t() * 4 - 2, r = t() * 4 - 2, i = n - p, a = r - m, s = Math.sqrt(i * i + a * a);
+			if (s > .01) {
+				let e = l * Math.exp(-s * 1);
+				h += i / s * e, g += a / s * e;
+			}
+		}
+		let _ = d * a + s.x, v = f * a + s.y, y = Z(_, v) * r * .2, b = Z(_ + 100, v + 100) * r * .2;
+		if (h = (h + y) * r, g = (g + b) * r, i) return [
+			h,
+			g,
+			0,
+			1
+		];
+		{
+			let e = Z(_ + 200, v + 200) * r * .3;
+			return [
+				h,
+				g,
+				e,
+				1
+			];
+		}
+	});
+}
+function qe(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, patterns: c = [
+		{
+			type: "flow",
+			weight: .4
+		},
+		{
+			type: "rotational",
+			weight: .3
+		},
+		{
+			type: "turbulent",
+			weight: .3
+		}
+	] } = n;
+	return q(e, t, (e, t, n, l) => {
+		let u = e / n, d = t / l, f = 0, p = 0, m = 0, h = 0;
+		return c.forEach((e, t) => {
+			let n = $(o + t * 1e3), c = 0, l = 0, g = 0;
+			switch (e.type) {
+				case "flow": {
+					let e = u * a + s.x, t = d * a + s.y;
+					c = Z(e, t) * r, l = Z(e + 100, t + 100) * r, i || (g = Z(e + 200, t + 200) * r);
+					break;
+				}
+				case "rotational": {
+					let e = u * 4 - 2, t = d * 4 - 2, i = n() * 4 - 2, a = n() * 4 - 2, o = e - i, s = t - a, f = Math.sqrt(o * o + s * s);
+					if (f > .01) {
+						let e = Math.exp(-f * 2);
+						c = -s / f * e * r, l = o / f * e * r;
+					}
+					break;
+				}
+				case "turbulent": {
+					let e = u * a + s.x, t = d * a + s.y;
+					c = Q(e, t, 4, 2, .5) * r, l = Q(e + 100, t + 100, 4, 2, .5) * r, i || (g = Q(e + 200, t + 200, 4, 2, .5) * r);
+					break;
+				}
+				case "wave": {
+					let e = n() * Math.PI * 2;
+					c = Math.cos(d * 2 + e) * r * .5, l = Math.sin(u * 2 + e) * r * .5;
+					break;
+				}
+				case "radial": {
+					let e = u * 4 - 2, t = d * 4 - 2, i = n() * 4 - 2, a = n() * 4 - 2, o = e - i, s = t - a, f = Math.sqrt(o * o + s * s);
+					if (f > .01) {
+						let e = Math.exp(-f * 1.5);
+						c = o / f * e * r, l = s / f * e * r;
+					}
+					break;
+				}
+				case "convergent": {
+					let e = u * 4 - 2, t = d * 4 - 2, i = n() * 4 - 2, a = n() * 4 - 2, o = i - e, s = a - t, f = Math.sqrt(o * o + s * s);
+					if (f > .01) {
+						let e = Math.exp(-f * 1);
+						c = o / f * e * r, l = s / f * e * r;
+					}
+					break;
+				}
+			}
+			f += c * e.weight, p += l * e.weight, m += g * e.weight, h += e.weight;
+		}), h > 0 && (f /= h, p /= h, m /= h), i ? [
+			f,
+			p,
+			0,
+			1
+		] : [
+			f,
+			p,
+			m,
+			1
+		];
+	});
+}
+//#endregion
+//#region src/utils/debug.ts
+function Je(e, r, i, a, o) {
+	if (e instanceof t) {
+		let t = e, n = r ?? 16711680, i = t.getSize(new M()), a = t.getCenter(new M());
+		return Je(i.x, i.y, i.z, n, a);
+	}
+	if (typeof r == "number" && typeof i == "number") {
+		let t = e, s = r, l = i, u = a ?? 65280, d = o ?? new M(0, 0, 0), f = new h(new c(new n(t, s, l)), new m({ color: u }));
+		return f.position.copy(d), f;
+	}
+	let s = e, l = r ?? 65280, u = i instanceof M ? i : new M(0, 0, 0), d = new h(new c(new n(s, s, s)), new m({ color: l }));
+	return d.position.copy(u), d;
+}
+//#endregion
+//#region src/utils/arrowGeometry.ts
+function Ye(e = .2) {
+	let t = new r(), n = [], i = [], a = [];
+	return n.push(0, .5, 0, -.5, -.5, 0, 0, -.5 + e, 0, .5, -.5, 0), i.push(.5, 1, 0, 0, .5, .2, 1, 0), a.push(0, 1, 2, 0, 2, 3), t.setAttribute("position", new l(n, 3)), t.setAttribute("uv", new l(i, 2)), t.setIndex(a), t.computeVertexNormals(), t;
+}
+function Xe() {
+	return Ye(.2);
+}
+//#endregion
+//#region src/utils/matrices.ts
+function Ze(e, t = 0) {
+	let n = new v().multiplyMatrices(e.projectionMatrix, e.matrixWorldInverse).elements, r = (e, t) => n[t * 4 + e], i = new _().set(r(0, 0), r(0, 1), r(0, 2) * t + r(0, 3), r(1, 0), r(1, 1), r(1, 2) * t + r(1, 3), r(3, 0), r(3, 1), r(3, 2) * t + r(3, 3)), a = i.determinant();
+	return Math.abs(a) < 1e-8 ? null : new _().copy(i).invert();
+}
+//#endregion
+//#region src/shaders/index.ts
+var Qe = {
+	core: {
+		passThroughVert: I,
+		textureFrag: ie,
+		uvFrag: "uniform vec2 uResolution;\n\nvoid main() {\n  vec2 uv = (gl_FragCoord.xy ) / uResolution.xy;\n  gl_FragColor = vec4(uv, 0.0, 1.0);\n}",
+		commonGlsl: "float circleSDF(vec2 uv, float r) {\n  return length(uv) - r;\n}\n\nvec3 pal(float t, vec3 a, vec3 b, vec3 c, vec3 d) {\n  return a + b * cos(6.28318 * (c * t + d));\n}\n\nmat4 rotationAxisAngle( vec3 v, float angle )\n{\n    float s = sin( angle );\n    float c = cos( angle );\n    float ic = 1.0 - c;\n\n    return mat4( v.x*v.x*ic + c,     v.y*v.x*ic - s*v.z, v.z*v.x*ic + s*v.y, 0.0,\n                 v.x*v.y*ic + s*v.z, v.y*v.y*ic + c,     v.z*v.y*ic - s*v.x, 0.0,\n                 v.x*v.z*ic - s*v.y, v.y*v.z*ic + s*v.x, v.z*v.z*ic + c,     0.0,\n			     0.0,                0.0,                0.0,                1.0 );\n}",
+		colorGlsl: "vec3 sample6LobesSphereLinear(vec3 dir,\n                              vec3 colPosX, vec3 colNegX,\n                              vec3 colPosY, vec3 colNegY,\n                              vec3 colPosZ, vec3 colNegZ,\n                              float sharpness)\n{\n    float len2 = dot(dir, dir);\n    if (len2 < 1e-12) return colPosZ;\n    dir *= inversesqrt(len2);\n\n    float wxp = pow(max( dir.x, 0.0), sharpness);\n    float wxn = pow(max(-dir.x, 0.0), sharpness);\n    float wyp = pow(max( dir.y, 0.0), sharpness);\n    float wyn = pow(max(-dir.y, 0.0), sharpness);\n    float wzp = pow(max( dir.z, 0.0), sharpness);\n    float wzn = pow(max(-dir.z, 0.0), sharpness);\n\n    float wSum = max(wxp + wxn + wyp + wyn + wzp + wzn, 1e-8);\n\n    return (colPosX * wxp + colNegX * wxn +\n            colPosY * wyp + colNegY * wyn +\n            colPosZ * wzp + colNegZ * wzn) / wSum;\n}",
+		easingGlsl: "float easeLinear(float t) {\n  return t;\n}\n\nfloat easeInQuad(float t) {\n  return t * t;\n}\n\nfloat easeOutQuad(float t) {\n  return 1.0 - (1.0 - t) * (1.0 - t);\n}\n\nfloat easeInOutQuad(float t) {\n  return t < 0.5 ? 2.0 * t * t : 1.0 - pow(-2.0 * t + 2.0, 2.0) / 2.0;\n}\n\nfloat easeInCubic(float t) {\n  return t * t * t;\n}\n\nfloat easeOutCubic(float t) {\n  return 1.0 - pow(1.0 - t, 3.0);\n}\n\nfloat easeInOutCubic(float t) {\n  return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0;\n}\n\nfloat easeInQuart(float t) {\n  return t * t * t * t;\n}\n\nfloat easeOutQuart(float t) {\n  return 1.0 - pow(1.0 - t, 4.0);\n}\n\nfloat easeInOutQuart(float t) {\n  return t < 0.5 ? 8.0 * t * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 4.0) / 2.0;\n}\n\nfloat easeInQuint(float t) {\n  return t * t * t * t * t;\n}\n\nfloat easeOutQuint(float t) {\n  return 1.0 - pow(1.0 - t, 5.0);\n}\n\nfloat easeInOutQuint(float t) {\n  return t < 0.5 ? 16.0 * t * t * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 5.0) / 2.0;\n}\n\nfloat easeInSine(float t) {\n  return 1.0 - cos((t * 3.14159265359) / 2.0);\n}\n\nfloat easeOutSine(float t) {\n  return sin((t * 3.14159265359) / 2.0);\n}\n\nfloat easeInOutSine(float t) {\n  return -(cos(3.14159265359 * t) - 1.0) / 2.0;\n}\n\nfloat easeInExpo(float t) {\n  return t == 0.0 ? 0.0 : pow(2.0, 10.0 * (t - 1.0));\n}\n\nfloat easeOutExpo(float t) {\n  return t == 1.0 ? 1.0 : 1.0 - pow(2.0, -10.0 * t);\n}\n\nfloat easeInOutExpo(float t) {\n  if (t == 0.0) return 0.0;\n  if (t == 1.0) return 1.0;\n  return t < 0.5 ? pow(2.0, 20.0 * t - 10.0) / 2.0 : (2.0 - pow(2.0, -20.0 * t + 10.0)) / 2.0;\n}\n\nfloat easeInCirc(float t) {\n  return 1.0 - sqrt(1.0 - pow(t, 2.0));\n}\n\nfloat easeOutCirc(float t) {\n  return sqrt(1.0 - pow(t - 1.0, 2.0));\n}\n\nfloat easeInOutCirc(float t) {\n  return t < 0.5 ? (1.0 - sqrt(1.0 - pow(2.0 * t, 2.0))) / 2.0 : (sqrt(1.0 - pow(-2.0 * t + 2.0, 2.0)) + 1.0) / 2.0;\n}\n\nfloat easeInBack(float t) {\n  const float c1 = 1.70158;\n  const float c3 = c1 + 1.0;\n  return c3 * t * t * t - c1 * t * t;\n}\n\nfloat easeOutBack(float t) {\n  const float c1 = 1.70158;\n  const float c3 = c1 + 1.0;\n  return 1.0 + c3 * pow(t - 1.0, 3.0) + c1 * pow(t - 1.0, 2.0);\n}\n\nfloat easeInOutBack(float t) {\n  const float c1 = 1.70158;\n  const float c2 = c1 * 1.525;\n  return t < 0.5 ? (pow(2.0 * t, 2.0) * ((c2 + 1.0) * 2.0 * t - c2)) / 2.0 : (pow(2.0 * t - 2.0, 2.0) * ((c2 + 1.0) * (t * 2.0 - 2.0) + c2) + 2.0) / 2.0;\n}\n\nfloat easeInElastic(float t) {\n  if (t == 0.0) return 0.0;\n  if (t == 1.0) return 1.0;\n  return -pow(2.0, 10.0 * t - 10.0) * sin((t * 10.0 - 10.75) * (2.0 * 3.14159265359) / 3.0);\n}\n\nfloat easeOutElastic(float t) {\n  if (t == 0.0) return 0.0;\n  if (t == 1.0) return 1.0;\n  return pow(2.0, -10.0 * t) * sin((t * 10.0 - 0.75) * (2.0 * 3.14159265359) / 3.0) + 1.0;\n}\n\nfloat easeInOutElastic(float t) {\n  if (t == 0.0) return 0.0;\n  if (t == 1.0) return 1.0;\n  return t < 0.5 ? -(pow(2.0, 20.0 * t - 10.0) * sin((20.0 * t - 11.125) * (2.0 * 3.14159265359) / 4.5)) / 2.0 : (pow(2.0, -20.0 * t + 10.0) * sin((20.0 * t - 11.125) * (2.0 * 3.14159265359) / 4.5)) / 2.0 + 1.0;\n}\n\nfloat easeOutBounce(float t) {\n  const float n1 = 7.5625;\n  const float d1 = 2.75;\n  \n  if (t < 1.0 / d1) {\n    return n1 * t * t;\n  } else if (t < 2.0 / d1) {\n    return n1 * (t -= 1.5 / d1) * t + 0.75;\n  } else if (t < 2.5 / d1) {\n    return n1 * (t -= 2.25 / d1) * t + 0.9375;\n  } else {\n    return n1 * (t -= 2.625 / d1) * t + 0.984375;\n  }\n}\n\nfloat easeInBounce(float t) {\n  return 1.0 - easeOutBounce(1.0 - t);\n}\n\nfloat easeInOutBounce(float t) {\n  return t < 0.5 ? (1.0 - easeOutBounce(1.0 - 2.0 * t)) / 2.0 : (1.0 + easeOutBounce(2.0 * t - 1.0)) / 2.0;\n}",
+		spaceGlsl: "vec3 toroidalDelta(vec3 cur, vec3 prev, vec3 bounds) {\n  vec3 d = cur - prev;\n  vec3 halfB = bounds * 0.5;\n  if (d.x >  halfB.x) d.x -= bounds.x; else if (d.x < -halfB.x) d.x += bounds.x;\n  if (d.y >  halfB.y) d.y -= bounds.y; else if (d.y < -halfB.y) d.y += bounds.y;\n  if (d.z >  halfB.z) d.z -= bounds.z; else if (d.z < -halfB.z) d.z += bounds.z;\n  return d;\n}\n\nvec3 wrapHysteresis(vec3 p, vec3 innerBounds, float margin) {\n  vec3 innerHalf = innerBounds * 0.5;\n  vec3 outerHalf = innerHalf * (1.0 + margin);\n  const float eps = 0.001;\n  if (p.x < -outerHalf.x)      p.x =  outerHalf.x - eps;\n  else if (p.x >  outerHalf.x) p.x = -outerHalf.x + eps;\n  if (p.y < -outerHalf.y)      p.y =  outerHalf.y - eps;\n  else if (p.y >  outerHalf.y) p.y = -outerHalf.y + eps;\n  if (p.z < -outerHalf.z)      p.z =  outerHalf.z - eps;\n  else if (p.z >  outerHalf.z) p.z = -outerHalf.z + eps;\n  return p;\n}\n\nfloat edgeFactorWithinBounds(vec3 pos, vec3 bounds, float wrapMargin) {\n  vec3 innerHalf = 0.5 * bounds;\n  vec3 outerHalf = innerHalf * (1.0 + wrapMargin);\n  vec3 ap = abs(pos);\n  vec3 over = max(ap - innerHalf, 0.0);\n  vec3 span = max(outerHalf - innerHalf, vec3(1e-6));\n  vec3 t = clamp(over / span, 0.0, 1.0);\n  return 1.0 - max(max(t.x, t.y), t.z);\n}",
+		bumpCurvesGlsl: "#define PI 3.14159265358979323846\n#define TAU 6.28318530717958647692\n\nfloat bumpSine(float x) {\n    x = clamp(x, 0.0, 1.0);\n    return sin(PI * x);\n}\n\nfloat bumpCirc(float x) {\n    x = clamp(x, 0.0, 1.0);\n    float u = 2.0 * x - 1.0;          \n    return sqrt(max(0.0, 1.0 - u*u)); \n}\n\nfloat bumpTriangle(float x) {\n    x = clamp(x, 0.0, 1.0);\n    return 1.0 - abs(2.0 * x - 1.0);\n}",
+		blurHFrag: "precision highp float;\n\nvarying vec2 vUv;\n\nuniform sampler2D uInput;\nuniform vec2 uTexelSize; \n\nvoid main() {\n  vec2 d = vec2(uTexelSize.x, 0.0);\n  vec4 sum = vec4(0.0);\n  sum += texture2D(uInput, vUv + d * -4.0) * 0.05;\n  sum += texture2D(uInput, vUv + d * -3.0) * 0.09;\n  sum += texture2D(uInput, vUv + d * -2.0) * 0.12;\n  sum += texture2D(uInput, vUv + d * -1.0) * 0.15;\n  sum += texture2D(uInput, vUv)             * 0.16;\n  sum += texture2D(uInput, vUv + d *  1.0) * 0.15;\n  sum += texture2D(uInput, vUv + d *  2.0) * 0.12;\n  sum += texture2D(uInput, vUv + d *  3.0) * 0.09;\n  sum += texture2D(uInput, vUv + d *  4.0) * 0.05;\n  gl_FragColor = sum;\n}",
+		blurVFrag: "precision highp float;\n\nvarying vec2 vUv;\n\nuniform sampler2D uInput;\nuniform vec2 uTexelSize; \n\nvoid main() {\n  vec2 d = vec2(0.0, uTexelSize.y);\n  vec4 sum = vec4(0.0);\n  sum += texture2D(uInput, vUv + d * -4.0) * 0.05;\n  sum += texture2D(uInput, vUv + d * -3.0) * 0.09;\n  sum += texture2D(uInput, vUv + d * -2.0) * 0.12;\n  sum += texture2D(uInput, vUv + d * -1.0) * 0.15;\n  sum += texture2D(uInput, vUv)             * 0.16;\n  sum += texture2D(uInput, vUv + d *  1.0) * 0.15;\n  sum += texture2D(uInput, vUv + d *  2.0) * 0.12;\n  sum += texture2D(uInput, vUv + d *  3.0) * 0.09;\n  sum += texture2D(uInput, vUv + d *  4.0) * 0.05;\n  gl_FragColor = sum;\n}",
+		blurBilateralHFrag: "precision highp float;\n\nvarying vec2 vUv;\n\nuniform sampler2D uInput;\nuniform vec2 uTexelSize;\nuniform float uBlurScale;\nuniform float uDepthThreshold;\n\nvoid main() {\n    vec4 centerSample = texture2D(uInput, vUv);\n    float centerDepth = centerSample.a;\n    \n    vec4 colorSum = vec4(0.0);\n    float weightSum = 0.0;\n    \n    vec2 dir = vec2(uTexelSize.x * uBlurScale, 0.0);\n    \n    \n    \n    \n    vec4 s; float d; float dw; float w;\n    float depthThreshSq = uDepthThreshold * uDepthThreshold + 0.0001;\n    \n    \n    s = texture2D(uInput, vUv + dir * -4.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.05 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * -3.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.09 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * -2.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.12 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * -1.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.15 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    d = 0.0;  \n    dw = 1.0;\n    w = 0.16 * dw;\n    colorSum += centerSample * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * 1.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.15 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * 2.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.12 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * 3.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.09 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * 4.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.05 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    gl_FragColor = colorSum / max(weightSum, 0.0001);\n}",
+		blurBilateralVFrag: "precision highp float;\n\nvarying vec2 vUv;\n\nuniform sampler2D uInput;\nuniform vec2 uTexelSize;\nuniform float uBlurScale;\nuniform float uDepthThreshold;\n\nvoid main() {\n    vec4 centerSample = texture2D(uInput, vUv);\n    float centerDepth = centerSample.a;\n    \n    vec4 colorSum = vec4(0.0);\n    float weightSum = 0.0;\n    \n    vec2 dir = vec2(0.0, uTexelSize.y * uBlurScale);\n    \n    \n    \n    \n    vec4 s; float d; float dw; float w;\n    float depthThreshSq = uDepthThreshold * uDepthThreshold + 0.0001;\n    \n    \n    s = texture2D(uInput, vUv + dir * -4.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.05 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * -3.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.09 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * -2.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.12 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * -1.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.15 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    d = 0.0;  \n    dw = 1.0;\n    w = 0.16 * dw;\n    colorSum += centerSample * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * 1.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.15 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * 2.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.12 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * 3.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.09 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    s = texture2D(uInput, vUv + dir * 4.0);\n    d = abs(s.a - centerDepth);\n    dw = exp(-d * d / depthThreshSq);\n    w = 0.05 * dw;\n    colorSum += s * w; weightSum += w;\n    \n    \n    gl_FragColor = colorSum / max(weightSum, 0.0001);\n}"
+	},
+	particles: {
+		billboardVert: "attribute vec2 instUv;       \nuniform sampler2D uPositionTex;\nuniform float quadSize;   \n\nvarying vec2 vUv;\nvarying vec2 vQuadUv;\nvarying float vAlive;  \n\nvoid main() {\n  \n  vec4 posData = texture2D(uPositionTex, instUv);\n  vec3 pos = posData.xyz;\n  vAlive = posData.w;  \n\n  \n  vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);\n\n  \n  vec2 offset = position.xy * quadSize * mvPos.w;\n\n  mvPos.xy += offset;\n\n  \n  gl_Position = projectionMatrix * mvPos;\n\n  \n  vUv = instUv;\n  vQuadUv = uv;\n}",
+		billboardStretchedVert: "attribute vec2 instUv; \n\nuniform sampler2D uPositionTex;\nuniform sampler2D uPrevPositionTex;\nuniform float quadSize; \nuniform float stretchFactor; \nuniform float squashFactor; \nuniform float uTime;\n\nvarying vec2 vUv;\n\nvoid main() {\n  vec3 curPos = texture2D(uPositionTex, instUv).xyz;\n  vec3 prevPos = texture2D(uPrevPositionTex, instUv).xyz;\n  vec3 Vcur = (modelViewMatrix * vec4(curPos,1.)).xyz;\n  vec3 Vprev = (modelViewMatrix * vec4(prevPos,1.)).xyz;\n\n  \n  vec3 motion = Vcur - Vprev;\n  float speed = length(motion);\n  vec3 mDir = speed > 1e-6 ? motion/speed : vec3(0,1,0);\n\n  \n  vec3 normal = normalize(-Vcur);\n  vec3 upUn = mDir - normal * dot(mDir, normal);\n  vec3 up = length(upUn) > 1e-6 ? normalize(upUn) : vec3(0,1,0);\n  vec3 right = normalize(cross(normal, up));\n\n  \n  vec4 mvPos = vec4(Vcur, 1.0);\n  float halfSz = quadSize * mvPos.w;\n  float stretch = 1.0 + speed * stretchFactor;\n  float invStretch = 1.0 / stretch;\n  float squash = mix(1.0, invStretch, squashFactor);\n\n  \n  vec3 offset = right*(position.x * halfSz * squash) + up*(position.y * halfSz * stretch);\n  mvPos.xyz += offset;\n  gl_Position = projectionMatrix * mvPos;\n\n  vUv = position.xy + 0.5; \n}",
+		billboardStretchedVelocityVert: "attribute vec2 instUv; \n\nuniform sampler2D uPositionTex;\nuniform sampler2D uVelocityTex;\nuniform float quadSize; \nuniform float stretchFactor; \nuniform float squashFactor; \nuniform float speedMin; \nuniform float speedMax; \nuniform float useSpeedVariation; \nuniform float uTime;\n\nvarying vec2 vUv;\n\nvoid main() {\n  vec3 curPos = texture2D(uPositionTex, instUv).xyz;\n  vec3 velocity = texture2D(uVelocityTex, instUv).xyz;\n  vec3 Vcur = (modelViewMatrix * vec4(curPos,1.)).xyz;\n\n  \n  float speed = length(velocity);\n  vec3 mDir = speed > 1e-6 ? normalize(velocity) : vec3(0,1,0);\n  \n  \n  vec3 mDirView = normalize((modelViewMatrix * vec4(mDir, 0.0)).xyz);\n\n  \n  vec3 normal = normalize(-Vcur);\n  vec3 upUn = mDirView - normal * dot(mDirView, normal);\n  vec3 up = length(upUn) > 1e-6 ? normalize(upUn) : vec3(0,1,0);\n  vec3 right = normalize(cross(normal, up));\n\n  \n  vec4 mvPos = vec4(Vcur, 1.0);\n  float halfSz = quadSize * mvPos.w;\n  \n  \n  float effectAmount = 0.0;\n  \n  if (useSpeedVariation > 0.5) {\n    \n    if (speed > speedMin) {\n      float speedRange = speedMax - speedMin;\n      if (speedRange > 0.0) {\n        effectAmount = clamp((speed - speedMin) / speedRange, 0.0, 1.0);\n      }\n    }\n  } else {\n    \n    effectAmount = speed > 0.01 ? 1.0 : 0.0;\n  }\n  \n  float stretchAmount = effectAmount * stretchFactor;\n  float stretch = 1.0 + stretchAmount;\n  \n  float squashAmount = effectAmount * squashFactor;\n  float invStretch = 1.0 / stretch;\n  float squash = mix(1.0, invStretch, squashAmount);\n\n  \n  vec3 offset = right*(position.x * halfSz * squash) + up*(position.y * halfSz * stretch);\n  mvPos.xyz += offset;\n  gl_Position = projectionMatrix * mvPos;\n\n  vUv = position.xy + 0.5; \n}",
+		billboardLifescaleVert: "#define PI 3.14159265358979323846\n#define TAU 6.28318530717958647692\n\nfloat bumpSine(float x) {\n    x = clamp(x, 0.0, 1.0);\n    return sin(PI * x);\n}\n\nfloat bumpCirc(float x) {\n    x = clamp(x, 0.0, 1.0);\n    float u = 2.0 * x - 1.0;          \n    return sqrt(max(0.0, 1.0 - u*u)); \n}\n\nfloat bumpTriangle(float x) {\n    x = clamp(x, 0.0, 1.0);\n    return 1.0 - abs(2.0 * x - 1.0);\n}\n\nattribute vec2 instUv;       \nuniform sampler2D uPositionTex;\nuniform float quadSize;   \n\nvarying vec2 vUv;\nvarying vec2 vQuadUv;\n\nvoid main() {\n  \n  vec4 posData = texture2D(uPositionTex, instUv);\n  vec3 pos = posData.xyz;\n  float life = posData.w;\n\n  \n  vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);\n\n  float lifeScale = bumpSine(life);\n  float scaledQuadSize = quadSize * lifeScale;\n\n  \n  vec2 offset = position.xy * scaledQuadSize * mvPos.w;\n\n  mvPos.xy += offset;\n\n  \n  gl_Position = projectionMatrix * mvPos;\n\n  \n  vUv = instUv;\n  vQuadUv = uv;\n}",
+		commonGlsl: "float circleAlpha(vec2 uv, float softEdge) {\n  vec2 center = uv * 2.0 - 1.0;\n  float d = length(center);\n  float a = 1.0 - clamp((d - (1.0 - softEdge)) / softEdge, 0.0, 1.0);\n  return a;\n}\n\nvoid alphaTestDiscard(float alpha, float threshold) {\n  if (alpha < threshold) discard;\n}\n\n#ifdef ENABLE_ALPHA_TEST\n  #define ALPHA_TEST(alpha, threshold) if ((alpha) < (threshold)) discard;\n#else\n  #define ALPHA_TEST(alpha, threshold)\n#endif",
+		particleDebugFrag: "varying vec2 vUv;\nvarying vec2 vQuadUv;\nvoid main() {\n  \n  \n  gl_FragColor = vec4(vQuadUv, 0.0, 1.0);\n}",
+		particleFlatColorFrag: "uniform vec3 uColorAlive;\nuniform vec3 uColorDead;\n\nvarying float vAlive;\n\nvoid main() {\n  vec3 color = mix(uColorDead, uColorAlive, vAlive);\n  gl_FragColor = vec4(color, 1.0);\n}",
+		particleLifeDiscardFrag: "precision highp float;\n\nuniform sampler2D uPositionTex; \nvarying vec2 vUv;               \nvarying vec2 vQuadUv;           \n\nuniform float uSmoothFrom;      \nuniform float uSmoothTo;        \n\nvoid main() {\n  float life = texture2D(uPositionTex, vUv).w;\n  if (life <= 0.0) discard;     \n  \n  \n  vec2 center = vec2(0.5, 0.5);\n  float dist = distance(vQuadUv, center);\n  float radius = 0.5;\n  \n  \n  \n  float edge = smoothstep(uSmoothFrom * radius, uSmoothTo * radius, dist);\n  float alpha = 1.0 - edge;\n  \n  \n  alpha *= life;\n  \n  \n  vec3 color = vec3(1.0, 1.0, 1.0);\n  \n  gl_FragColor = vec4(color, alpha);\n}",
+		speedDebugFrag: "uniform sampler2D uVelocityTex;\nuniform float speedMin;\nuniform float speedMax;\nuniform float useSpeedVariation;\n\nvarying vec2 vUv;\n\nvoid main() {\n  \n  vec3 velocity = texture2D(uVelocityTex, vUv).xyz;\n  float speed = length(velocity);\n  \n  vec3 color;\n  \n  if (useSpeedVariation > 0.5) {\n    \n    float normalizedSpeed = clamp((speed - speedMin) / (speedMax - speedMin), 0.0, 1.0);\n    color = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), normalizedSpeed);\n  } else {\n    \n    if (speed > 0.01) {\n      color = vec3(0.0, 0.8, 1.0); \n    } else {\n      color = vec3(1.0, 0.0, 0.0); \n    }\n  }\n  \n  \n  float alpha = 0.7 + 0.3 * clamp(speed, 0.0, 1.0);\n  \n  gl_FragColor = vec4(color, alpha);\n}"
+	},
+	noise: {
+		commonGlsl: "#ifndef GLCORE_NOISE_COMMON_GLSL\n#define GLCORE_NOISE_COMMON_GLSL\n\nfloat mod289(float x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\nvec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\nvec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\nvec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\n\nvec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }\nvec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }\n\nvec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }\nvec3 taylorInvSqrt(vec3 r) { return 1.79284291400159 - 0.85373472095314 * r; }\n\nvec3 fade(vec3 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }\nvec2 fade(vec2 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }\n\n#endif",
+		perlinGlsl: "#ifndef GLCORE_NOISE_PERLIN_GLSL\n#define GLCORE_NOISE_PERLIN_GLSL\n\nfloat mod289(float x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\nvec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\nvec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\nvec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\n\nvec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }\nvec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }\n\nvec3 fade(vec3 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }\nvec2 fade(vec2 t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }\n\nfloat pnoise(vec2 P)\n{\n  vec2 Pi = floor(P);\n  vec2 Pf = P - Pi;\n  vec2 f = fade(Pf);\n\n  \n  vec4 ix = vec4(Pi.x, Pi.x + 1.0, Pi.x,     Pi.x + 1.0);\n  vec4 iy = vec4(Pi.y, Pi.y,       Pi.y + 1.0, Pi.y + 1.0);\n\n  vec4 i  = permute(permute(ix) + iy);\n\n  \n  vec4 gx = fract(i * (1.0 / 41.0)) * 2.0 - 1.0;\n  vec4 gy = abs(gx) - 0.5;\n  vec4 tx = floor(gx + 0.5);\n  gx = gx - tx;\n\n  vec2 g00 = vec2(gx.x, gy.x);\n  vec2 g10 = vec2(gx.y, gy.y);\n  vec2 g01 = vec2(gx.z, gy.z);\n  vec2 g11 = vec2(gx.w, gy.w);\n\n  float n00 = dot(g00, Pf);\n  float n10 = dot(g10, Pf - vec2(1.0, 0.0));\n  float n01 = dot(g01, Pf - vec2(0.0, 1.0));\n  float n11 = dot(g11, Pf - vec2(1.0, 1.0));\n\n  float nx0 = mix(n00, n10, f.x);\n  float nx1 = mix(n01, n11, f.x);\n  float nxy = mix(nx0, nx1, f.y);\n  return 2.3 * nxy; \n}\n\nfloat pnoise(vec3 P)\n{\n  vec3 Pi = floor(P);\n  vec3 Pf = P - Pi;\n  vec3 f = fade(Pf);\n\n  \n  vec4 ix = vec4(Pi.x, Pi.x + 1.0, Pi.x,     Pi.x + 1.0);\n  vec4 iy = vec4(Pi.y, Pi.y,       Pi.y + 1.0, Pi.y + 1.0);\n  vec4 iz0 = vec4(Pi.z);\n  vec4 iz1 = vec4(Pi.z + 1.0);\n\n  vec4 i0 = permute(permute(permute(ix) + iy) + iz0);\n  vec4 i1 = permute(permute(permute(ix) + iy) + iz1);\n\n  \n  vec4 gx0 = fract(i0 * (1.0 / 41.0)) * 2.0 - 1.0;\n  vec4 gy0 = abs(gx0) - 0.5;\n  vec4 gz0 = 1.5 - abs(gx0) - abs(gy0);\n  vec4 sz0 = step(gz0, vec4(0.0));\n  gx0 -= sz0 * (step(0.0, gx0) - 0.5);\n\n  vec4 gx1 = fract(i1 * (1.0 / 41.0)) * 2.0 - 1.0;\n  vec4 gy1 = abs(gx1) - 0.5;\n  vec4 gz1 = 1.5 - abs(gx1) - abs(gy1);\n  vec4 sz1 = step(gz1, vec4(0.0));\n  gx1 -= sz1 * (step(0.0, gx1) - 0.5);\n\n  vec3 g000 = vec3(gx0.x, gy0.x, gz0.x);\n  vec3 g100 = vec3(gx0.y, gy0.y, gz0.y);\n  vec3 g010 = vec3(gx0.z, gy0.z, gz0.z);\n  vec3 g110 = vec3(gx0.w, gy0.w, gz0.w);\n  vec3 g001 = vec3(gx1.x, gy1.x, gz1.x);\n  vec3 g101 = vec3(gx1.y, gy1.y, gz1.y);\n  vec3 g011 = vec3(gx1.z, gy1.z, gz1.z);\n  vec3 g111 = vec3(gx1.w, gy1.w, gz1.w);\n\n  float n000 = dot(g000, Pf);\n  float n100 = dot(g100, Pf - vec3(1.0, 0.0, 0.0));\n  float n010 = dot(g010, Pf - vec3(0.0, 1.0, 0.0));\n  float n110 = dot(g110, Pf - vec3(1.0, 1.0, 0.0));\n  float n001 = dot(g001, Pf - vec3(0.0, 0.0, 1.0));\n  float n101 = dot(g101, Pf - vec3(1.0, 0.0, 1.0));\n  float n011 = dot(g011, Pf - vec3(0.0, 1.0, 1.0));\n  float n111 = dot(g111, Pf - vec3(1.0, 1.0, 1.0));\n\n  float nx00 = mix(n000, n100, f.x);\n  float nx10 = mix(n010, n110, f.x);\n  float nx01 = mix(n001, n101, f.x);\n  float nx11 = mix(n011, n111, f.x);\n\n  float nxy0 = mix(nx00, nx10, f.y);\n  float nxy1 = mix(nx01, nx11, f.y);\n\n  float nxyz = mix(nxy0, nxy1, f.z);\n  return 2.2 * nxyz; \n}\n\n#endif",
+		simplexGlsl: "#ifndef GLCORE_NOISE_SIMPLEX_GLSL\n#define GLCORE_NOISE_SIMPLEX_GLSL\n\nfloat mod289(float x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\nvec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\nvec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\nvec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }\n\nvec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }\nvec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }\n\nvec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }\nvec3 taylorInvSqrt(vec3 r) { return 1.79284291400159 - 0.85373472095314 * r; }\n\nfloat snoise(vec2 v)\n{\n  const vec4 C = vec4(0.211324865405187,  \n                      0.366025403784439,  \n                     -0.577350269189626,  \n                      0.024390243902439); \n  \n  vec2 i  = floor(v + dot(v, C.yy));\n  vec2 x0 = v - i + dot(i, C.xx);\n\n  \n  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);\n  vec4 x12 = x0.xyxy + C.xxzz;\n  x12.xy -= i1;\n\n  \n  i = mod289(i);\n  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0))\n                 + i.x + vec3(0.0, i1.x, 1.0));\n\n  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);\n  m = m * m;\n  m = m * m;\n\n  \n  vec3 x = 2.0 * fract(p * C.www) - 1.0;\n  vec3 h = abs(x) - 0.5;\n  vec3 ox = floor(x + 0.5);\n  vec3 a0 = x - ox;\n\n  \n  \n  m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);\n\n  \n  vec3 g;\n  g.x  = a0.x * x0.x + h.x * x0.y;\n  g.y  = a0.y * x12.x + h.y * x12.y;\n  g.z  = a0.z * x12.z + h.z * x12.w;\n  return 130.0 * dot(m, g);\n}\n\nfloat snoise(vec3 v)\n{\n  const vec2  C  = vec2(1.0 / 6.0, 1.0 / 3.0);\n  const vec4  D  = vec4(0.0, 0.5, 1.0, 2.0);\n\n  \n  vec3 i  = floor(v + dot(v, C.yyy));\n  vec3 x0 = v - i + dot(i, C.xxx);\n\n  \n  vec3 g = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g;\n  vec3 i1 = min(g.xyz, l.zxy);\n  vec3 i2 = max(g.xyz, l.zxy);\n\n  \n  vec3 x1 = x0 - i1 + 1.0 * C.xxx;\n  vec3 x2 = x0 - i2 + 2.0 * C.xxx;\n  vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;\n\n  \n  i = mod289(i);\n  vec4 p = permute(permute(permute(\n            i.z + vec4(0.0, i1.z, i2.z, 1.0))\n          + i.y + vec4(0.0, i1.y, i2.y, 1.0))\n          + i.x + vec4(0.0, i1.x, i2.x, 1.0));\n\n  \n  float n_ = 0.142857142857; \n  vec3  ns = n_ * D.wyz - D.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z); \n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_);    \n\n  vec4 x = x_ * ns.x + ns.yyyy;\n  vec4 y = y_ * ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4(x.xy, y.xy);\n  vec4 b1 = vec4(x.zw, y.zw);\n\n  vec4 s0 = floor(b0) * 2.0 + 1.0;\n  vec4 s1 = floor(b1) * 2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;\n  vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;\n\n  vec3 p0 = vec3(a0.xy, h.x);\n  vec3 p1 = vec3(a0.zw, h.y);\n  vec3 p2 = vec3(a1.xy, h.z);\n  vec3 p3 = vec3(a1.zw, h.w);\n\n  \n  vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));\n  p0 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n  \n  vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));\n}\n\n#endif",
+		worleyGlsl: "#ifndef GLCORE_NOISE_WORLEY_GLSL\n#define GLCORE_NOISE_WORLEY_GLSL\n\nvec3 hash3(vec3 p) {\n  p = vec3(\n    dot(p, vec3(127.1, 311.7, 74.7)),\n    dot(p, vec3(269.5, 183.3, 246.1)),\n    dot(p, vec3(113.5, 271.9, 124.6))\n  );\n  return fract(sin(p) * 43758.5453123);\n}\n\nvec2 hash2(vec2 p) {\n  p = vec2(\n    dot(p, vec2(127.1, 311.7)),\n    dot(p, vec2(269.5, 183.3))\n  );\n  return fract(sin(p) * 43758.5453123);\n}\n\nvec2 worley2D(vec2 p) {\n  vec2 n = floor(p);\n  vec2 f = fract(p);\n\n  float F1 = 8.0;\n  float F2 = 8.0;\n\n  for (int j = -1; j <= 1; j++) {\n    for (int i = -1; i <= 1; i++) {\n      vec2 g = vec2(float(i), float(j));\n      vec2 o = hash2(n + g);\n      vec2 r = g - f + o;\n      float d = dot(r, r);\n\n      if (d < F1) {\n        F2 = F1;\n        F1 = d;\n      } else if (d < F2) {\n        F2 = d;\n      }\n    }\n  }\n\n  return vec2(sqrt(F1), sqrt(F2));\n}\n\nvec2 worley3D(vec3 p) {\n  vec3 n = floor(p);\n  vec3 f = fract(p);\n\n  float F1 = 8.0;\n  float F2 = 8.0;\n\n  for (int k = -1; k <= 1; k++) {\n    for (int j = -1; j <= 1; j++) {\n      for (int i = -1; i <= 1; i++) {\n        vec3 g = vec3(float(i), float(j), float(k));\n        vec3 o = hash3(n + g);\n        vec3 r = g - f + o;\n        float d = dot(r, r);\n\n        if (d < F1) {\n          F2 = F1;\n          F1 = d;\n        } else if (d < F2) {\n          F2 = d;\n        }\n      }\n    }\n  }\n\n  return vec2(sqrt(F1), sqrt(F2));\n}\n\nfloat worley(vec2 p) {\n  return worley2D(p).x;\n}\n\nfloat worley(vec3 p) {\n  return worley3D(p).x;\n}\n\nfloat smin(float a, float b, float k) {\n  float h = max(k - abs(a - b), 0.0) / k;\n  return min(a, b) - h * h * k * 0.25;\n}\n\nvec2 worley3DSmooth(vec3 p, float smoothness) {\n  vec3 n = floor(p);\n  vec3 f = fract(p);\n\n  float F1 = 8.0;\n  float F2 = 8.0;\n\n  for (int k = -1; k <= 1; k++) {\n    for (int j = -1; j <= 1; j++) {\n      for (int i = -1; i <= 1; i++) {\n        vec3 g = vec3(float(i), float(j), float(k));\n        vec3 o = hash3(n + g);\n        vec3 r = g - f + o;\n        float d = dot(r, r);\n\n        float newF1 = smin(F1, d, smoothness);\n        if (newF1 < F1) {\n          F2 = F1;\n          F1 = newF1;\n        } else {\n          F2 = smin(F2, d, smoothness);\n        }\n      }\n    }\n  }\n\n  return vec2(sqrt(F1), sqrt(F2));\n}\n\n#endif",
+		fbmGlsl: "#ifndef GLCORE_NOISE_FBM_GLSL\n#define GLCORE_NOISE_FBM_GLSL\n\n#if !defined(NOISE2) || !defined(NOISE3)\n  \n  \n  float snoise(vec2);\n  float snoise(vec3);\n  #ifndef NOISE2\n  #define NOISE2 snoise\n  #endif\n  #ifndef NOISE3\n  #define NOISE3 snoise\n  #endif\n#endif\n\nfloat fbm(vec2 p, int octaves, float lacunarity, float gain)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec2  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    sum += amp * NOISE2(pp);\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum;\n}\n\nfloat fbm(vec3 p, int octaves, float lacunarity, float gain)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec3  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    sum += amp * NOISE3(pp);\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum;\n}\n\nfloat fbm(vec2 p)\n{\n  return fbm(p, 6, 2.0, 0.5);\n}\n\nfloat fbm(vec3 p)\n{\n  return fbm(p, 6, 2.0, 0.5);\n}\n\nfloat fbmRidged(vec2 p, int octaves, float lacunarity, float gain, float offset)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec2  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    float n = NOISE2(pp);\n    n = offset - abs(n);\n    n *= n;\n    sum += n * amp;\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum * 1.25; \n}\n\nfloat fbmRidged(vec3 p, int octaves, float lacunarity, float gain, float offset)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec3  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    float n = NOISE3(pp);\n    n = offset - abs(n);\n    n *= n;\n    sum += n * amp;\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum * 1.25;\n}\n\nfloat fbmTurbulence(vec2 p, int octaves, float lacunarity, float gain)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec2  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    sum += amp * abs(NOISE2(pp));\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum;\n}\n\nfloat fbmTurbulence(vec3 p, int octaves, float lacunarity, float gain)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec3  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    sum += amp * abs(NOISE3(pp));\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum;\n}\n\n#endif"
+	},
+	oit: { compositeFrag: U },
+	capsule: {
+		capsuleVert: "attribute float aLocalY; \n\nattribute vec3 aStartPos;\nattribute vec3 aEndPos;\nattribute float aStartRadius;\nattribute float aEndRadius;\nattribute float aUvOffset;\nattribute float aSegmentLength;\n\nvarying vec2 vUv;\nvarying vec3 vNormal;\nvarying vec3 vWorldPos;\nvarying float vViewZ;\n\nvarying vec3 vCapsuleStart;\nvarying vec3 vCapsuleEnd;\n\nvoid main() {\n  \n  vec3 axis = aEndPos - aStartPos;\n  float len = length(axis);\n  vec3 up = len > 0.0001 ? axis / len : vec3(0.0, 1.0, 0.0);\n\n  \n  vec3 notUp = abs(up.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);\n  vec3 tangent = normalize(cross(up, notUp));\n  vec3 bitangent = cross(up, tangent);\n\n  \n  float r = mix(aStartRadius, aEndRadius, aLocalY);\n\n  \n  \n  \n  \n  \n\n  vec3 localPos = position;\n\n  \n  vec3 radialOffset = tangent * localPos.x * r + bitangent * localPos.z * r;\n\n  \n  \n  \n  \n  vec3 axialPos;\n  if (localPos.y < 0.0) {\n    \n    axialPos = aStartPos + up * (localPos.y * aStartRadius);\n  } else if (localPos.y > 1.0) {\n    \n    axialPos = aEndPos + up * ((localPos.y - 1.0) * aEndRadius);\n  } else {\n    \n    axialPos = mix(aStartPos, aEndPos, localPos.y);\n  }\n\n  vec3 worldPos = axialPos + radialOffset;\n\n  \n  \n  vec3 localNormal = normal;\n  vec3 worldNormal = normalize(\n    tangent * localNormal.x + up * localNormal.y + bitangent * localNormal.z\n  );\n\n  \n  \n  \n  vUv.x = uv.x;\n  vUv.y = aUvOffset + uv.y * aSegmentLength;\n\n  \n  vNormal = worldNormal;\n  vWorldPos = worldPos;\n  \n  \n  vCapsuleStart = aStartPos;\n  vCapsuleEnd = aEndPos;\n  \n  \n  vec4 viewPos = modelViewMatrix * vec4(worldPos, 1.0);\n  vViewZ = -viewPos.z; \n\n  gl_Position = projectionMatrix * viewPos;\n}",
+		capsuleCheckerFrag: "uniform float uTileScale;\n\nvarying vec2 vUv;\nvarying vec3 vNormal;\nvarying vec3 vWorldPos;\n\nvoid main() {\n  \n  vec2 scaledUv = vUv * uTileScale;\n\n  \n  float checker = mod(floor(scaledUv.x * 4.0) + floor(scaledUv.y), 2.0);\n\n  \n  vec3 colorA = vec3(1.0, 1.0, 1.0);\n  vec3 colorB = vec3(0.0, 0.0, 0.0);\n  vec3 baseColor = mix(colorA, colorB, checker);\n\n  \n  vec3 lightDir = normalize(vec3(0.5, 1.0, 0.3));\n  float ndotl = max(dot(normalize(vNormal), lightDir), 0.0);\n  float ambient = 0.3;\n  float lighting = ambient + (1.0 - ambient) * ndotl;\n\n  vec3 finalColor = baseColor * lighting;\n\n  gl_FragColor = vec4(finalColor, 1.0);\n}",
+		capsuleNoise3dFrag: "uniform float uTileScale;\n\nvarying vec2 vUv;\nvarying vec3 vNormal;\nvarying vec3 vWorldPos;\n\nvec3 mod289(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute(vec4 x) {\n  return mod289(((x * 34.0) + 1.0) * x);\n}\n\nvec4 taylorInvSqrt(vec4 r) {\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise(vec3 v) {\n  const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);\n  const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);\n\n  \n  vec3 i = floor(v + dot(v, C.yyy));\n  vec3 x0 = v - i + dot(i, C.xxx);\n\n  \n  vec3 g = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g;\n  vec3 i1 = min(g.xyz, l.zxy);\n  vec3 i2 = max(g.xyz, l.zxy);\n\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy;\n  vec3 x3 = x0 - D.yyy;\n\n  \n  i = mod289(i);\n  vec4 p = permute(permute(permute(\n      i.z + vec4(0.0, i1.z, i2.z, 1.0))\n    + i.y + vec4(0.0, i1.y, i2.y, 1.0))\n    + i.x + vec4(0.0, i1.x, i2.x, 1.0));\n\n  \n  float n_ = 0.142857142857; \n  vec3 ns = n_ * D.wyz - D.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_);\n\n  vec4 x = x_ * ns.x + ns.yyyy;\n  vec4 y = y_ * ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4(x.xy, y.xy);\n  vec4 b1 = vec4(x.zw, y.zw);\n\n  vec4 s0 = floor(b0) * 2.0 + 1.0;\n  vec4 s1 = floor(b1) * 2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;\n  vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;\n\n  vec3 p0 = vec3(a0.xy, h.x);\n  vec3 p1 = vec3(a0.zw, h.y);\n  vec3 p2 = vec3(a1.xy, h.z);\n  vec3 p3 = vec3(a1.zw, h.w);\n\n  \n  vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));\n  p0 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n  \n  vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));\n}\n\nvoid main() {\n  \n  vec3 samplePos = vWorldPos * uTileScale;\n  \n  \n  float noise = snoise(samplePos);\n  float value = noise * 0.5 + 0.5;\n  \n  \n  \n  value = smoothstep(0.2, 0.8, value);\n  \n  \n  vec3 baseColor = vec3(value);\n\n  \n  vec3 lightDir = normalize(vec3(0.5, 1.0, 0.3));\n  float ndotl = max(dot(normalize(vNormal), lightDir), 0.0);\n  float ambient = 0.3;\n  float lighting = ambient + (1.0 - ambient) * ndotl;\n\n  vec3 finalColor = baseColor * lighting;\n\n  gl_FragColor = vec4(finalColor, 1.0);\n}",
+		capsuleNoise3dFogFrag: "uniform float uTileScale;\nuniform float uFogNear;  \nuniform float uFogFar;   \nuniform vec3 uFogColor;  \n\nvarying vec2 vUv;\nvarying vec3 vNormal;\nvarying vec3 vWorldPos;\nvarying float vViewZ;\n\nvec3 mod289(vec3 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289(vec4 x) {\n  return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute(vec4 x) {\n  return mod289(((x * 34.0) + 1.0) * x);\n}\n\nvec4 taylorInvSqrt(vec4 r) {\n  return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nfloat snoise(vec3 v) {\n  const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);\n  const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);\n\n  \n  vec3 i = floor(v + dot(v, C.yyy));\n  vec3 x0 = v - i + dot(i, C.xxx);\n\n  \n  vec3 g = step(x0.yzx, x0.xyz);\n  vec3 l = 1.0 - g;\n  vec3 i1 = min(g.xyz, l.zxy);\n  vec3 i2 = max(g.xyz, l.zxy);\n\n  vec3 x1 = x0 - i1 + C.xxx;\n  vec3 x2 = x0 - i2 + C.yyy;\n  vec3 x3 = x0 - D.yyy;\n\n  \n  i = mod289(i);\n  vec4 p = permute(permute(permute(\n      i.z + vec4(0.0, i1.z, i2.z, 1.0))\n    + i.y + vec4(0.0, i1.y, i2.y, 1.0))\n    + i.x + vec4(0.0, i1.x, i2.x, 1.0));\n\n  \n  float n_ = 0.142857142857; \n  vec3 ns = n_ * D.wyz - D.xzx;\n\n  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);\n\n  vec4 x_ = floor(j * ns.z);\n  vec4 y_ = floor(j - 7.0 * x_);\n\n  vec4 x = x_ * ns.x + ns.yyyy;\n  vec4 y = y_ * ns.x + ns.yyyy;\n  vec4 h = 1.0 - abs(x) - abs(y);\n\n  vec4 b0 = vec4(x.xy, y.xy);\n  vec4 b1 = vec4(x.zw, y.zw);\n\n  vec4 s0 = floor(b0) * 2.0 + 1.0;\n  vec4 s1 = floor(b1) * 2.0 + 1.0;\n  vec4 sh = -step(h, vec4(0.0));\n\n  vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;\n  vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;\n\n  vec3 p0 = vec3(a0.xy, h.x);\n  vec3 p1 = vec3(a0.zw, h.y);\n  vec3 p2 = vec3(a1.xy, h.z);\n  vec3 p3 = vec3(a1.zw, h.w);\n\n  \n  vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));\n  p0 *= norm.x;\n  p1 *= norm.y;\n  p2 *= norm.z;\n  p3 *= norm.w;\n\n  \n  vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);\n  m = m * m;\n  return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));\n}\n\nvoid main() {\n  \n  vec3 samplePos = vWorldPos * uTileScale;\n  \n  \n  float noise = snoise(samplePos);\n  float value = noise * 0.5 + 0.5;\n  \n  \n  value = smoothstep(0.2, 0.8, value);\n  \n  \n  vec3 baseColor = vec3(value);\n\n  \n  float fogFactor = smoothstep(uFogNear, uFogFar, vViewZ);\n  vec3 finalColor = mix(baseColor, uFogColor, fogFactor);\n\n  gl_FragColor = vec4(finalColor, 1.0);\n}"
+	},
+	sdf: {
+		primitivesGlsl: "#pragma once\n\nfloat dot2( in vec2 v ) { return dot(v,v); }\nfloat dot2( in vec3 v ) { return dot(v,v); }\nfloat ndot( in vec2 a, in vec2 b ) { return a.x*b.x - a.y*b.y; }\n\nfloat sdSphere(vec3 p, float r) {\n  return length(p) - r;\n}\n\nfloat sdBox(vec3 p, vec3 b) {\n  vec3 q = abs(p) - b;\n  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);\n}\n\nfloat sdRoundBox( vec3 p, vec3 b, float r )\n{\n  vec3 q = abs(p) - b + r;\n  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;\n}\n\nfloat sdBoxFrame( vec3 p, vec3 b, float e )\n{\n       p = abs(p  )-b;\n  vec3 q = abs(p+e)-e;\n  return min(min(\n      length(max(vec3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),\n      length(max(vec3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),\n      length(max(vec3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));\n}\n\nfloat sdTorus( vec3 p, vec2 t )\n{\n  vec2 q = vec2(length(p.xz)-t.x,p.y);\n  return length(q)-t.y;\n}\n\nfloat sdCappedTorus( vec3 p, vec2 sc, float ra, float rb)\n{\n  p.x = abs(p.x);\n  float k = (sc.y*p.x>sc.x*p.y) ? dot(p.xy,sc) : length(p.xy);\n  return sqrt( dot(p,p) + ra*ra - 2.0*ra*k ) - rb;\n}\n\nfloat sdLink( vec3 p, float le, float r1, float r2 )\n{\n  vec3 q = vec3( p.x, max(abs(p.y)-le,0.0), p.z );\n  return length(vec2(length(q.xy)-r1,q.z)) - r2;\n}\n\nfloat sdCylinder( vec3 p, vec3 c )\n{\n  return length(p.xz-c.xy)-c.z;\n}\n\nfloat sdCone( vec3 p, vec2 c, float h )\n{\n  float q = length(p.xz);\n  return max(dot(c.xy,vec2(q,p.y)),-h-p.y);\n}\n\nfloat sdCone( vec3 p, vec2 c )\n{\n    \n    vec2 q = vec2( length(p.xz), -p.y );\n    float d = length(q-c*max(dot(q,c), 0.0));\n    return d * ((q.x*c.y-q.y*c.x<0.0)?-1.0:1.0);\n}\n\nfloat sdPlane( vec3 p, vec3 n, float h )\n{\n  \n  return dot(p,n) + h;\n}\n\nfloat sdHexPrism( vec3 p, vec2 h )\n{\n  const vec3 k = vec3(-0.8660254, 0.5, 0.57735);\n  p = abs(p);\n  p.xy -= 2.0*min(dot(k.xy, p.xy), 0.0)*k.xy;\n  vec2 d = vec2(\n       length(p.xy-vec2(clamp(p.x,-k.z*h.x,k.z*h.x), h.x))*sign(p.y-h.x),\n       p.z-h.y );\n  return min(max(d.x,d.y),0.0) + length(max(d,0.0));\n}\n\nfloat sdTriPrism( vec3 p, vec2 h )\n{\n  vec3 q = abs(p);\n  return max(q.z-h.y,max(q.x*0.866025+p.y*0.5,-p.y)-h.x*0.5);\n}\n\nfloat sdCapsule( vec3 p, vec3 a, vec3 b, float r )\n{\n  vec3 pa = p - a, ba = b - a;\n  float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );\n  return length( pa - ba*h ) - r;\n}\n\nfloat sdVerticalCapsule( vec3 p, float h, float r )\n{\n  p.y -= clamp( p.y, 0.0, h );\n  return length( p ) - r;\n}\n\nfloat sdCappedCylinder( vec3 p, float h, float r )\n{\n  vec2 d = abs(vec2(length(p.xz),p.y)) - vec2(r,h);\n  return min(max(d.x,d.y),0.0) + length(max(d,0.0));\n}\n\nfloat sdCappedCylinder( vec3 p, vec3 a, vec3 b, float r )\n{\n  vec3  ba = b - a;\n  vec3  pa = p - a;\n  float baba = dot(ba,ba);\n  float paba = dot(pa,ba);\n  float x = length(pa*baba-ba*paba) - r*baba;\n  float y = abs(paba-baba*0.5)-baba*0.5;\n  float x2 = x*x;\n  float y2 = y*y*baba;\n  float d = (max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));\n  return sign(d)*sqrt(abs(d))/baba;\n}\n\nfloat sdRoundedCylinder( vec3 p, float ra, float rb, float h )\n{\n  vec2 d = vec2( length(p.xz)-2.0*ra+rb, abs(p.y) - h );\n  return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - rb;\n}\n\nfloat sdCappedCone( vec3 p, float h, float r1, float r2 )\n{\n  vec2 q = vec2( length(p.xz), p.y );\n  vec2 k1 = vec2(r2,h);\n  vec2 k2 = vec2(r2-r1,2.0*h);\n  vec2 ca = vec2(q.x-min(q.x,(q.y<0.0)?r1:r2), abs(q.y)-h);\n  vec2 cb = q - k1 + k2*clamp( dot(k1-q,k2)/dot2(k2), 0.0, 1.0 );\n  float s = (cb.x<0.0 && ca.y<0.0) ? -1.0 : 1.0;\n  return s*sqrt( min(dot2(ca),dot2(cb)) );\n}\n\nfloat sdCappedCone( vec3 p, vec3 a, vec3 b, float ra, float rb )\n{\n  float rba  = rb-ra;\n  float baba = dot(b-a,b-a);\n  float papa = dot(p-a,p-a);\n  float paba = dot(p-a,b-a)/baba;\n  float x = sqrt( papa - paba*paba*baba );\n  float cax = max(0.0,x-((paba<0.5)?ra:rb));\n  float cay = abs(paba-0.5)-0.5;\n  float k = rba*rba + baba;\n  float f = clamp( (rba*(x-ra)+paba*baba)/k, 0.0, 1.0 );\n  float cbx = x-ra - f*rba;\n  float cby = paba - f;\n  float s = (cbx<0.0 && cay<0.0) ? -1.0 : 1.0;\n  return s*sqrt( min(cax*cax + cay*cay*baba,\n                     cbx*cbx + cby*cby*baba) );\n}\n\nfloat sdSolidAngle( vec3 p, vec2 c, float ra )\n{\n  \n  vec2 q = vec2( length(p.xz), p.y );\n  float l = length(q) - ra;\n  float m = length(q - c*clamp(dot(q,c),0.0,ra) );\n  return max(l,m*sign(c.y*q.x-c.x*q.y));\n}\n\nfloat sdCutSphere( vec3 p, float r, float h )\n{\n  \n  float w = sqrt(r*r-h*h);\n\n  \n  vec2 q = vec2( length(p.xz), p.y );\n  float s = max( (h-r)*q.x*q.x+w*w*(h+r-2.0*q.y), h*q.x-w*q.y );\n  return (s<0.0) ? length(q)-r :\n         (q.x<w) ? h - q.y     :\n                   length(q-vec2(w,h));\n}\n\nfloat sdCutHollowSphere( vec3 p, float r, float h, float t )\n{\n  \n  float w = sqrt(r*r-h*h);\n  \n  \n  vec2 q = vec2( length(p.xz), p.y );\n  return ((h*q.x<w*q.y) ? length(q-vec2(w,h)) : \n                          abs(length(q)-r) ) - t;\n}\n\nfloat sdDeathStar( vec3 p2, float ra, float rb, float d )\n{\n  \n  float a = (ra*ra - rb*rb + d*d)/(2.0*d);\n  float b = sqrt(max(ra*ra-a*a,0.0));\n	\n  \n  vec2 p = vec2( p2.x, length(p2.yz) );\n  if( p.x*b-p.y*a > d*max(b-p.y,0.0) )\n    return length(p-vec2(a,b));\n  else\n    return max( (length(p            )-ra),\n               -(length(p-vec2(d,0.0))-rb));\n}\n\nfloat sdRoundCone( vec3 p, float r1, float r2, float h )\n{\n  \n  float b = (r1-r2)/h;\n  float a = sqrt(1.0-b*b);\n\n  \n  vec2 q = vec2( length(p.xz), p.y );\n  float k = dot(q,vec2(-b,a));\n  if( k<0.0 ) return length(q) - r1;\n  if( k>a*h ) return length(q-vec2(0.0,h)) - r2;\n  return dot(q, vec2(a,b) ) - r1;\n}\n\nfloat sdRoundCone( vec3 p, vec3 a, vec3 b, float r1, float r2 )\n{\n  \n  vec3  ba = b - a;\n  float l2 = dot(ba,ba);\n  float rr = r1 - r2;\n  float a2 = l2 - rr*rr;\n  float il2 = 1.0/l2;\n    \n  \n  vec3 pa = p - a;\n  float y = dot(pa,ba);\n  float z = y - l2;\n  float x2 = dot2( pa*l2 - ba*y );\n  float y2 = y*y*l2;\n  float z2 = z*z*l2;\n\n  \n  float k = sign(rr)*rr*rr*x2;\n  if( sign(z)*a2*z2>k ) return  sqrt(x2 + z2)        *il2 - r2;\n  if( sign(y)*a2*y2<k ) return  sqrt(x2 + y2)        *il2 - r1;\n                        return (sqrt(x2*a2*il2)+y*rr)*il2 - r1;\n}\n\nfloat sdEllipsoid( vec3 p, vec3 r )\n{\n  float k0 = length(p/r);\n  float k1 = length(p/(r*r));\n  return k0*(k0-1.0)/k1;\n}\n\nfloat sdVesicaSegment( in vec3 p, in vec3 a, in vec3 b, in float w )\n{\n    vec3  c = (a+b)*0.5;\n    float l = length(b-a);\n    vec3  v = (b-a)/l;\n    float y = dot(p-c,v);\n    vec2  q = vec2(length(p-c-y*v),abs(y));\n    \n    float r = 0.5*l;\n    float d = 0.5*(r*r-w*w)/w;\n    vec3  h = (r*q.x<d*(q.y-r)) ? vec3(0.0,r,0.0) : vec3(-d,0.0,d+w);\n \n    return length(q-h.xy) - h.z;\n}\n\nfloat sdRhombus( vec3 p, float la, float lb, float h, float ra )\n{\n  p = abs(p);\n  vec2 b = vec2(la,lb);\n  float f = clamp( (ndot(b,b-2.0*p.xz))/dot(b,b), -1.0, 1.0 );\n  vec2 q = vec2(length(p.xz-0.5*b*vec2(1.0-f,1.0+f))*sign(p.x*b.y+p.z*b.x-b.x*b.y)-ra, p.y-h);\n  return min(max(q.x,q.y),0.0) + length(max(q,0.0));\n}\n\nfloat sdOctahedron( vec3 p, float s )\n{\n  p = abs(p);\n  float m = p.x+p.y+p.z-s;\n  vec3 q;\n       if( 3.0*p.x < m ) q = p.xyz;\n  else if( 3.0*p.y < m ) q = p.yzx;\n  else if( 3.0*p.z < m ) q = p.zxy;\n  else return m*0.57735027;\n    \n  float k = clamp(0.5*(q.z-q.y+s),0.0,s); \n  return length(vec3(q.x,q.y-s+k,q.z-k)); \n}\n\n/*\nfloat sdOctahedron( vec3 p, float s)\n{\n  p = abs(p);\n  return (p.x+p.y+p.z-s)*0.57735027;\n}\n*/\n\nfloat sdPyramid( vec3 p, float h )\n{\n  float m2 = h*h + 0.25;\n    \n  p.xz = abs(p.xz);\n  p.xz = (p.z>p.x) ? p.zx : p.xz;\n  p.xz -= 0.5;\n\n  vec3 q = vec3( p.z, h*p.y - 0.5*p.x, h*p.x + 0.5*p.y);\n   \n  float s = max(-q.x,0.0);\n  float t = clamp( (q.y-0.5*p.z)/(m2+0.25), 0.0, 1.0 );\n    \n  float a = m2*(q.x+s)*(q.x+s) + q.y*q.y;\n  float b = m2*(q.x+0.5*t)*(q.x+0.5*t) + (q.y-m2*t)*(q.y-m2*t);\n    \n  float d2 = min(q.y,-q.x*m2-q.y*0.5) > 0.0 ? 0.0 : min(a,b);\n    \n  return sqrt( (d2+q.z*q.z)/m2 ) * sign(max(q.z,-p.y));\n}\n\nfloat udTriangle( vec3 p, vec3 a, vec3 b, vec3 c )\n{\n  vec3 ba = b - a; vec3 pa = p - a;\n  vec3 cb = c - b; vec3 pb = p - b;\n  vec3 ac = a - c; vec3 pc = p - c;\n  vec3 nor = cross( ba, ac );\n\n  return sqrt(\n    (sign(dot(cross(ba,nor),pa)) +\n     sign(dot(cross(cb,nor),pb)) +\n     sign(dot(cross(ac,nor),pc))<2.0)\n     ?\n     min( min(\n     dot2(ba*clamp(dot(ba,pa)/dot2(ba),0.0,1.0)-pa),\n     dot2(cb*clamp(dot(cb,pb)/dot2(cb),0.0,1.0)-pb) ),\n     dot2(ac*clamp(dot(ac,pc)/dot2(ac),0.0,1.0)-pc) )\n     :\n     dot(nor,pa)*dot(nor,pa)/dot2(nor) );\n}\n\nfloat udQuad( vec3 p, vec3 a, vec3 b, vec3 c, vec3 d )\n{\n  vec3 ba = b - a; vec3 pa = p - a;\n  vec3 cb = c - b; vec3 pb = p - b;\n  vec3 dc = d - c; vec3 pc = p - c;\n  vec3 ad = a - d; vec3 pd = p - d;\n  vec3 nor = cross( ba, ad );\n\n  return sqrt(\n    (sign(dot(cross(ba,nor),pa)) +\n     sign(dot(cross(cb,nor),pb)) +\n     sign(dot(cross(dc,nor),pc)) +\n     sign(dot(cross(ad,nor),pd))<3.0)\n     ?\n     min( min( min(\n     dot2(ba*clamp(dot(ba,pa)/dot2(ba),0.0,1.0)-pa),\n     dot2(cb*clamp(dot(cb,pb)/dot2(cb),0.0,1.0)-pb) ),\n     dot2(dc*clamp(dot(dc,pc)/dot2(dc),0.0,1.0)-pc) ),\n     dot2(ad*clamp(dot(ad,pd)/dot2(ad),0.0,1.0)-pd) )\n     :\n     dot(nor,pa)*dot(nor,pa)/dot2(nor) );\n}",
+		modifiersGlsl: "float opRound( float d, float rad )\n{\n    return d - rad;\n}\n/*\nfloat opOnion( in float sdf, in float thickness )\n{\n    return abs(sdf)-thickness;\n}\n\nfloat length2( vec3 p ) { p=p*p; return sqrt( p.x+p.y+p.z); }\n\nfloat length6( vec3 p ) { p=p*p*p; p=p*p; return pow(p.x+p.y+p.z,1.0/6.0); }\n\nfloat length8( vec3 p ) { p=p*p; p=p*p; p=p*p; return pow(p.x+p.y+p.z,1.0/8.0); }\n*/\nfloat opUnion( float d1, float d2 )\n{\n    return min(d1,d2);\n}\nfloat opSubtraction( float d1, float d2 )\n{\n    return max(-d1,d2);\n}\nfloat opIntersection( float d1, float d2 )\n{\n    return max(d1,d2);\n}\nfloat opXor(float d1, float d2 )\n{\n    return max(min(d1,d2),-max(d1,d2));\n}\n\nfloat opSmoothUnion( float d1, float d2, float k )\n{\n    float h = clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 );\n    return mix( d2, d1, h ) - k*h*(1.0-h);\n}\n\nfloat opSmoothSubtraction( float d1, float d2, float k )\n{\n    float h = clamp( 0.5 - 0.5*(d2+d1)/k, 0.0, 1.0 );\n    return mix( d2, -d1, h ) + k*h*(1.0-h);\n}\n\nfloat opSmoothIntersection( float d1, float d2, float k )\n{\n    float h = clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 );\n    return mix( d2, d1, h ) + k*h*(1.0-h);\n}\n/*\n\nvec3 opTx( in vec3 p, in transform t, in sdf3d primitive )\n{\n    return primitive( invert(t)*p );\n}\n\nfloat opScale( in vec3 p, in float s, in sdf3d primitive )\n{\n    return primitive(p/s)*s;\n}\n\nfloat opRepetition( in vec3 p, in vec3 s, in sdf3d primitive )\n{\n    vec3 q = p - s*round(p/s);\n    return primitive( q );\n}\n\nvec3 opLimitedRepetition( in vec3 p, in float s, in vec3 l, in sdf3d primitive )\n{\n    vec3 q = p - s*clamp(round(p/s),-l,l);\n    return primitive( q );\n}\n\nfloat opTwist( in sdf3d primitive, in vec3 p )\n{\n    const float k = 10.0; \n    float c = cos(k*p.y);\n    float s = sin(k*p.y);\n    mat2  m = mat2(c,-s,s,c);\n    vec3  q = vec3(m*p.xz,p.y);\n    return primitive(q);\n}\n\nfloat opCheapBend( in sdf3d primitive, in vec3 p )\n{\n    const float k = 10.0; \n    float c = cos(k*p.x);\n    float s = sin(k*p.x);\n    mat2  m = mat2(c,-s,s,c);\n    vec3  q = vec3(m*p.xy,p.z);\n    return primitive(q);\n}\n*/"
+	}
 };
+//#endregion
+export { le as Compositor, ue as FullscreenPass, de as ParticlePass, B as ParticleSystem, F as PingPongBuffer, fe as ScenePass, pe as WeightedOITParticlesPass, L as blit, Ze as buildNDCToZConst, R as computeTextureSize, Ye as createArrowGeometry, Fe as createClusterPositionTexture, Ke as createConvergentVelocityTexture, q as createDataTexture, Be as createFlowVelocityTexture, Ve as createGradientFlowVelocityTexture, z as createInstancedUvBuffer, qe as createMixedVelocityTexture, Ne as createNoisePositionTexture, ze as createNormalTextureFromArray, Xe as createParticleArrowGeometry, Re as createPositionTextureFromArray, H as createQuad, Ue as createRadialVelocityTexture, W as createRenderer, He as createRotationalVelocityTexture, Le as createScreenSpacePositionTexture, Pe as createSpiralPositionTexture, We as createTurbulentVelocityTexture, Ie as createWavePositionTexture, Ge as createWaveVelocityTexture, Je as createWireframeBox, Me as domainWarp2D, Q as fbm2D, Ae as fbm3D, V as globalUniforms, G as isMousePressed, K as mouseButton, Z as perlin2D, ke as perlin3D, je as ridged2D, ve as runExperiment, $ as seededRandom, he as setupInputs, ge as setupResize, Qe as shaders, _e as startLoop };

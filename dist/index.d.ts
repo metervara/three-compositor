@@ -343,8 +343,8 @@ export declare class PingPongBuffer {
     private rtB;
     private flag;
     constructor(width: number, height: number, options?: Partial<RenderTargetOptions>);
-    get read(): WebGLRenderTarget<Texture>;
-    get write(): WebGLRenderTarget<Texture>;
+    get read(): WebGLRenderTarget<Texture<unknown>>;
+    get write(): WebGLRenderTarget<Texture<unknown>>;
     swap(): void;
     dispose(): void;
 }
