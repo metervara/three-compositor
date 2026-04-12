@@ -13,6 +13,8 @@ export interface ExperimentSetup {
   title?: string;
   onResize?: (info: RendererInfo) => void;
   onToggleInfo?: (visible: boolean) => void;
+  onInit?: (info: RendererInfo) => void;
+  afterUpdate?: (time: number) => void;
 }
 
 export function runExperiment(experiment: ExperimentSetup) {
@@ -30,12 +32,22 @@ export function runExperiment(experiment: ExperimentSetup) {
   }
 
   experiment.init(info);
+  if (experiment.onInit) experiment.onInit(info);
 
   showCompositorDescription();
   setupKeyboardToggle();
   setOnToggleInfo(experiment.onToggleInfo);
 
-  startLoop(info, experiment.update);
+  if (experiment.afterUpdate) {
+    const update = experiment.update;
+    const afterUpdate = experiment.afterUpdate;
+    startLoop(info, (time) => {
+      update(time);
+      afterUpdate(time);
+    });
+  } else {
+    startLoop(info, experiment.update);
+  }
 }
 
 function showCompositorDescription() {

@@ -1,7 +1,7 @@
-import { AddEquation as e, Box3 as t, BoxGeometry as n, BufferGeometry as r, ClampToEdgeWrapping as i, Color as a, CustomBlending as o, DataTexture as s, EdgesGeometry as c, Float32BufferAttribute as l, FloatType as u, HalfFloatType as d, InstancedBufferAttribute as f, InstancedBufferGeometry as p, LineBasicMaterial as m, LineSegments as h, LinearFilter as g, Matrix3 as _, Matrix4 as v, Mesh as y, NearestFilter as b, NoBlending as x, OneFactor as S, OneMinusSrcAlphaFactor as C, OrthographicCamera as w, PerspectiveCamera as T, PlaneGeometry as E, RGBAFormat as D, RepeatWrapping as ee, Scene as O, ShaderMaterial as k, UnsignedByteType as A, Vector2 as j, Vector3 as M, Vector4 as N, WebGLRenderTarget as P, WebGLRenderer as te, ZeroFactor as ne } from "three";
-import { OrbitControls as re } from "three/examples/jsm/controls/OrbitControls.js";
+import { AddEquation as e, Box3 as t, BoxGeometry as n, BufferGeometry as r, ClampToEdgeWrapping as i, Color as a, CustomBlending as o, DataTexture as s, EdgesGeometry as c, Float32BufferAttribute as l, FloatType as u, HalfFloatType as d, InstancedBufferAttribute as f, InstancedBufferGeometry as p, LineBasicMaterial as m, LineSegments as h, LinearFilter as g, Matrix3 as _, Matrix4 as v, Mesh as y, NearestFilter as b, NoBlending as x, OneFactor as S, OneMinusSrcAlphaFactor as C, OrthographicCamera as w, PerspectiveCamera as T, PlaneGeometry as E, RGBAFormat as D, RepeatWrapping as ee, Scene as O, ShaderMaterial as k, UnsignedByteType as A, Vector2 as j, Vector3 as M, Vector4 as te, WebGLRenderTarget as N, WebGLRenderer as ne, ZeroFactor as re } from "three";
+import { OrbitControls as ie } from "three/examples/jsm/controls/OrbitControls.js";
 //#region src/utils/PingPongBuffer.ts
-var F = class {
+var P = class {
 	rtA;
 	rtB;
 	flag = !1;
@@ -17,7 +17,7 @@ var F = class {
 			stencilBuffer: !1,
 			...n
 		};
-		this.rtA = new P(e, t, r), this.rtB = new P(e, t, r), this.rtA.texture.generateMipmaps = !1, this.rtB.texture.generateMipmaps = !1, this.rtA.texture.anisotropy = 1, this.rtB.texture.anisotropy = 1;
+		this.rtA = new N(e, t, r), this.rtB = new N(e, t, r), this.rtA.texture.generateMipmaps = !1, this.rtB.texture.generateMipmaps = !1, this.rtA.texture.anisotropy = 1, this.rtB.texture.anisotropy = 1;
 	}
 	get read() {
 		return this.flag ? this.rtA : this.rtB;
@@ -31,19 +31,19 @@ var F = class {
 	dispose() {
 		this.rtA.dispose(), this.rtB.dispose();
 	}
-}, I = "varying vec2 vUv;\nvoid main() {\n  vUv = uv;\n  gl_Position = vec4(position, 1.0);\n}", ie = "precision highp float;\n\nuniform sampler2D srcTexture;\nvarying vec2 vUv;\n\nvoid main() {\n  gl_FragColor = texture2D(srcTexture, vUv);\n}", ae = new w(-1, 1, 1, -1, 0, 1), oe = new k({
+}, F = "varying vec2 vUv;\nvoid main() {\n  vUv = uv;\n  gl_Position = vec4(position, 1.0);\n}", ae = "precision highp float;\n\nuniform sampler2D srcTexture;\nvarying vec2 vUv;\n\nvoid main() {\n  gl_FragColor = texture2D(srcTexture, vUv);\n}", oe = new w(-1, 1, 1, -1, 0, 1), se = new k({
 	uniforms: { srcTexture: { value: null } },
-	vertexShader: I,
-	fragmentShader: ie
-}), se = new O(), ce = new y(new E(2, 2), oe);
-se.add(ce);
-function L(e, t, n, r) {
-	let i = r ?? oe;
-	r && !("srcTexture" in r.uniforms) && console.warn("Blit: provided material does not have a `srcTexture` uniform. If it uses another sampler uniform name, you'll need to set it yourself before calling."), ce.material = i, i.uniforms.srcTexture.value = t, e.setRenderTarget(n), e.clear(), e.render(se, ae), e.setRenderTarget(null);
+	vertexShader: F,
+	fragmentShader: ae
+}), ce = new O(), le = new y(new E(2, 2), se);
+ce.add(le);
+function I(e, t, n, r) {
+	let i = r ?? se;
+	r && !("srcTexture" in r.uniforms) && console.warn("Blit: provided material does not have a `srcTexture` uniform. If it uses another sampler uniform name, you'll need to set it yourself before calling."), le.material = i, i.uniforms.srcTexture.value = t, e.setRenderTarget(n), e.clear(), e.render(ce, oe), e.setRenderTarget(null);
 }
 //#endregion
 //#region src/core/Compositor.ts
-var le = class {
+var ue = class {
 	passes = [];
 	pingPongBuffers = /* @__PURE__ */ new Map();
 	renderer;
@@ -66,7 +66,7 @@ var le = class {
 		return this.textureRegistry.set(e, t), this;
 	}
 	createPingPong(e, t, n, r) {
-		let i = new F(t, n, r);
+		let i = new P(t, n, r);
 		return this.pingPongBuffers.set(e, i), this.textureRegistry.set(`${e}_read`, i.read.texture), this.textureRegistry.set(`${e}_write`, i.write.texture), i;
 	}
 	getPingPong(e) {
@@ -107,7 +107,7 @@ var le = class {
 		return n && (this.resolveDependencies(n), n.render(this.renderer)), this.renderer.setViewport(0, 0, t.x, t.y), this;
 	}
 	blit(e, t) {
-		return L(this.renderer, e, t), this;
+		return I(this.renderer, e, t), this;
 	}
 	execute(e) {
 		return e(this.renderer), this;
@@ -209,7 +209,7 @@ var le = class {
 };
 //#endregion
 //#region src/utils/particle.ts
-function R(e, t = !1) {
+function L(e, t = !1) {
 	if (!Number.isInteger(e) || e <= 0) throw Error("computeTextureSize: count must be a positive integer");
 	function n(e) {
 		return 2 ** Math.ceil(Math.log2(e));
@@ -227,7 +227,7 @@ function R(e, t = !1) {
 		height: n(Math.ceil(e / r))
 	};
 }
-function z(e, t, n) {
+function R(e, t, n) {
 	if (!Number.isInteger(e) || e <= 0) throw Error("createInstancedUvBuffer: count must be a positive integer");
 	if (!Number.isInteger(t) || t <= 0) throw Error("createInstancedUvBuffer: width must be a positive integer");
 	if (!Number.isInteger(n) || n <= 0) throw Error("createInstancedUvBuffer: height must be a positive integer");
@@ -241,7 +241,7 @@ function z(e, t, n) {
 }
 //#endregion
 //#region src/core/ParticleSystem.ts
-var B = class {
+var de = class {
 	mesh;
 	material;
 	geometry;
@@ -250,7 +250,7 @@ var B = class {
 		if (!a) throw Error("ParticleSystem: missing materialOptions");
 		let o = i || new E(1, 1);
 		this.geometry = new p(), this.geometry.index = o.index, this.geometry.attributes = o.attributes;
-		let s = z(t, n, r);
+		let s = R(t, n, r);
 		this.geometry.setAttribute("instUv", new f(s, 2));
 		let c = { ...a.defines || {} }, l = !!a.transparent, u = a.depthWrite === void 0 ? !1 : a.depthWrite, d = a.depthTest === void 0 ? !0 : a.depthTest;
 		!l && u && d && (c.ENABLE_ALPHA_TEST = 1), this.material = new k({
@@ -267,7 +267,7 @@ var B = class {
 	dispose() {
 		this.geometry.dispose(), this.material.dispose();
 	}
-}, V = {
+}, z = {
 	uTime: { value: 0 },
 	uResolution: { value: new j() },
 	uMouse: { value: new j() },
@@ -282,9 +282,9 @@ var B = class {
 };
 //#endregion
 //#region src/mesh/quad.ts
-function H(e, t = 2, n = 2) {
+function B(e, t = 2, n = 2) {
 	let r = {
-		...V,
+		...z,
 		...e.uniforms || {}
 	};
 	return new y(new E(t, n), new k({
@@ -295,7 +295,7 @@ function H(e, t = 2, n = 2) {
 }
 //#endregion
 //#region src/core/passes/FullscreenPass.ts
-var ue = class {
+var fe = class {
 	scene;
 	camera;
 	outputTarget = null;
@@ -310,7 +310,7 @@ var ue = class {
 		if (n) this.outputTarget = n;
 		else if (r) {
 			let { width: e, height: t } = r;
-			this.outputTarget = new P(e, t, {
+			this.outputTarget = new N(e, t, {
 				minFilter: g,
 				magFilter: g,
 				wrapS: i,
@@ -322,15 +322,15 @@ var ue = class {
 			});
 		} else this.outputTarget = null;
 		this.camera = new w(-1, 1, 1, -1, 0, 1), this.scene = new O();
-		let d = H(c);
-		this.material = d.material, this.material && this.material.blending !== x && (this.material.blending = x, this.material.transparent = !1, this.material.depthWrite = !1, this.material.depthTest = !1), d.frustumCulled = !1, this.scene.add(d), this.opts.clearColor = a, this.opts.clearDepth = o, this.opts.clearStencil = s, l && this.outputTarget && L(t, l, this.outputTarget);
+		let d = B(c);
+		this.material = d.material, this.material && this.material.blending !== x && (this.material.blending = x, this.material.transparent = !1, this.material.depthWrite = !1, this.material.depthTest = !1), d.frustumCulled = !1, this.scene.add(d), this.opts.clearColor = a, this.opts.clearDepth = o, this.opts.clearStencil = s, l && this.outputTarget && I(t, l, this.outputTarget);
 	}
 	update(e) {}
 	render(e) {
 		let { clearColor: t = !0, clearDepth: n = !1, clearStencil: r = !1, clearColorValue: i, clearAlpha: o, viewport: s } = this.opts;
 		e.setRenderTarget(this.outputTarget);
 		let c = null;
-		s && !this.outputTarget && (c = new N(), e.getViewport(c), e.setViewport(s.x, s.y, s.width, s.height));
+		s && !this.outputTarget && (c = new te(), e.getViewport(c), e.setViewport(s.x, s.y, s.width, s.height));
 		let l = null, u = null;
 		if (t && (i !== void 0 || o !== void 0)) if (l = new a(), e.getClearColor(l), u = e.getClearAlpha ? e.getClearAlpha() : 1, i !== void 0) {
 			let t = i instanceof a ? i : new a(i);
@@ -346,7 +346,7 @@ var ue = class {
 		this.material.uniforms[e] ? this.material.uniforms[e].value = t : this.material.uniforms[e] = { value: t };
 	}
 	resize(e, t) {
-		this.outputTarget && this.opts.rtSize && (this.outputTarget.dispose(), this.outputTarget = new P(e, t, {
+		this.outputTarget && this.opts.rtSize && (this.outputTarget.dispose(), this.outputTarget = new N(e, t, {
 			minFilter: g,
 			magFilter: g,
 			wrapS: i,
@@ -357,7 +357,7 @@ var ue = class {
 			stencilBuffer: !1
 		}), this.opts.rtSize.width = e, this.opts.rtSize.height = t);
 	}
-}, de = class {
+}, pe = class {
 	scene;
 	camera;
 	outRT;
@@ -372,7 +372,7 @@ var ue = class {
 		else {
 			if (!c) throw Error("ParticlePass: missing particleOptions (or provide a particleSystem)");
 			if (!s) throw Error("ParticlePass: missing materialOptions (or provide a particleSystem)");
-			this.particleSystem = new B({
+			this.particleSystem = new de({
 				count: c.count,
 				width: c.width,
 				height: c.height,
@@ -383,7 +383,7 @@ var ue = class {
 		if (this.scene.add(this.particleSystem.mesh), t) this.outRT = t;
 		else if (n) {
 			let { width: e, height: t } = n;
-			this.outRT = new P(e, t, {
+			this.outRT = new N(e, t, {
 				minFilter: g,
 				magFilter: g,
 				wrapS: i,
@@ -420,7 +420,7 @@ var ue = class {
 		this.particleSystem.setUniform(e, t);
 	}
 	resize(e, t) {
-		this.outRT && this.opts.rtSize && (this.outRT.dispose(), this.outRT = new P(e, t, {
+		this.outRT && this.opts.rtSize && (this.outRT.dispose(), this.outRT = new N(e, t, {
 			minFilter: g,
 			magFilter: g,
 			wrapS: i,
@@ -431,7 +431,7 @@ var ue = class {
 			stencilBuffer: !1
 		}), this.opts.rtSize.width = e, this.opts.rtSize.height = t);
 	}
-}, fe = class {
+}, me = class {
 	scene;
 	camera;
 	_outputTarget = null;
@@ -444,7 +444,7 @@ var ue = class {
 		if (this.scene = this.opts.scene || e.scene, this.camera = this.opts.camera || e.camera, t) this._outputTarget = t;
 		else if (n) {
 			let { width: e, height: t } = n;
-			this._outputTarget = new P(e, t, {
+			this._outputTarget = new N(e, t, {
 				minFilter: g,
 				magFilter: g,
 				wrapS: i,
@@ -462,13 +462,13 @@ var ue = class {
 		let { clearColor: t = !0, clearDepth: n = !0, clearStencil: r = !1, viewport: i } = this.opts;
 		e.setRenderTarget(this._outputTarget);
 		let a = null;
-		i && !this._outputTarget && (a = new N(), e.getViewport(a), e.setViewport(i.x, i.y, i.width, i.height)), (t || n || r) && e.clear(t, n, r), e.render(this.scene, this.camera), e.setRenderTarget(null), a && e.setViewport(a.x, a.y, a.z, a.w);
+		i && !this._outputTarget && (a = new te(), e.getViewport(a), e.setViewport(i.x, i.y, i.width, i.height)), (t || n || r) && e.clear(t, n, r), e.render(this.scene, this.camera), e.setRenderTarget(null), a && e.setViewport(a.x, a.y, a.z, a.w);
 	}
 	get texture() {
 		return this._outputTarget ? this._outputTarget.texture : null;
 	}
 	resize(e, t) {
-		this._outputTarget && this.opts.rtSize && (this._outputTarget.dispose(), this._outputTarget = new P(e, t, {
+		this._outputTarget && this.opts.rtSize && (this._outputTarget.dispose(), this._outputTarget = new N(e, t, {
 			minFilter: g,
 			magFilter: g,
 			wrapS: i,
@@ -479,7 +479,7 @@ var ue = class {
 			stencilBuffer: !1
 		}), this.opts.rtSize.width = e, this.opts.rtSize.height = t);
 	}
-}, U = "precision highp float;\n\nuniform sampler2D tAccum;\nuniform sampler2D tReveal;\nvarying vec2 vUv;\n\nvoid main() {\n  vec4 accum = texture2D(tAccum, vUv);\n  vec4 reveal = texture2D(tReveal, vUv);\n\n  float oneMinusAlpha = clamp(reveal.r, 0.0, 1.0);\n  float alpha = 1.0 - oneMinusAlpha;\n  vec3 color = accum.rgb / max(accum.a, 1e-6);\n  \n  gl_FragColor = vec4(color, alpha);\n}", pe = class {
+}, V = "precision highp float;\n\nuniform sampler2D tAccum;\nuniform sampler2D tReveal;\nvarying vec2 vUv;\n\nvoid main() {\n  vec4 accum = texture2D(tAccum, vUv);\n  vec4 reveal = texture2D(tReveal, vUv);\n\n  float oneMinusAlpha = clamp(reveal.r, 0.0, 1.0);\n  float alpha = 1.0 - oneMinusAlpha;\n  vec3 color = accum.rgb / max(accum.a, 1e-6);\n  \n  gl_FragColor = vec4(color, alpha);\n}", he = class {
 	particleScene;
 	camera;
 	accumRT;
@@ -501,7 +501,7 @@ var ue = class {
 		this.camera = t.camera, this.particleScene = new O();
 		let s = r.geometry || new E(1, 1), c = new p();
 		c.index = s.index, c.attributes = s.attributes;
-		let l = z(r.count, r.width, r.height);
+		let l = R(r.count, r.width, r.height);
 		c.setAttribute("instUv", new f(l, 2)), this.accumMaterial = new k({
 			...n,
 			transparent: !0,
@@ -523,10 +523,10 @@ var ue = class {
 			depthWrite: !1,
 			blending: o,
 			blendEquation: e,
-			blendSrc: ne,
+			blendSrc: re,
 			blendDst: C,
 			blendEquationAlpha: e,
-			blendSrcAlpha: ne,
+			blendSrcAlpha: re,
 			blendDstAlpha: C
 		}), this.particleMesh = new y(c, this.accumMaterial), this.particleMesh.frustumCulled = !1, this.particleScene.add(this.particleMesh);
 		let u = a || (() => {
@@ -545,9 +545,9 @@ var ue = class {
 			depthBuffer: !1,
 			stencilBuffer: !1
 		};
-		this.accumRT = new P(u.width, u.height, m), this.revealRT = new P(u.width, u.height, m), this.compositeCamera = new w(-1, 1, 1, -1, 0, 1), this.compositeScene = new O(), this.compositeMesh = new y(new E(2, 2), new k({
-			vertexShader: I,
-			fragmentShader: U,
+		this.accumRT = new N(u.width, u.height, m), this.revealRT = new N(u.width, u.height, m), this.compositeCamera = new w(-1, 1, 1, -1, 0, 1), this.compositeScene = new O(), this.compositeMesh = new y(new E(2, 2), new k({
+			vertexShader: F,
+			fragmentShader: V,
 			uniforms: {
 				tAccum: { value: this.accumRT.texture },
 				tReveal: { value: this.revealRT.texture }
@@ -568,7 +568,7 @@ var ue = class {
 	get texture() {
 		return null;
 	}
-}, me = {
+}, ge = {
 	dpi: 1,
 	scale: 1,
 	antialias: !0,
@@ -580,13 +580,13 @@ var ue = class {
 	cameraPosition: new M(0, 0, 5),
 	useOrbit: !1
 };
-function W(e = {}) {
+function H(e = {}) {
 	let t = {
-		...me,
+		...ge,
 		...e
 	}, n = t.canvas || document.createElement("canvas");
 	n.style.imageRendering = t.imageRendering, t.canvas || document.body.appendChild(n);
-	let r = new te({
+	let r = new ne({
 		canvas: n,
 		antialias: t.antialias
 	});
@@ -596,7 +596,7 @@ function W(e = {}) {
 		let e = new T(t.fov, a, t.near, t.far);
 		e.position.set(t.cameraPosition.x, t.cameraPosition.y, t.cameraPosition.z), e.lookAt(0, 0, 0), i = e;
 	} else i = new w(-a, a, 1, -1, t.near, t.far);
-	return t.useOrbit && new re(i, r.domElement).update(), {
+	return t.useOrbit && new ie(i, r.domElement).update(), {
 		renderer: r,
 		scene: new O(),
 		camera: i,
@@ -607,15 +607,15 @@ function W(e = {}) {
 }
 //#endregion
 //#region src/core/input.ts
-var G = !1, K = -1;
-function he(e) {
+var U = !1, W = -1;
+function _e(e) {
 	let { dpi: t, scale: n } = e, r = t * n, i, a, o, s, c = () => {
 		if (i === void 0 || a === void 0 || o === void 0 || s === void 0) {
 			requestAnimationFrame(c);
 			return;
 		}
 		let t = e.canvas.getBoundingClientRect(), n = t.width, l = t.height, u = o - t.left, d = s - t.top, f = u * r, p = l * r - d * r, m = u / n, h = d / l, g = m * 2 - 1, _ = -(h * 2 - 1), v = f - i, y = p - a;
-		i = f, a = p, V.uMousePrev.value.set(i, a), V.uMouseUVPrev.value.set(V.uMouseUV.value.x, V.uMouseUV.value.y), V.uMouseNDCPrev.value.set(V.uMouseNDC.value.x, V.uMouseNDC.value.y), V.uMouseDeltaPrev.value.set(V.uMouseDelta.value.x, V.uMouseDelta.value.y), V.uMouse.value.set(f, p), V.uMouseUV.value.set(m, h), V.uMouseNDC.value.set(g, _), V.uMouseDelta.value.set(v, y), requestAnimationFrame(c);
+		i = f, a = p, z.uMousePrev.value.set(i, a), z.uMouseUVPrev.value.set(z.uMouseUV.value.x, z.uMouseUV.value.y), z.uMouseNDCPrev.value.set(z.uMouseNDC.value.x, z.uMouseNDC.value.y), z.uMouseDeltaPrev.value.set(z.uMouseDelta.value.x, z.uMouseDelta.value.y), z.uMouse.value.set(f, p), z.uMouseUV.value.set(m, h), z.uMouseNDC.value.set(g, _), z.uMouseDelta.value.set(v, y), requestAnimationFrame(c);
 	};
 	window.addEventListener("mousemove", (t) => {
 		if (o = t.clientX, s = t.clientY, i === void 0 || a === void 0) {
@@ -623,73 +623,78 @@ function he(e) {
 			i = o * r, a = n.height * r - s * r, requestAnimationFrame(c);
 		}
 	}), window.addEventListener("scroll", () => {
-		V.uScroll.value = window.scrollY;
+		z.uScroll.value = window.scrollY;
 	}), window.addEventListener("mousedown", (e) => {
-		G = !0, K = e.button;
+		U = !0, W = e.button;
 	}), window.addEventListener("mouseup", () => {
-		G = !1, K = -1;
+		U = !1, W = -1;
 	}), window.addEventListener("mouseleave", () => {
-		G = !1, K = -1;
+		U = !1, W = -1;
 	});
 }
 //#endregion
 //#region src/core/resize.ts
-function ge(e, t) {
+function ve(e, t) {
 	let { renderer: n, camera: r, dpi: i, scale: a } = e;
 	function o() {
 		let o = e.canvas.clientWidth, s = e.canvas.clientHeight;
-		n.setSize(o * a, s * a, !1), r instanceof T && (r.aspect = o / s, r.updateProjectionMatrix()), V.uResolution.value.set(o * a * i, s * a * i), t && t(e);
+		n.setSize(o * a, s * a, !1), r instanceof T && (r.aspect = o / s, r.updateProjectionMatrix()), z.uResolution.value.set(o * a * i, s * a * i), t && t(e);
 	}
 	window.addEventListener("resize", o), o();
 }
 //#endregion
 //#region src/core/loop.ts
-function _e(e, t) {
+function G(e, t) {
 	function n(e) {
 		let r = e * .001;
-		V.uTime.value = r, t(r), requestAnimationFrame(n);
+		z.uTime.value = r, t(r), requestAnimationFrame(n);
 	}
 	requestAnimationFrame(n);
 }
 //#endregion
 //#region src/core/experimentRunner.ts
-function ve(e) {
-	let t = W(e.config), n = e.setupInputs ?? !0, r = e.setupResize ?? !0;
-	n && he(t), r && ge(t, e.onResize), e.init(t), ye(), xe(), Te(e.onToggleInfo), _e(t, e.update);
-}
-function ye() {
-	setTimeout(() => {
-		let e = window.__compositor;
-		e && typeof e.getDescription == "function" && De(e.getDescription());
-	}, 0);
+function ye(e) {
+	let t = H(e.config), n = e.setupInputs ?? !0, r = e.setupResize ?? !0;
+	if (n && _e(t), r && ve(t, e.onResize), e.init(t), e.onInit && e.onInit(t), be(), Se(), Ee(e.onToggleInfo), e.afterUpdate) {
+		let n = e.update, r = e.afterUpdate;
+		G(t, (e) => {
+			n(e), r(e);
+		});
+	} else G(t, e.update);
 }
 function be() {
+	setTimeout(() => {
+		let e = window.__compositor;
+		e && typeof e.getDescription == "function" && Oe(e.getDescription());
+	}, 0);
+}
+function xe() {
 	let e = document.getElementById("info-overlay");
 	return e || (e = document.createElement("div"), e.id = "info-overlay", e.className = "info-overlay", document.body.appendChild(e)), e.style.display = "none", e;
 }
-function xe() {
-	document.removeEventListener("keydown", Se), document.addEventListener("keydown", Se);
+function Se() {
+	document.removeEventListener("keydown", Ce), document.addEventListener("keydown", Ce);
 }
-function Se(e) {
-	(e.key === "i" || e.key === "I") && Ce();
+function Ce(e) {
+	(e.key === "i" || e.key === "I") && we();
 }
-function Ce() {
+function we() {
 	let e = document.getElementById("info-overlay");
 	if (e) {
 		let t = getComputedStyle(e).display === "none";
-		e.style.display = t ? "block" : "none", typeof Ee() == "function" && Ee()(t);
+		e.style.display = t ? "block" : "none", typeof De() == "function" && De()(t);
 	}
 }
-var we;
-function Te(e) {
-	we = e;
+var Te;
+function Ee(e) {
+	Te = e;
 }
-function Ee() {
-	return we;
+function De() {
+	return Te;
 }
-function De(e) {
+function Oe(e) {
 	let t = document.getElementById("compositor-description");
-	t ? t.innerHTML = "" : (t = document.createElement("div"), t.id = "compositor-description", t.className = "compositor-description", be().appendChild(t));
+	t ? t.innerHTML = "" : (t = document.createElement("div"), t.id = "compositor-description", t.className = "compositor-description", xe().appendChild(t));
 	let n = e.split("\n");
 	n.forEach((e, r) => {
 		if (e.trim()) {
@@ -701,7 +706,7 @@ function De(e) {
 }
 //#endregion
 //#region src/utils/texture.ts
-function q(e, t, n, r) {
+function K(e, t, n, r) {
 	let i = e * t * 4, a = new Float32Array(i), o = 0;
 	for (let r = 0; r < t; r++) for (let i = 0; i < e; i++) {
 		let [s, c, l, u] = n(i, r, e, t);
@@ -712,100 +717,79 @@ function q(e, t, n, r) {
 }
 //#endregion
 //#region src/utils/noise.ts
-function Oe(e) {
+function ke(e) {
 	return e - Math.floor(1 / 289 * e) * 289;
 }
-function J(e) {
-	return Oe((e * 34 + 1) * e);
+function q(e) {
+	return ke((e * 34 + 1) * e);
 }
-function Y(e) {
+function J(e) {
 	return e * e * e * (e * (e * 6 - 15) + 10);
 }
-function X(e, t, n, r) {
+function Y(e, t, n, r) {
 	let i = e & 15, a = i < 8 ? t : n, o = i < 4 ? n : i === 12 || i === 14 ? t : r ?? 0;
 	return (i & 1 ? -a : a) + (i & 2 ? -o : o);
 }
-function Z(e, t) {
+function X(e, t) {
 	let n = Math.floor(e), r = Math.floor(t);
 	e -= n, t -= r;
-	let i = Y(e), a = Y(t), o = X(J(J(n) + r), e, t), s = X(J(J(n) + r + 1), e, t - 1), c = X(J(J(n + 1) + r), e - 1, t), l = X(J(J(n + 1) + r + 1), e - 1, t - 1), u = o + i * (c - o);
+	let i = J(e), a = J(t), o = Y(q(q(n) + r), e, t), s = Y(q(q(n) + r + 1), e, t - 1), c = Y(q(q(n + 1) + r), e - 1, t), l = Y(q(q(n + 1) + r + 1), e - 1, t - 1), u = o + i * (c - o);
 	return 2.3 * (u + a * (s + i * (l - s) - u));
 }
-function ke(e, t, n) {
+function Ae(e, t, n) {
 	let r = Math.floor(e), i = Math.floor(t), a = Math.floor(n);
 	e -= r, t -= i, n -= a;
-	let o = Y(e), s = Y(t), c = Y(n), l = J(r) + i, u = J(l) + a, d = J(l + 1) + a, f = J(r + 1) + i, p = J(f) + a, m = J(f + 1) + a, h = X(J(u), e, t, n), g = X(J(d), e, t, n - 1), _ = X(J(u + 1), e, t - 1, n), v = X(J(d + 1), e, t - 1, n - 1), y = X(J(p), e - 1, t, n), b = X(J(m), e - 1, t, n - 1), x = X(J(p + 1), e - 1, t - 1, n), S = X(J(m + 1), e - 1, t - 1, n - 1), C = h + o * (y - h), w = g + o * (b - g), T = _ + o * (x - _), E = v + o * (S - v), D = C + s * (T - C);
+	let o = J(e), s = J(t), c = J(n), l = q(r) + i, u = q(l) + a, d = q(l + 1) + a, f = q(r + 1) + i, p = q(f) + a, m = q(f + 1) + a, h = Y(q(u), e, t, n), g = Y(q(d), e, t, n - 1), _ = Y(q(u + 1), e, t - 1, n), v = Y(q(d + 1), e, t - 1, n - 1), y = Y(q(p), e - 1, t, n), b = Y(q(m), e - 1, t, n - 1), x = Y(q(p + 1), e - 1, t - 1, n), S = Y(q(m + 1), e - 1, t - 1, n - 1), C = h + o * (y - h), w = g + o * (b - g), T = _ + o * (x - _), E = v + o * (S - v), D = C + s * (T - C);
 	return 2.3 * (D + c * (w + s * (E - w) - D));
 }
-function Q(e, t, n = 6, r = 2, i = .5) {
+function Z(e, t, n = 6, r = 2, i = .5) {
 	let a = 0, o = .5, s = 1;
-	for (let c = 0; c < n; c++) a += o * Z(e * s, t * s), s *= r, o *= i;
+	for (let c = 0; c < n; c++) a += o * X(e * s, t * s), s *= r, o *= i;
 	return a;
 }
-function Ae(e, t, n, r = 6, i = 2, a = .5) {
+function je(e, t, n, r = 6, i = 2, a = .5) {
 	let o = 0, s = .5, c = 1;
-	for (let l = 0; l < r; l++) o += s * ke(e * c, t * c, n * c), c *= i, s *= a;
+	for (let l = 0; l < r; l++) o += s * Ae(e * c, t * c, n * c), c *= i, s *= a;
 	return o;
 }
-function je(e, t, n = 6, r = 2, i = .5, a = 1) {
+function Me(e, t, n = 6, r = 2, i = .5, a = 1) {
 	let o = 0, s = .5, c = 1;
 	for (let l = 0; l < n; l++) {
-		let n = Z(e * c, t * c);
+		let n = X(e * c, t * c);
 		n = a - Math.abs(n), n *= n, o += n * s, c *= r, s *= i;
 	}
 	return o * 1.25;
 }
-function Me(e, t, n = .1) {
-	let r = Z(e, t) * n, i = Z(e + 100, t + 100) * n;
+function Ne(e, t, n = .1) {
+	let r = X(e, t) * n, i = X(e + 100, t + 100) * n;
 	return {
 		x: e + r,
 		y: t + i
 	};
 }
-function $(e) {
+function Q(e) {
 	let t = e;
 	return () => (t = (t * 1664525 + 1013904223) % 4294967296, t / 4294967296);
 }
 //#endregion
 //#region src/utils/positionTextures.ts
-function Ne(e, t, n = {}) {
-	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
-		x: 0,
-		y: 0,
-		z: 0
-	} } = n, c = $(o);
-	return q(e, t, (e, t, n, o) => {
-		let l = e / n, u = t / o, d = c() * .1, f = (l + d) * a + s.x, p = (u + d) * a + s.y, m = Q(f, p, 4, 2, .5) * r, h = Q(f + 100, p + 100, 4, 2, .5) * r;
-		return i ? [
-			m,
-			h,
-			0,
-			1
-		] : [
-			m,
-			h,
-			Q(f + 200, p + 200, 4, 2, .5) * r,
-			1
-		];
-	});
-}
 function Pe(e, t, n = {}) {
 	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
 		z: 0
-	} } = n, c = $(o);
-	return q(e, t, (e, t, n, o) => {
-		let l = e / n, u = t / o, d = l * Math.PI * 4, f = u * r, p = (l + c() * .1) * a + s.x, m = (u + c() * .1) * a + s.y, h = Z(p, m) * .3, g = (f + h) * Math.cos(d), _ = (f + h) * Math.sin(d);
+	} } = n, c = Q(o);
+	return K(e, t, (e, t, n, o) => {
+		let l = e / n, u = t / o, d = c() * .1, f = (l + d) * a + s.x, p = (u + d) * a + s.y, m = Z(f, p, 4, 2, .5) * r, h = Z(f + 100, p + 100, 4, 2, .5) * r;
 		return i ? [
-			g,
-			_,
+			m,
+			h,
 			0,
 			1
 		] : [
-			g,
-			_,
-			Q(p + 200, m + 200, 3, 2, .5) * r * .5,
+			m,
+			h,
+			Z(f + 200, p + 200, 4, 2, .5) * r,
 			1
 		];
 	});
@@ -815,29 +799,18 @@ function Fe(e, t, n = {}) {
 		x: 0,
 		y: 0,
 		z: 0
-	}, numClusters: c = 5, clusterSize: l = .8 } = n;
-	return q(e, t, (e, t, n, u) => {
-		let d = e / n, f = t / u, p = Infinity, m = {
-			x: 0,
-			y: 0
-		};
-		for (let e = 0; e < c; e++) {
-			let t = $(o + e * 1e3), n = t() * r * 2 - r, i = t() * r * 2 - r, a = Math.sqrt((d - (n + r) / (r * 2)) ** 2 + (f - (i + r) / (r * 2)) ** 2);
-			a < p && (p = a, m = {
-				x: n,
-				y: i
-			});
-		}
-		let h = Me(d * a + s.x, f * a + s.y, .2), g = Z(h.x, h.y) * l, _ = m.x + g, v = m.y + Z(h.x + 100, h.y + 100) * l;
+	} } = n, c = Q(o);
+	return K(e, t, (e, t, n, o) => {
+		let l = e / n, u = t / o, d = l * Math.PI * 4, f = u * r, p = (l + c() * .1) * a + s.x, m = (u + c() * .1) * a + s.y, h = X(p, m) * .3, g = (f + h) * Math.cos(d), _ = (f + h) * Math.sin(d);
 		return i ? [
+			g,
 			_,
-			v,
 			0,
 			1
 		] : [
+			g,
 			_,
-			v,
-			Q(h.x + 200, h.y + 200, 3, 2, .5) * r * .5,
+			Z(p + 200, m + 200, 3, 2, .5) * r * .5,
 			1
 		];
 	});
@@ -847,14 +820,46 @@ function Ie(e, t, n = {}) {
 		x: 0,
 		y: 0,
 		z: 0
-	}, numWaves: c = 3, waveAmplitude: l = .5 } = n, u = $(o);
-	return q(e, t, (e, t, n, o) => {
+	}, numClusters: c = 5, clusterSize: l = .8 } = n;
+	return K(e, t, (e, t, n, u) => {
+		let d = e / n, f = t / u, p = Infinity, m = {
+			x: 0,
+			y: 0
+		};
+		for (let e = 0; e < c; e++) {
+			let t = Q(o + e * 1e3), n = t() * r * 2 - r, i = t() * r * 2 - r, a = Math.sqrt((d - (n + r) / (r * 2)) ** 2 + (f - (i + r) / (r * 2)) ** 2);
+			a < p && (p = a, m = {
+				x: n,
+				y: i
+			});
+		}
+		let h = Ne(d * a + s.x, f * a + s.y, .2), g = X(h.x, h.y) * l, _ = m.x + g, v = m.y + X(h.x + 100, h.y + 100) * l;
+		return i ? [
+			_,
+			v,
+			0,
+			1
+		] : [
+			_,
+			v,
+			Z(h.x + 200, h.y + 200, 3, 2, .5) * r * .5,
+			1
+		];
+	});
+}
+function Le(e, t, n = {}) {
+	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, numWaves: c = 3, waveAmplitude: l = .5 } = n, u = Q(o);
+	return K(e, t, (e, t, n, o) => {
 		let d = e / n, f = t / o, p = 0, m = 0;
 		for (let e = 0; e < c; e++) {
 			let t = (e + 1) * 2, n = u() * Math.PI * 2;
 			p += Math.sin(f * t + n) * l, m += Math.cos(d * t + n) * l;
 		}
-		let h = d * a + s.x, g = f * a + s.y, _ = Z(h, g) * .3, v = d * r * 2 - r + p + _, y = f * r * 2 - r + m + Z(h + 100, g + 100) * .3;
+		let h = d * a + s.x, g = f * a + s.y, _ = X(h, g) * .3, v = d * r * 2 - r + p + _, y = f * r * 2 - r + m + X(h + 100, g + 100) * .3;
 		return i ? [
 			v,
 			y,
@@ -863,18 +868,18 @@ function Ie(e, t, n = {}) {
 		] : [
 			v,
 			y,
-			Q(h + 200, g + 200, 3, 2, .5) * r * .5,
+			Z(h + 200, g + 200, 3, 2, .5) * r * .5,
 			1
 		];
 	});
 }
-function Le(e, t, n, r = {}) {
+function Re(e, t, n, r = {}) {
 	let { bounds: i = 2, is2D: a = !1, noiseScale: o = .1, seed: s = Math.random() * 1e3, noiseOffset: c = {
 		x: 0,
 		y: 0,
 		z: 0
 	}, distance: l = 5 } = r;
-	return q(e, t, (e, t, r, s) => {
+	return K(e, t, (e, t, r, s) => {
 		let u = e / r, d = t / s, f = u * 2 - 1, p = d * 2 - 1, m, h, g;
 		if (n instanceof T) {
 			let e = n.aspect, t = n.fov * Math.PI / 180, r = 2 * l * Math.tan(t / 2);
@@ -883,13 +888,13 @@ function Le(e, t, n, r = {}) {
 			let e = n.left, t = n.right, r = n.top, i = n.bottom;
 			m = e + (t - e) * u, h = i + (r - i) * d, g = l;
 		} else m = f * i, h = p * i, g = l;
-		let _ = u * o + c.x, v = d * o + c.y, y = Z(_, v) * .2;
-		return m += y, h += Z(_ + 100, v + 100) * .2, a ? [
+		let _ = u * o + c.x, v = d * o + c.y, y = X(_, v) * .2;
+		return m += y, h += X(_ + 100, v + 100) * .2, a ? [
 			m,
 			h,
 			0,
 			1
-		] : (g += Q(_ + 200, v + 200, 3, 2, .5) * i * .3, [
+		] : (g += Z(_ + 200, v + 200, 3, 2, .5) * i * .3, [
 			m,
 			h,
 			g,
@@ -897,8 +902,8 @@ function Le(e, t, n, r = {}) {
 		]);
 	});
 }
-function Re(e, t, n) {
-	let { width: r, height: a } = R(t), o = r * a, c = new Float32Array(o * 4);
+function ze(e, t, n) {
+	let { width: r, height: a } = L(t), o = r * a, c = new Float32Array(o * 4);
 	for (let r = 0; r < t; r++) {
 		let t = r * 3, i = r * 4;
 		c[i + 0] = e[t + 0], c[i + 1] = e[t + 1], c[i + 2] = e[t + 2], c[i + 3] = n ? n[r] : 1;
@@ -914,8 +919,8 @@ function Re(e, t, n) {
 		height: a
 	};
 }
-function ze(e, t) {
-	let { width: n, height: r } = R(t), a = n * r, o = new Float32Array(a * 4);
+function Be(e, t) {
+	let { width: n, height: r } = L(t), a = n * r, o = new Float32Array(a * 4);
 	for (let n = 0; n < t; n++) {
 		let t = n * 3, r = n * 4;
 		o[r + 0] = e[t + 0], o[r + 1] = e[t + 1], o[r + 2] = e[t + 2], o[r + 3] = 1;
@@ -933,44 +938,23 @@ function ze(e, t) {
 }
 //#endregion
 //#region src/utils/velocityTextures.ts
-function Be(e, t, n = {}) {
-	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
-		x: 0,
-		y: 0,
-		z: 0
-	} } = n;
-	return q(e, t, (e, t, n, o) => {
-		let c = e / n, l = t / o, u = c * a + s.x, d = l * a + s.y, f = Z(u, d) * r, p = Z(u + 100, d + 100) * r;
-		return i ? [
-			f,
-			p,
-			0,
-			1
-		] : [
-			f,
-			p,
-			Z(u + 200, d + 200) * r,
-			1
-		];
-	});
-}
 function Ve(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
 		z: 0
 	} } = n;
-	return q(e, t, (e, t, n, o) => {
-		let c = e / n, l = t / o, u = c * a + s.x, d = l * a + s.y, f = .01, p = Z(u, d), m = Z(u + f, d), h = Z(u, d + f), g = -(m - p) / f * r, _ = -(h - p) / f * r;
+	return K(e, t, (e, t, n, o) => {
+		let c = e / n, l = t / o, u = c * a + s.x, d = l * a + s.y, f = X(u, d) * r, p = X(u + 100, d + 100) * r;
 		return i ? [
-			g,
-			_,
+			f,
+			p,
 			0,
 			1
 		] : [
-			g,
-			_,
-			Z(u + 200, d + 200) * r * .5,
+			f,
+			p,
+			X(u + 200, d + 200) * r,
 			1
 		];
 	});
@@ -980,32 +964,20 @@ function He(e, t, n = {}) {
 		x: 0,
 		y: 0,
 		z: 0
-	}, numCenters: c = 3, rotationStrength: l = 1 } = n;
-	return q(e, t, (e, t, n, u) => {
-		let d = e / n, f = t / u, p = d * 4 - 2, m = f * 4 - 2, h = 0, g = 0;
-		for (let e = 0; e < c; e++) {
-			let t = $(o + e * 1e3), n = t() * 4 - 2, r = t() * 4 - 2, i = p - n, a = m - r, s = Math.sqrt(i * i + a * a);
-			if (s > .01) {
-				let e = l * Math.exp(-s * 2);
-				h += -a / s * e, g += i / s * e;
-			}
-		}
-		let _ = d * a + s.x, v = f * a + s.y, y = Z(_, v) * r * .3, b = Z(_ + 100, v + 100) * r * .3;
-		if (h = (h + y) * r, g = (g + b) * r, i) return [
-			h,
+	} } = n;
+	return K(e, t, (e, t, n, o) => {
+		let c = e / n, l = t / o, u = c * a + s.x, d = l * a + s.y, f = .01, p = X(u, d), m = X(u + f, d), h = X(u, d + f), g = -(m - p) / f * r, _ = -(h - p) / f * r;
+		return i ? [
 			g,
+			_,
 			0,
 			1
+		] : [
+			g,
+			_,
+			X(u + 200, d + 200) * r * .5,
+			1
 		];
-		{
-			let e = Z(_ + 200, v + 200) * r * .5;
-			return [
-				h,
-				g,
-				e,
-				1
-			];
-		}
 	});
 }
 function Ue(e, t, n = {}) {
@@ -1013,17 +985,17 @@ function Ue(e, t, n = {}) {
 		x: 0,
 		y: 0,
 		z: 0
-	}, numCenters: c = 2, radialStrength: l = 1 } = n;
-	return q(e, t, (e, t, n, u) => {
+	}, numCenters: c = 3, rotationStrength: l = 1 } = n;
+	return K(e, t, (e, t, n, u) => {
 		let d = e / n, f = t / u, p = d * 4 - 2, m = f * 4 - 2, h = 0, g = 0;
 		for (let e = 0; e < c; e++) {
-			let t = $(o + e * 1e3), n = t() * 4 - 2, r = t() * 4 - 2, i = p - n, a = m - r, s = Math.sqrt(i * i + a * a);
+			let t = Q(o + e * 1e3), n = t() * 4 - 2, r = t() * 4 - 2, i = p - n, a = m - r, s = Math.sqrt(i * i + a * a);
 			if (s > .01) {
-				let e = l * Math.exp(-s * 1.5);
-				h += i / s * e, g += a / s * e;
+				let e = l * Math.exp(-s * 2);
+				h += -a / s * e, g += i / s * e;
 			}
 		}
-		let _ = d * a + s.x, v = f * a + s.y, y = Z(_, v) * r * .2, b = Z(_ + 100, v + 100) * r * .2;
+		let _ = d * a + s.x, v = f * a + s.y, y = X(_, v) * r * .3, b = X(_ + 100, v + 100) * r * .3;
 		if (h = (h + y) * r, g = (g + b) * r, i) return [
 			h,
 			g,
@@ -1031,7 +1003,7 @@ function Ue(e, t, n = {}) {
 			1
 		];
 		{
-			let e = Z(_ + 200, v + 200) * r * .3;
+			let e = X(_ + 200, v + 200) * r * .5;
 			return [
 				h,
 				g,
@@ -1046,68 +1018,17 @@ function We(e, t, n = {}) {
 		x: 0,
 		y: 0,
 		z: 0
-	}, turbulenceIntensity: c = 1, turbulenceOctaves: l = 4 } = n;
-	return q(e, t, (e, t, n, o) => {
-		let u = e / n, d = t / o, f = u * a + s.x, p = d * a + s.y, m = Q(f, p, l, 2, .5) * r * c, h = Q(f + 100, p + 100, l, 2, .5) * r * c;
-		return i ? [
-			m,
-			h,
-			0,
-			1
-		] : [
-			m,
-			h,
-			Q(f + 200, p + 200, l, 2, .5) * r * c,
-			1
-		];
-	});
-}
-function Ge(e, t, n = {}) {
-	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
-		x: 0,
-		y: 0,
-		z: 0
-	}, numWaves: c = 3, waveFrequency: l = 2 } = n, u = $(o);
-	return q(e, t, (e, t, n, o) => {
-		let d = e / n, f = t / o, p = 0, m = 0;
-		for (let e = 0; e < c; e++) {
-			let t = u() * Math.PI * 2, n = l * (e + 1);
-			m += Math.sin(d * n + t) * r * .5, p += Math.cos(f * n + t) * r * .5;
-		}
-		let h = d * a + s.x, g = f * a + s.y, _ = Z(h, g) * r * .3, v = Z(h + 100, g + 100) * r * .3;
-		if (p = (p + _) * r, m = (m + v) * r, i) return [
-			p,
-			m,
-			0,
-			1
-		];
-		{
-			let e = Z(h + 200, g + 200) * r * .4;
-			return [
-				p,
-				m,
-				e,
-				1
-			];
-		}
-	});
-}
-function Ke(e, t, n = {}) {
-	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
-		x: 0,
-		y: 0,
-		z: 0
-	}, numPoints: c = 2, convergenceStrength: l = 1 } = n;
-	return q(e, t, (e, t, n, u) => {
+	}, numCenters: c = 2, radialStrength: l = 1 } = n;
+	return K(e, t, (e, t, n, u) => {
 		let d = e / n, f = t / u, p = d * 4 - 2, m = f * 4 - 2, h = 0, g = 0;
 		for (let e = 0; e < c; e++) {
-			let t = $(o + e * 1e3), n = t() * 4 - 2, r = t() * 4 - 2, i = n - p, a = r - m, s = Math.sqrt(i * i + a * a);
+			let t = Q(o + e * 1e3), n = t() * 4 - 2, r = t() * 4 - 2, i = p - n, a = m - r, s = Math.sqrt(i * i + a * a);
 			if (s > .01) {
-				let e = l * Math.exp(-s * 1);
+				let e = l * Math.exp(-s * 1.5);
 				h += i / s * e, g += a / s * e;
 			}
 		}
-		let _ = d * a + s.x, v = f * a + s.y, y = Z(_, v) * r * .2, b = Z(_ + 100, v + 100) * r * .2;
+		let _ = d * a + s.x, v = f * a + s.y, y = X(_, v) * r * .2, b = X(_ + 100, v + 100) * r * .2;
 		if (h = (h + y) * r, g = (g + b) * r, i) return [
 			h,
 			g,
@@ -1115,7 +1036,7 @@ function Ke(e, t, n = {}) {
 			1
 		];
 		{
-			let e = Z(_ + 200, v + 200) * r * .3;
+			let e = X(_ + 200, v + 200) * r * .3;
 			return [
 				h,
 				g,
@@ -1125,7 +1046,91 @@ function Ke(e, t, n = {}) {
 		}
 	});
 }
+function Ge(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, turbulenceIntensity: c = 1, turbulenceOctaves: l = 4 } = n;
+	return K(e, t, (e, t, n, o) => {
+		let u = e / n, d = t / o, f = u * a + s.x, p = d * a + s.y, m = Z(f, p, l, 2, .5) * r * c, h = Z(f + 100, p + 100, l, 2, .5) * r * c;
+		return i ? [
+			m,
+			h,
+			0,
+			1
+		] : [
+			m,
+			h,
+			Z(f + 200, p + 200, l, 2, .5) * r * c,
+			1
+		];
+	});
+}
+function Ke(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, numWaves: c = 3, waveFrequency: l = 2 } = n, u = Q(o);
+	return K(e, t, (e, t, n, o) => {
+		let d = e / n, f = t / o, p = 0, m = 0;
+		for (let e = 0; e < c; e++) {
+			let t = u() * Math.PI * 2, n = l * (e + 1);
+			m += Math.sin(d * n + t) * r * .5, p += Math.cos(f * n + t) * r * .5;
+		}
+		let h = d * a + s.x, g = f * a + s.y, _ = X(h, g) * r * .3, v = X(h + 100, g + 100) * r * .3;
+		if (p = (p + _) * r, m = (m + v) * r, i) return [
+			p,
+			m,
+			0,
+			1
+		];
+		{
+			let e = X(h + 200, g + 200) * r * .4;
+			return [
+				p,
+				m,
+				e,
+				1
+			];
+		}
+	});
+}
 function qe(e, t, n = {}) {
+	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
+		x: 0,
+		y: 0,
+		z: 0
+	}, numPoints: c = 2, convergenceStrength: l = 1 } = n;
+	return K(e, t, (e, t, n, u) => {
+		let d = e / n, f = t / u, p = d * 4 - 2, m = f * 4 - 2, h = 0, g = 0;
+		for (let e = 0; e < c; e++) {
+			let t = Q(o + e * 1e3), n = t() * 4 - 2, r = t() * 4 - 2, i = n - p, a = r - m, s = Math.sqrt(i * i + a * a);
+			if (s > .01) {
+				let e = l * Math.exp(-s * 1);
+				h += i / s * e, g += a / s * e;
+			}
+		}
+		let _ = d * a + s.x, v = f * a + s.y, y = X(_, v) * r * .2, b = X(_ + 100, v + 100) * r * .2;
+		if (h = (h + y) * r, g = (g + b) * r, i) return [
+			h,
+			g,
+			0,
+			1
+		];
+		{
+			let e = X(_ + 200, v + 200) * r * .3;
+			return [
+				h,
+				g,
+				e,
+				1
+			];
+		}
+	});
+}
+function Je(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -1144,14 +1149,14 @@ function qe(e, t, n = {}) {
 			weight: .3
 		}
 	] } = n;
-	return q(e, t, (e, t, n, l) => {
+	return K(e, t, (e, t, n, l) => {
 		let u = e / n, d = t / l, f = 0, p = 0, m = 0, h = 0;
 		return c.forEach((e, t) => {
-			let n = $(o + t * 1e3), c = 0, l = 0, g = 0;
+			let n = Q(o + t * 1e3), c = 0, l = 0, g = 0;
 			switch (e.type) {
 				case "flow": {
 					let e = u * a + s.x, t = d * a + s.y;
-					c = Z(e, t) * r, l = Z(e + 100, t + 100) * r, i || (g = Z(e + 200, t + 200) * r);
+					c = X(e, t) * r, l = X(e + 100, t + 100) * r, i || (g = X(e + 200, t + 200) * r);
 					break;
 				}
 				case "rotational": {
@@ -1164,7 +1169,7 @@ function qe(e, t, n = {}) {
 				}
 				case "turbulent": {
 					let e = u * a + s.x, t = d * a + s.y;
-					c = Q(e, t, 4, 2, .5) * r, l = Q(e + 100, t + 100, 4, 2, .5) * r, i || (g = Q(e + 200, t + 200, 4, 2, .5) * r);
+					c = Z(e, t, 4, 2, .5) * r, l = Z(e + 100, t + 100, 4, 2, .5) * r, i || (g = Z(e + 200, t + 200, 4, 2, .5) * r);
 					break;
 				}
 				case "wave": {
@@ -1205,10 +1210,10 @@ function qe(e, t, n = {}) {
 }
 //#endregion
 //#region src/utils/debug.ts
-function Je(e, r, i, a, o) {
+function Ye(e, r, i, a, o) {
 	if (e instanceof t) {
 		let t = e, n = r ?? 16711680, i = t.getSize(new M()), a = t.getCenter(new M());
-		return Je(i.x, i.y, i.z, n, a);
+		return Ye(i.x, i.y, i.z, n, a);
 	}
 	if (typeof r == "number" && typeof i == "number") {
 		let t = e, s = r, l = i, u = a ?? 65280, d = o ?? new M(0, 0, 0), f = new h(new c(new n(t, s, l)), new m({ color: u }));
@@ -1219,12 +1224,12 @@ function Je(e, r, i, a, o) {
 }
 //#endregion
 //#region src/utils/arrowGeometry.ts
-function Ye(e = .2) {
+function $(e = .2) {
 	let t = new r(), n = [], i = [], a = [];
 	return n.push(0, .5, 0, -.5, -.5, 0, 0, -.5 + e, 0, .5, -.5, 0), i.push(.5, 1, 0, 0, .5, .2, 1, 0), a.push(0, 1, 2, 0, 2, 3), t.setAttribute("position", new l(n, 3)), t.setAttribute("uv", new l(i, 2)), t.setIndex(a), t.computeVertexNormals(), t;
 }
 function Xe() {
-	return Ye(.2);
+	return $(.2);
 }
 //#endregion
 //#region src/utils/matrices.ts
@@ -1236,8 +1241,8 @@ function Ze(e, t = 0) {
 //#region src/shaders/index.ts
 var Qe = {
 	core: {
-		passThroughVert: I,
-		textureFrag: ie,
+		passThroughVert: F,
+		textureFrag: ae,
 		uvFrag: "uniform vec2 uResolution;\n\nvoid main() {\n  vec2 uv = (gl_FragCoord.xy ) / uResolution.xy;\n  gl_FragColor = vec4(uv, 0.0, 1.0);\n}",
 		commonGlsl: "float circleSDF(vec2 uv, float r) {\n  return length(uv) - r;\n}\n\nvec3 pal(float t, vec3 a, vec3 b, vec3 c, vec3 d) {\n  return a + b * cos(6.28318 * (c * t + d));\n}\n\nmat4 rotationAxisAngle( vec3 v, float angle )\n{\n    float s = sin( angle );\n    float c = cos( angle );\n    float ic = 1.0 - c;\n\n    return mat4( v.x*v.x*ic + c,     v.y*v.x*ic - s*v.z, v.z*v.x*ic + s*v.y, 0.0,\n                 v.x*v.y*ic + s*v.z, v.y*v.y*ic + c,     v.z*v.y*ic - s*v.x, 0.0,\n                 v.x*v.z*ic - s*v.y, v.y*v.z*ic + s*v.x, v.z*v.z*ic + c,     0.0,\n			     0.0,                0.0,                0.0,                1.0 );\n}",
 		colorGlsl: "vec3 sample6LobesSphereLinear(vec3 dir,\n                              vec3 colPosX, vec3 colNegX,\n                              vec3 colPosY, vec3 colNegY,\n                              vec3 colPosZ, vec3 colNegZ,\n                              float sharpness)\n{\n    float len2 = dot(dir, dir);\n    if (len2 < 1e-12) return colPosZ;\n    dir *= inversesqrt(len2);\n\n    float wxp = pow(max( dir.x, 0.0), sharpness);\n    float wxn = pow(max(-dir.x, 0.0), sharpness);\n    float wyp = pow(max( dir.y, 0.0), sharpness);\n    float wyn = pow(max(-dir.y, 0.0), sharpness);\n    float wzp = pow(max( dir.z, 0.0), sharpness);\n    float wzn = pow(max(-dir.z, 0.0), sharpness);\n\n    float wSum = max(wxp + wxn + wyp + wyn + wzp + wzn, 1e-8);\n\n    return (colPosX * wxp + colNegX * wxn +\n            colPosY * wyp + colNegY * wyn +\n            colPosZ * wzp + colNegZ * wzn) / wSum;\n}",
@@ -1267,7 +1272,7 @@ var Qe = {
 		worleyGlsl: "#ifndef GLCORE_NOISE_WORLEY_GLSL\n#define GLCORE_NOISE_WORLEY_GLSL\n\nvec3 hash3(vec3 p) {\n  p = vec3(\n    dot(p, vec3(127.1, 311.7, 74.7)),\n    dot(p, vec3(269.5, 183.3, 246.1)),\n    dot(p, vec3(113.5, 271.9, 124.6))\n  );\n  return fract(sin(p) * 43758.5453123);\n}\n\nvec2 hash2(vec2 p) {\n  p = vec2(\n    dot(p, vec2(127.1, 311.7)),\n    dot(p, vec2(269.5, 183.3))\n  );\n  return fract(sin(p) * 43758.5453123);\n}\n\nvec2 worley2D(vec2 p) {\n  vec2 n = floor(p);\n  vec2 f = fract(p);\n\n  float F1 = 8.0;\n  float F2 = 8.0;\n\n  for (int j = -1; j <= 1; j++) {\n    for (int i = -1; i <= 1; i++) {\n      vec2 g = vec2(float(i), float(j));\n      vec2 o = hash2(n + g);\n      vec2 r = g - f + o;\n      float d = dot(r, r);\n\n      if (d < F1) {\n        F2 = F1;\n        F1 = d;\n      } else if (d < F2) {\n        F2 = d;\n      }\n    }\n  }\n\n  return vec2(sqrt(F1), sqrt(F2));\n}\n\nvec2 worley3D(vec3 p) {\n  vec3 n = floor(p);\n  vec3 f = fract(p);\n\n  float F1 = 8.0;\n  float F2 = 8.0;\n\n  for (int k = -1; k <= 1; k++) {\n    for (int j = -1; j <= 1; j++) {\n      for (int i = -1; i <= 1; i++) {\n        vec3 g = vec3(float(i), float(j), float(k));\n        vec3 o = hash3(n + g);\n        vec3 r = g - f + o;\n        float d = dot(r, r);\n\n        if (d < F1) {\n          F2 = F1;\n          F1 = d;\n        } else if (d < F2) {\n          F2 = d;\n        }\n      }\n    }\n  }\n\n  return vec2(sqrt(F1), sqrt(F2));\n}\n\nfloat worley(vec2 p) {\n  return worley2D(p).x;\n}\n\nfloat worley(vec3 p) {\n  return worley3D(p).x;\n}\n\nfloat smin(float a, float b, float k) {\n  float h = max(k - abs(a - b), 0.0) / k;\n  return min(a, b) - h * h * k * 0.25;\n}\n\nvec2 worley3DSmooth(vec3 p, float smoothness) {\n  vec3 n = floor(p);\n  vec3 f = fract(p);\n\n  float F1 = 8.0;\n  float F2 = 8.0;\n\n  for (int k = -1; k <= 1; k++) {\n    for (int j = -1; j <= 1; j++) {\n      for (int i = -1; i <= 1; i++) {\n        vec3 g = vec3(float(i), float(j), float(k));\n        vec3 o = hash3(n + g);\n        vec3 r = g - f + o;\n        float d = dot(r, r);\n\n        float newF1 = smin(F1, d, smoothness);\n        if (newF1 < F1) {\n          F2 = F1;\n          F1 = newF1;\n        } else {\n          F2 = smin(F2, d, smoothness);\n        }\n      }\n    }\n  }\n\n  return vec2(sqrt(F1), sqrt(F2));\n}\n\n#endif",
 		fbmGlsl: "#ifndef GLCORE_NOISE_FBM_GLSL\n#define GLCORE_NOISE_FBM_GLSL\n\n#if !defined(NOISE2) || !defined(NOISE3)\n  \n  \n  float snoise(vec2);\n  float snoise(vec3);\n  #ifndef NOISE2\n  #define NOISE2 snoise\n  #endif\n  #ifndef NOISE3\n  #define NOISE3 snoise\n  #endif\n#endif\n\nfloat fbm(vec2 p, int octaves, float lacunarity, float gain)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec2  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    sum += amp * NOISE2(pp);\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum;\n}\n\nfloat fbm(vec3 p, int octaves, float lacunarity, float gain)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec3  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    sum += amp * NOISE3(pp);\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum;\n}\n\nfloat fbm(vec2 p)\n{\n  return fbm(p, 6, 2.0, 0.5);\n}\n\nfloat fbm(vec3 p)\n{\n  return fbm(p, 6, 2.0, 0.5);\n}\n\nfloat fbmRidged(vec2 p, int octaves, float lacunarity, float gain, float offset)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec2  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    float n = NOISE2(pp);\n    n = offset - abs(n);\n    n *= n;\n    sum += n * amp;\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum * 1.25; \n}\n\nfloat fbmRidged(vec3 p, int octaves, float lacunarity, float gain, float offset)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec3  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    float n = NOISE3(pp);\n    n = offset - abs(n);\n    n *= n;\n    sum += n * amp;\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum * 1.25;\n}\n\nfloat fbmTurbulence(vec2 p, int octaves, float lacunarity, float gain)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec2  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    sum += amp * abs(NOISE2(pp));\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum;\n}\n\nfloat fbmTurbulence(vec3 p, int octaves, float lacunarity, float gain)\n{\n  float sum = 0.0;\n  float amp = 0.5;\n  vec3  pp  = p;\n  for (int i = 0; i < 32; i++) {\n    if (i >= octaves) break;\n    sum += amp * abs(NOISE3(pp));\n    pp  *= lacunarity;\n    amp *= gain;\n  }\n  return sum;\n}\n\n#endif"
 	},
-	oit: { compositeFrag: U },
+	oit: { compositeFrag: V },
 	capsule: {
 		capsuleVert: "attribute float aLocalY; \n\nattribute vec3 aStartPos;\nattribute vec3 aEndPos;\nattribute float aStartRadius;\nattribute float aEndRadius;\nattribute float aUvOffset;\nattribute float aSegmentLength;\n\nvarying vec2 vUv;\nvarying vec3 vNormal;\nvarying vec3 vWorldPos;\nvarying float vViewZ;\n\nvarying vec3 vCapsuleStart;\nvarying vec3 vCapsuleEnd;\n\nvoid main() {\n  \n  vec3 axis = aEndPos - aStartPos;\n  float len = length(axis);\n  vec3 up = len > 0.0001 ? axis / len : vec3(0.0, 1.0, 0.0);\n\n  \n  vec3 notUp = abs(up.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);\n  vec3 tangent = normalize(cross(up, notUp));\n  vec3 bitangent = cross(up, tangent);\n\n  \n  float r = mix(aStartRadius, aEndRadius, aLocalY);\n\n  \n  \n  \n  \n  \n\n  vec3 localPos = position;\n\n  \n  vec3 radialOffset = tangent * localPos.x * r + bitangent * localPos.z * r;\n\n  \n  \n  \n  \n  vec3 axialPos;\n  if (localPos.y < 0.0) {\n    \n    axialPos = aStartPos + up * (localPos.y * aStartRadius);\n  } else if (localPos.y > 1.0) {\n    \n    axialPos = aEndPos + up * ((localPos.y - 1.0) * aEndRadius);\n  } else {\n    \n    axialPos = mix(aStartPos, aEndPos, localPos.y);\n  }\n\n  vec3 worldPos = axialPos + radialOffset;\n\n  \n  \n  vec3 localNormal = normal;\n  vec3 worldNormal = normalize(\n    tangent * localNormal.x + up * localNormal.y + bitangent * localNormal.z\n  );\n\n  \n  \n  \n  vUv.x = uv.x;\n  vUv.y = aUvOffset + uv.y * aSegmentLength;\n\n  \n  vNormal = worldNormal;\n  vWorldPos = worldPos;\n  \n  \n  vCapsuleStart = aStartPos;\n  vCapsuleEnd = aEndPos;\n  \n  \n  vec4 viewPos = modelViewMatrix * vec4(worldPos, 1.0);\n  vViewZ = -viewPos.z; \n\n  gl_Position = projectionMatrix * viewPos;\n}",
 		capsuleCheckerFrag: "uniform float uTileScale;\n\nvarying vec2 vUv;\nvarying vec3 vNormal;\nvarying vec3 vWorldPos;\n\nvoid main() {\n  \n  vec2 scaledUv = vUv * uTileScale;\n\n  \n  float checker = mod(floor(scaledUv.x * 4.0) + floor(scaledUv.y), 2.0);\n\n  \n  vec3 colorA = vec3(1.0, 1.0, 1.0);\n  vec3 colorB = vec3(0.0, 0.0, 0.0);\n  vec3 baseColor = mix(colorA, colorB, checker);\n\n  \n  vec3 lightDir = normalize(vec3(0.5, 1.0, 0.3));\n  float ndotl = max(dot(normalize(vNormal), lightDir), 0.0);\n  float ambient = 0.3;\n  float lighting = ambient + (1.0 - ambient) * ndotl;\n\n  vec3 finalColor = baseColor * lighting;\n\n  gl_FragColor = vec4(finalColor, 1.0);\n}",
@@ -1280,4 +1285,4 @@ var Qe = {
 	}
 };
 //#endregion
-export { le as Compositor, ue as FullscreenPass, de as ParticlePass, B as ParticleSystem, F as PingPongBuffer, fe as ScenePass, pe as WeightedOITParticlesPass, L as blit, Ze as buildNDCToZConst, R as computeTextureSize, Ye as createArrowGeometry, Fe as createClusterPositionTexture, Ke as createConvergentVelocityTexture, q as createDataTexture, Be as createFlowVelocityTexture, Ve as createGradientFlowVelocityTexture, z as createInstancedUvBuffer, qe as createMixedVelocityTexture, Ne as createNoisePositionTexture, ze as createNormalTextureFromArray, Xe as createParticleArrowGeometry, Re as createPositionTextureFromArray, H as createQuad, Ue as createRadialVelocityTexture, W as createRenderer, He as createRotationalVelocityTexture, Le as createScreenSpacePositionTexture, Pe as createSpiralPositionTexture, We as createTurbulentVelocityTexture, Ie as createWavePositionTexture, Ge as createWaveVelocityTexture, Je as createWireframeBox, Me as domainWarp2D, Q as fbm2D, Ae as fbm3D, V as globalUniforms, G as isMousePressed, K as mouseButton, Z as perlin2D, ke as perlin3D, je as ridged2D, ve as runExperiment, $ as seededRandom, he as setupInputs, ge as setupResize, Qe as shaders, _e as startLoop };
+export { ue as Compositor, fe as FullscreenPass, pe as ParticlePass, de as ParticleSystem, P as PingPongBuffer, me as ScenePass, he as WeightedOITParticlesPass, I as blit, Ze as buildNDCToZConst, L as computeTextureSize, $ as createArrowGeometry, Ie as createClusterPositionTexture, qe as createConvergentVelocityTexture, K as createDataTexture, Ve as createFlowVelocityTexture, He as createGradientFlowVelocityTexture, R as createInstancedUvBuffer, Je as createMixedVelocityTexture, Pe as createNoisePositionTexture, Be as createNormalTextureFromArray, Xe as createParticleArrowGeometry, ze as createPositionTextureFromArray, B as createQuad, We as createRadialVelocityTexture, H as createRenderer, Ue as createRotationalVelocityTexture, Re as createScreenSpacePositionTexture, Fe as createSpiralPositionTexture, Ge as createTurbulentVelocityTexture, Le as createWavePositionTexture, Ke as createWaveVelocityTexture, Ye as createWireframeBox, Ne as domainWarp2D, Z as fbm2D, je as fbm3D, z as globalUniforms, U as isMousePressed, W as mouseButton, X as perlin2D, Ae as perlin3D, Me as ridged2D, ye as runExperiment, Q as seededRandom, _e as setupInputs, ve as setupResize, Qe as shaders, G as startLoop };
