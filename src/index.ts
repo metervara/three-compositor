@@ -24,7 +24,7 @@ export { WeightedOITParticlesPass } from "./core/passes/WeightedOITParticlesPass
 export { runExperiment } from "./core/experimentRunner";
 export type { ExperimentSetup } from "./core/experimentRunner";
 export { createRenderer } from "./core/renderer";
-export { startLoop } from "./core/loop";
+export { startLoop, setLoopPaused } from "./core/loop";
 export type { UpdateFn } from "./core/loop";
 export { setupInputs, isMousePressed, mouseButton } from "./core/input";
 export { setupResize } from "./core/resize";

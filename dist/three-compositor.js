@@ -644,57 +644,64 @@ function ve(e, t) {
 }
 //#endregion
 //#region src/core/loop.ts
+var ye = !1;
+function be(e) {
+	ye = e;
+}
 function G(e, t) {
 	function n(e) {
-		let r = e * .001;
-		z.uTime.value = r, t(r), requestAnimationFrame(n);
+		if (!ye) {
+			let n = e * .001;
+			z.uTime.value = n, t(n);
+		}
+		requestAnimationFrame(n);
 	}
 	requestAnimationFrame(n);
 }
 //#endregion
 //#region src/core/experimentRunner.ts
-function ye(e) {
+function xe(e) {
 	let t = H(e.config), n = e.setupInputs ?? !0, r = e.setupResize ?? !0;
-	if (n && _e(t), r && ve(t, e.onResize), e.init(t), e.onInit && e.onInit(t), be(), Se(), Ee(e.onToggleInfo), e.afterUpdate) {
+	if (n && _e(t), r && ve(t, e.onResize), e.init(t), e.onInit && e.onInit(t), Se(), we(), Oe(e.onToggleInfo), e.afterUpdate) {
 		let n = e.update, r = e.afterUpdate;
 		G(t, (e) => {
 			n(e), r(e);
 		});
 	} else G(t, e.update);
 }
-function be() {
+function Se() {
 	setTimeout(() => {
 		let e = window.__compositor;
-		e && typeof e.getDescription == "function" && Oe(e.getDescription());
+		e && typeof e.getDescription == "function" && Ae(e.getDescription());
 	}, 0);
 }
-function xe() {
+function Ce() {
 	let e = document.getElementById("info-overlay");
 	return e || (e = document.createElement("div"), e.id = "info-overlay", e.className = "info-overlay", document.body.appendChild(e)), e.style.display = "none", e;
 }
-function Se() {
-	document.removeEventListener("keydown", Ce), document.addEventListener("keydown", Ce);
-}
-function Ce(e) {
-	(e.key === "i" || e.key === "I") && we();
-}
 function we() {
+	document.removeEventListener("keydown", Te), document.addEventListener("keydown", Te);
+}
+function Te(e) {
+	(e.key === "i" || e.key === "I") && Ee();
+}
+function Ee() {
 	let e = document.getElementById("info-overlay");
 	if (e) {
 		let t = getComputedStyle(e).display === "none";
-		e.style.display = t ? "block" : "none", typeof De() == "function" && De()(t);
+		e.style.display = t ? "block" : "none", typeof ke() == "function" && ke()(t);
 	}
 }
-var Te;
-function Ee(e) {
-	Te = e;
-}
-function De() {
-	return Te;
-}
+var De;
 function Oe(e) {
+	De = e;
+}
+function ke() {
+	return De;
+}
+function Ae(e) {
 	let t = document.getElementById("compositor-description");
-	t ? t.innerHTML = "" : (t = document.createElement("div"), t.id = "compositor-description", t.className = "compositor-description", xe().appendChild(t));
+	t ? t.innerHTML = "" : (t = document.createElement("div"), t.id = "compositor-description", t.className = "compositor-description", Ce().appendChild(t));
 	let n = e.split("\n");
 	n.forEach((e, r) => {
 		if (e.trim()) {
@@ -717,11 +724,11 @@ function K(e, t, n, r) {
 }
 //#endregion
 //#region src/utils/noise.ts
-function ke(e) {
+function je(e) {
 	return e - Math.floor(1 / 289 * e) * 289;
 }
 function q(e) {
-	return ke((e * 34 + 1) * e);
+	return je((e * 34 + 1) * e);
 }
 function J(e) {
 	return e * e * e * (e * (e * 6 - 15) + 10);
@@ -736,7 +743,7 @@ function X(e, t) {
 	let i = J(e), a = J(t), o = Y(q(q(n) + r), e, t), s = Y(q(q(n) + r + 1), e, t - 1), c = Y(q(q(n + 1) + r), e - 1, t), l = Y(q(q(n + 1) + r + 1), e - 1, t - 1), u = o + i * (c - o);
 	return 2.3 * (u + a * (s + i * (l - s) - u));
 }
-function Ae(e, t, n) {
+function Me(e, t, n) {
 	let r = Math.floor(e), i = Math.floor(t), a = Math.floor(n);
 	e -= r, t -= i, n -= a;
 	let o = J(e), s = J(t), c = J(n), l = q(r) + i, u = q(l) + a, d = q(l + 1) + a, f = q(r + 1) + i, p = q(f) + a, m = q(f + 1) + a, h = Y(q(u), e, t, n), g = Y(q(d), e, t, n - 1), _ = Y(q(u + 1), e, t - 1, n), v = Y(q(d + 1), e, t - 1, n - 1), y = Y(q(p), e - 1, t, n), b = Y(q(m), e - 1, t, n - 1), x = Y(q(p + 1), e - 1, t - 1, n), S = Y(q(m + 1), e - 1, t - 1, n - 1), C = h + o * (y - h), w = g + o * (b - g), T = _ + o * (x - _), E = v + o * (S - v), D = C + s * (T - C);
@@ -747,12 +754,12 @@ function Z(e, t, n = 6, r = 2, i = .5) {
 	for (let c = 0; c < n; c++) a += o * X(e * s, t * s), s *= r, o *= i;
 	return a;
 }
-function je(e, t, n, r = 6, i = 2, a = .5) {
+function Ne(e, t, n, r = 6, i = 2, a = .5) {
 	let o = 0, s = .5, c = 1;
-	for (let l = 0; l < r; l++) o += s * Ae(e * c, t * c, n * c), c *= i, s *= a;
+	for (let l = 0; l < r; l++) o += s * Me(e * c, t * c, n * c), c *= i, s *= a;
 	return o;
 }
-function Me(e, t, n = 6, r = 2, i = .5, a = 1) {
+function Pe(e, t, n = 6, r = 2, i = .5, a = 1) {
 	let o = 0, s = .5, c = 1;
 	for (let l = 0; l < n; l++) {
 		let n = X(e * c, t * c);
@@ -760,7 +767,7 @@ function Me(e, t, n = 6, r = 2, i = .5, a = 1) {
 	}
 	return o * 1.25;
 }
-function Ne(e, t, n = .1) {
+function Fe(e, t, n = .1) {
 	let r = X(e, t) * n, i = X(e + 100, t + 100) * n;
 	return {
 		x: e + r,
@@ -773,7 +780,7 @@ function Q(e) {
 }
 //#endregion
 //#region src/utils/positionTextures.ts
-function Pe(e, t, n = {}) {
+function Ie(e, t, n = {}) {
 	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -794,7 +801,7 @@ function Pe(e, t, n = {}) {
 		];
 	});
 }
-function Fe(e, t, n = {}) {
+function Le(e, t, n = {}) {
 	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -815,7 +822,7 @@ function Fe(e, t, n = {}) {
 		];
 	});
 }
-function Ie(e, t, n = {}) {
+function Re(e, t, n = {}) {
 	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -833,7 +840,7 @@ function Ie(e, t, n = {}) {
 				y: i
 			});
 		}
-		let h = Ne(d * a + s.x, f * a + s.y, .2), g = X(h.x, h.y) * l, _ = m.x + g, v = m.y + X(h.x + 100, h.y + 100) * l;
+		let h = Fe(d * a + s.x, f * a + s.y, .2), g = X(h.x, h.y) * l, _ = m.x + g, v = m.y + X(h.x + 100, h.y + 100) * l;
 		return i ? [
 			_,
 			v,
@@ -847,7 +854,7 @@ function Ie(e, t, n = {}) {
 		];
 	});
 }
-function Le(e, t, n = {}) {
+function ze(e, t, n = {}) {
 	let { bounds: r = 2, is2D: i = !1, noiseScale: a = .1, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -873,7 +880,7 @@ function Le(e, t, n = {}) {
 		];
 	});
 }
-function Re(e, t, n, r = {}) {
+function Be(e, t, n, r = {}) {
 	let { bounds: i = 2, is2D: a = !1, noiseScale: o = .1, seed: s = Math.random() * 1e3, noiseOffset: c = {
 		x: 0,
 		y: 0,
@@ -902,7 +909,7 @@ function Re(e, t, n, r = {}) {
 		]);
 	});
 }
-function ze(e, t, n) {
+function Ve(e, t, n) {
 	let { width: r, height: a } = L(t), o = r * a, c = new Float32Array(o * 4);
 	for (let r = 0; r < t; r++) {
 		let t = r * 3, i = r * 4;
@@ -919,7 +926,7 @@ function ze(e, t, n) {
 		height: a
 	};
 }
-function Be(e, t) {
+function He(e, t) {
 	let { width: n, height: r } = L(t), a = n * r, o = new Float32Array(a * 4);
 	for (let n = 0; n < t; n++) {
 		let t = n * 3, r = n * 4;
@@ -938,7 +945,7 @@ function Be(e, t) {
 }
 //#endregion
 //#region src/utils/velocityTextures.ts
-function Ve(e, t, n = {}) {
+function Ue(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -959,7 +966,7 @@ function Ve(e, t, n = {}) {
 		];
 	});
 }
-function He(e, t, n = {}) {
+function We(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -980,7 +987,7 @@ function He(e, t, n = {}) {
 		];
 	});
 }
-function Ue(e, t, n = {}) {
+function Ge(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -1013,7 +1020,7 @@ function Ue(e, t, n = {}) {
 		}
 	});
 }
-function We(e, t, n = {}) {
+function Ke(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -1046,7 +1053,7 @@ function We(e, t, n = {}) {
 		}
 	});
 }
-function Ge(e, t, n = {}) {
+function qe(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -1067,7 +1074,7 @@ function Ge(e, t, n = {}) {
 		];
 	});
 }
-function Ke(e, t, n = {}) {
+function Je(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -1097,7 +1104,7 @@ function Ke(e, t, n = {}) {
 		}
 	});
 }
-function qe(e, t, n = {}) {
+function Ye(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -1130,7 +1137,7 @@ function qe(e, t, n = {}) {
 		}
 	});
 }
-function Je(e, t, n = {}) {
+function Xe(e, t, n = {}) {
 	let { maxSpeed: r = .5, is2D: i = !1, noiseScale: a = .05, seed: o = Math.random() * 1e3, noiseOffset: s = {
 		x: 0,
 		y: 0,
@@ -1210,10 +1217,10 @@ function Je(e, t, n = {}) {
 }
 //#endregion
 //#region src/utils/debug.ts
-function Ye(e, r, i, a, o) {
+function Ze(e, r, i, a, o) {
 	if (e instanceof t) {
 		let t = e, n = r ?? 16711680, i = t.getSize(new M()), a = t.getCenter(new M());
-		return Ye(i.x, i.y, i.z, n, a);
+		return Ze(i.x, i.y, i.z, n, a);
 	}
 	if (typeof r == "number" && typeof i == "number") {
 		let t = e, s = r, l = i, u = a ?? 65280, d = o ?? new M(0, 0, 0), f = new h(new c(new n(t, s, l)), new m({ color: u }));
@@ -1228,18 +1235,18 @@ function $(e = .2) {
 	let t = new r(), n = [], i = [], a = [];
 	return n.push(0, .5, 0, -.5, -.5, 0, 0, -.5 + e, 0, .5, -.5, 0), i.push(.5, 1, 0, 0, .5, .2, 1, 0), a.push(0, 1, 2, 0, 2, 3), t.setAttribute("position", new l(n, 3)), t.setAttribute("uv", new l(i, 2)), t.setIndex(a), t.computeVertexNormals(), t;
 }
-function Xe() {
+function Qe() {
 	return $(.2);
 }
 //#endregion
 //#region src/utils/matrices.ts
-function Ze(e, t = 0) {
+function $e(e, t = 0) {
 	let n = new v().multiplyMatrices(e.projectionMatrix, e.matrixWorldInverse).elements, r = (e, t) => n[t * 4 + e], i = new _().set(r(0, 0), r(0, 1), r(0, 2) * t + r(0, 3), r(1, 0), r(1, 1), r(1, 2) * t + r(1, 3), r(3, 0), r(3, 1), r(3, 2) * t + r(3, 3)), a = i.determinant();
 	return Math.abs(a) < 1e-8 ? null : new _().copy(i).invert();
 }
 //#endregion
 //#region src/shaders/index.ts
-var Qe = {
+var et = {
 	core: {
 		passThroughVert: F,
 		textureFrag: ae,
@@ -1285,4 +1292,4 @@ var Qe = {
 	}
 };
 //#endregion
-export { ue as Compositor, fe as FullscreenPass, pe as ParticlePass, de as ParticleSystem, P as PingPongBuffer, me as ScenePass, he as WeightedOITParticlesPass, I as blit, Ze as buildNDCToZConst, L as computeTextureSize, $ as createArrowGeometry, Ie as createClusterPositionTexture, qe as createConvergentVelocityTexture, K as createDataTexture, Ve as createFlowVelocityTexture, He as createGradientFlowVelocityTexture, R as createInstancedUvBuffer, Je as createMixedVelocityTexture, Pe as createNoisePositionTexture, Be as createNormalTextureFromArray, Xe as createParticleArrowGeometry, ze as createPositionTextureFromArray, B as createQuad, We as createRadialVelocityTexture, H as createRenderer, Ue as createRotationalVelocityTexture, Re as createScreenSpacePositionTexture, Fe as createSpiralPositionTexture, Ge as createTurbulentVelocityTexture, Le as createWavePositionTexture, Ke as createWaveVelocityTexture, Ye as createWireframeBox, Ne as domainWarp2D, Z as fbm2D, je as fbm3D, z as globalUniforms, U as isMousePressed, W as mouseButton, X as perlin2D, Ae as perlin3D, Me as ridged2D, ye as runExperiment, Q as seededRandom, _e as setupInputs, ve as setupResize, Qe as shaders, G as startLoop };
+export { ue as Compositor, fe as FullscreenPass, pe as ParticlePass, de as ParticleSystem, P as PingPongBuffer, me as ScenePass, he as WeightedOITParticlesPass, I as blit, $e as buildNDCToZConst, L as computeTextureSize, $ as createArrowGeometry, Re as createClusterPositionTexture, Ye as createConvergentVelocityTexture, K as createDataTexture, Ue as createFlowVelocityTexture, We as createGradientFlowVelocityTexture, R as createInstancedUvBuffer, Xe as createMixedVelocityTexture, Ie as createNoisePositionTexture, He as createNormalTextureFromArray, Qe as createParticleArrowGeometry, Ve as createPositionTextureFromArray, B as createQuad, Ke as createRadialVelocityTexture, H as createRenderer, Ge as createRotationalVelocityTexture, Be as createScreenSpacePositionTexture, Le as createSpiralPositionTexture, qe as createTurbulentVelocityTexture, ze as createWavePositionTexture, Je as createWaveVelocityTexture, Ze as createWireframeBox, Fe as domainWarp2D, Z as fbm2D, Ne as fbm3D, z as globalUniforms, U as isMousePressed, W as mouseButton, X as perlin2D, Me as perlin3D, Pe as ridged2D, xe as runExperiment, Q as seededRandom, be as setLoopPaused, _e as setupInputs, ve as setupResize, et as shaders, G as startLoop };
