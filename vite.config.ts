@@ -6,7 +6,7 @@ import dts from "vite-plugin-dts";
 export default defineConfig({
   plugins: [
     glsl(),
-    dts({ rollupTypes: true }),
+    dts({ tsconfigPath: "./tsconfig.json" }),
   ],
   resolve: {
     alias: {

@@ -1,20 +1,21 @@
 {
   "name": "@metervara/three-compositor",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Three.js compositing framework",
   "author": "Metervara / Patrik Svensson",
   "type": "module",
   "main": "dist/three-compositor.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/three-compositor.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/src/index.d.ts"
     }
   },
   "files": [
     "dist",
-    "src/shaders"
+    "src/shaders",
+    "dist/src"
   ],
   "scripts": {
     "build": "vite build",
