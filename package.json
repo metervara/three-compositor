@@ -5,17 +5,16 @@
   "author": "Metervara / Patrik Svensson",
   "type": "module",
   "main": "dist/three-compositor.js",
-  "types": "dist/src/index.d.ts",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/three-compositor.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
     "dist",
-    "src/shaders",
-    "dist/src"
+    "src/shaders"
   ],
   "scripts": {
     "build": "vite build",
@@ -25,10 +24,11 @@
     "three": ">=0.158.0"
   },
   "devDependencies": {
+    "@rollup/pluginutils": "^5.3.0",
     "@types/three": "^0.183.0",
     "typescript": "^6.0.0",
     "vite": "^8.0.0",
-    "vite-plugin-glsl": "^1.6.0",
-    "vite-plugin-dts": "^3.0.0"
+    "vite-plugin-dts": "^3.0.0",
+    "vite-plugin-glsl": "^1.6.0"
   }
 }
